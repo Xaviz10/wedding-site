@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+:root {
+  --color-forest: #283618;
+  --color-olive: #606c38;
+  --color-ivory: #fefae0;
+  --color-gold: #dda15e;
+  --color-terracotta: #bc6c25;
+  --paper-shadow: 0 20px 45px rgba(65, 50, 27, 0.14);
+  --paper-outline: 1px solid color-mix(in oklab, var(--color-terracotta) 24%, transparent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--color-forest);
+  background-color: var(--color-ivory);
+  letter-spacing: 0;
+  text-rendering: optimizeLegibility;
+}
+
+.font-heading {
+  font-family: "Playfair Display", "Cormorant Garamond", serif;
+}
+
+.font-editorial {
+  font-family: "Cormorant Garamond", "Playfair Display", serif;
+}
+
+.paper-surface {
+  background:
+    linear-gradient(132deg, rgba(254, 250, 224, 0.96) 0%, rgba(250, 241, 212, 0.94) 100%),
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.5) 0%, transparent 48%);
+  border: var(--paper-outline);
+  box-shadow: var(--paper-shadow);
+}
+
+.paper-surface--soft {
+  background:
+    linear-gradient(140deg, rgba(254, 250, 224, 0.82), rgba(248, 237, 204, 0.72)),
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.3), transparent 45%);
+  border: var(--paper-outline);
+}
+
+.paper-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.45;
+  background-image:
+    radial-gradient(circle at 15% 12%, rgba(96, 108, 56, 0.08) 0 0.5px, transparent 0.8px),
+    radial-gradient(circle at 67% 38%, rgba(188, 108, 37, 0.07) 0 0.7px, transparent 1px),
+    radial-gradient(circle at 40% 70%, rgba(40, 54, 24, 0.06) 0 0.5px, transparent 0.9px);
+  background-size: 7px 7px, 11px 11px, 9px 9px;
+}
+
+.section-divider {
+  position: absolute;
+  inset-inline: 8%;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    color-mix(in oklab, var(--color-olive) 40%, transparent),
+    transparent
+  );
+}
+
+.section-caption {
+  font-family: "Cormorant Garamond", serif;
+  font-size: clamp(1.05rem, 2.5vw, 1.2rem);
+  line-height: 1.35;
+}
+
+.flowing-line {
+  stroke: color-mix(in oklab, var(--color-olive) 72%, var(--color-gold) 28%);
+  stroke-linecap: round;
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 5 8;
+}
+
+.wood-tint {
+  background:
+    linear-gradient(
+      110deg,
+      color-mix(in oklab, var(--color-gold) 48%, var(--color-forest) 52%),
+      color-mix(in oklab, var(--color-terracotta) 32%, var(--color-gold) 68%)
+    );
+}
