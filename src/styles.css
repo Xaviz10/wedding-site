@@ -1,13 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --color-forest: #283618;
-  --color-olive: #606c38;
-  --color-ivory: #fefae0;
-  --color-gold: #dda15e;
-  --color-terracotta: #bc6c25;
-  --paper-shadow: 0 20px 45px rgba(65, 50, 27, 0.14);
-  --paper-outline: 1px solid color-mix(in oklab, var(--color-terracotta) 24%, transparent);
+  --color-forest: #24291f;
+  --color-olive: #788267;
+  --color-ivory: #f6f5f1;
+  --color-gold: #cbc2ad;
+  --color-terracotta: #949080;
+  --color-moss-soft: #b0b9a1;
+  --color-muted: #696d63;
+  --color-surface: #fcfbf8;
+  --paper-shadow: 0 24px 52px rgba(53, 58, 48, 0.14);
+  --paper-outline: 1px solid color-mix(in oklab, var(--color-olive) 22%, white);
 }
 
 * {
@@ -23,33 +26,40 @@ body,
 
 body {
   margin: 0;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Manrope", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--color-forest);
-  background-color: var(--color-ivory);
+  background:
+    radial-gradient(circle at 18% -8%, rgba(176, 185, 161, 0.2), transparent 42%),
+    radial-gradient(circle at 86% 14%, rgba(203, 194, 173, 0.23), transparent 36%),
+    var(--color-ivory);
   letter-spacing: 0;
   text-rendering: optimizeLegibility;
 }
 
 .font-heading {
-  font-family: "Playfair Display", "Cormorant Garamond", serif;
+  font-family: "Cormorant Garamond", "Playfair Display", serif;
 }
 
 .font-editorial {
   font-family: "Cormorant Garamond", "Playfair Display", serif;
 }
 
+.font-script {
+  font-family: "Great Vibes", "Cormorant Garamond", serif;
+}
+
 .paper-surface {
   background:
-    linear-gradient(132deg, rgba(254, 250, 224, 0.96) 0%, rgba(250, 241, 212, 0.94) 100%),
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.5) 0%, transparent 48%);
+    linear-gradient(132deg, rgba(252, 251, 248, 0.98) 0%, rgba(245, 242, 236, 0.96) 100%),
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.56) 0%, transparent 54%);
   border: var(--paper-outline);
   box-shadow: var(--paper-shadow);
 }
 
 .paper-surface--soft {
   background:
-    linear-gradient(140deg, rgba(254, 250, 224, 0.82), rgba(248, 237, 204, 0.72)),
-    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.3), transparent 45%);
+    linear-gradient(140deg, rgba(252, 251, 248, 0.84), rgba(242, 239, 232, 0.78)),
+    radial-gradient(circle at 70% 20%, rgba(255, 255, 255, 0.35), transparent 46%);
   border: var(--paper-outline);
 }
 
@@ -58,11 +68,11 @@ body {
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.45;
+  opacity: 0.42;
   background-image:
-    radial-gradient(circle at 15% 12%, rgba(96, 108, 56, 0.08) 0 0.5px, transparent 0.8px),
-    radial-gradient(circle at 67% 38%, rgba(188, 108, 37, 0.07) 0 0.7px, transparent 1px),
-    radial-gradient(circle at 40% 70%, rgba(40, 54, 24, 0.06) 0 0.5px, transparent 0.9px);
+    radial-gradient(circle at 15% 12%, rgba(120, 130, 103, 0.08) 0 0.5px, transparent 0.8px),
+    radial-gradient(circle at 67% 38%, rgba(148, 144, 128, 0.07) 0 0.7px, transparent 1px),
+    radial-gradient(circle at 40% 70%, rgba(36, 41, 31, 0.06) 0 0.5px, transparent 0.9px);
   background-size: 7px 7px, 11px 11px, 9px 9px;
 }
 
@@ -100,4 +110,71 @@ body {
       color-mix(in oklab, var(--color-gold) 48%, var(--color-forest) 52%),
       color-mix(in oklab, var(--color-terracotta) 32%, var(--color-gold) 68%)
     );
+}
+
+.hero-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle at 8% 22%, rgba(255, 255, 255, 0.7) 0%, transparent 34%),
+    radial-gradient(circle at 40% 6%, rgba(255, 255, 255, 0.55) 0%, transparent 32%),
+    radial-gradient(circle at 74% 30%, rgba(255, 255, 255, 0.5) 0%, transparent 30%);
+}
+
+.hero-backdrop-image {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.34;
+  background-image: url("https://images.pexels.com/photos/9638441/pexels-photo-9638441.jpeg?auto=compress&cs=tinysrgb&w=2400");
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(100%);
+}
+
+.hero-backdrop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+  background:
+    linear-gradient(98deg, rgba(246, 245, 241, 0.91) 0%, rgba(246, 245, 241, 0.68) 52%, rgba(246, 245, 241, 0.86) 100%),
+    radial-gradient(52% 62% at 23% 49%, rgba(255, 255, 255, 0.66) 0%, rgba(228, 228, 228, 0.48) 48%, transparent 76%),
+    radial-gradient(36% 52% at 41% 64%, rgba(232, 232, 232, 0.46) 0%, transparent 72%),
+    radial-gradient(40% 54% at 30% 23%, rgba(250, 250, 250, 0.68) 0%, rgba(228, 228, 228, 0.38) 58%, transparent 82%),
+    radial-gradient(56% 75% at 76% 38%, rgba(255, 255, 255, 0.5) 0%, transparent 80%);
+}
+
+.hero-photo-mask {
+  border-radius: 38% 62% 57% 43% / 35% 35% 65% 65%;
+}
+
+@media (max-width: 767px) {
+  .hero-backdrop-image {
+    opacity: 0.3;
+    background-position: center top;
+  }
+
+  .hero-backdrop {
+    opacity: 0.93;
+    background:
+      linear-gradient(180deg, rgba(246, 245, 241, 0.92) 0%, rgba(246, 245, 241, 0.8) 52%, rgba(246, 245, 241, 0.94) 100%),
+      radial-gradient(88% 58% at 50% 14%, rgba(255, 255, 255, 0.64) 0%, rgba(232, 232, 232, 0.42) 54%, transparent 84%),
+      radial-gradient(68% 62% at 30% 62%, rgba(240, 240, 240, 0.48) 0%, transparent 76%),
+      radial-gradient(72% 56% at 80% 50%, rgba(238, 238, 238, 0.42) 0%, transparent 80%);
+  }
+
+  .hero-clouds {
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.62) 0%, transparent 36%),
+      radial-gradient(circle at 80% 18%, rgba(255, 255, 255, 0.52) 0%, transparent 34%);
+  }
+
+  .hero-photo-mask {
+    border-radius: 22px;
+  }
 }
