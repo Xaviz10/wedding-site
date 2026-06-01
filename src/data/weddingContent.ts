@@ -131,19 +131,39 @@ export const weddingContent: WeddingContent = {
   },
   milka: {
     intro:
-      "Milka no es una mascota en nuestra historia, es familia. Su energía, sus rituales y su ternura hicieron de la casa un lugar todavía más nuestro.",
-    moments: [
+      "A veces la vida parece una ruta fija entre metas, trabajo y planes. Hasta que aparecen seres de luz que te recuerdan lo esencial.",
+    paragraphs: [
+      "En una jornada de adopción en Sogamoso vimos una bolita negra de apenas dos meses, escondida debajo de otros cachorros.",
+      "Era Milka.",
+      "La vimos y nos enamoramos. Lo que no sabíamos era todo el amor que traería a nuestras vidas: las risas, la unión, la ternura y esa forma tan suya de hablarnos con esas perlas negras que tiene por ojos.",
+      "Desde entonces va con nosotros a todas partes y se convirtió en una parte enorme de nuestra familia.",
+      "Milka nos recuerda, todos los días, lo que verdaderamente importa.",
+      "Por eso, obviamente, también estará en nuestra boda. Porque esta historia no estaría completa sin sus patitas.",
+    ],
+    quote: "Gracias, Milka, por ser ese ser de luz que nos recuerda lo que verdaderamente importa.",
+    note: [
+      "Hola, soy Milka.",
+      "Yo también voy a estar en la boda porque esta familia no toma decisiones importantes sin mí.",
+      "Prometo verme hermosa, acompañar a mis humanos y posiblemente robarme algunas miradas.",
+      "Nos vemos el 5 de septiembre.",
+      "Con amor,",
+      "Milka.",
+    ],
+    photos: [
       {
-        title: "Bienvenida oficial",
-        text: "Desde el primer día se adueñó del sofá y de nuestros horarios, con una mirada que siempre pide abrazo.",
+        src: "https://picsum.photos/seed/milka-cachorra/900/1100",
+        alt: "Milka de cachorra envuelta en una manta clara",
+        caption: "Milka cachorra",
       },
       {
-        title: "Inspectora de maletas",
-        text: "No hay viaje que se prepare sin su supervisión. Cada maleta abierta significa que pronto habrá una despedida o un reencuentro.",
+        src: "https://picsum.photos/seed/milka-actual/900/1100",
+        alt: "Milka adulta mirando con ternura a cámara",
+        caption: "Milka hoy",
       },
       {
-        title: "Compañera de tardes lentas",
-        text: "Entre paseos y siestas largas, nos recuerda que los mejores planes también caben en casa.",
+        src: "https://picsum.photos/seed/milka-familia/1100/900",
+        alt: "Milka junto a nosotros durante un paseo",
+        caption: "Milka con nosotros",
       },
     ],
   },

@@ -30,9 +30,10 @@ export interface JourneyBeat {
   text: string;
 }
 
-export interface MilkaMoment {
-  title: string;
-  text: string;
+export interface MilkaPhoto {
+  src: string;
+  alt: string;
+  caption: string;
 }
 
 export interface ProposalBeat {
@@ -85,7 +86,10 @@ export interface WeddingContent {
   };
   milka: {
     intro: string;
-    moments: MilkaMoment[];
+    paragraphs: string[];
+    quote: string;
+    note: string[];
+    photos: MilkaPhoto[];
   };
   proposal: {
     intro: string;
