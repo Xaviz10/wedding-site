@@ -4,7 +4,6 @@ import HeroSection from "./components/sections/HeroSection";
 import StorySection from "./components/sections/StorySection";
 import MilkaSection from "./components/sections/MilkaSection";
 import ProposalSection from "./components/sections/ProposalSection";
-import GallerySection from "./components/sections/GallerySection";
 import WeddingDetailsSection from "./components/sections/WeddingDetailsSection";
 
 function App() {
@@ -30,7 +29,6 @@ function App() {
           <StorySection content={weddingContent.story} />
           <MilkaSection content={weddingContent.milka} />
           <ProposalSection content={weddingContent.proposal} />
-          <GallerySection content={weddingContent.gallery} />
           <WeddingDetailsSection event={weddingContent.event} rsvp={weddingContent.rsvp} />
         </main>
       </div>

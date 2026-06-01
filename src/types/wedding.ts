@@ -37,8 +37,15 @@ export interface MilkaPhoto {
 }
 
 export interface ProposalBeat {
-  title: string;
   text: string;
+  emphasis?: "highlight" | "humor";
+}
+
+export interface ProposalPhoto {
+  src: string;
+  alt: string;
+  caption: string;
+  format: PhotoFormat;
 }
 
 export interface GalleryPhoto {
@@ -94,8 +101,10 @@ export interface WeddingContent {
   proposal: {
     intro: string;
     beats: ProposalBeat[];
+    photos: ProposalPhoto[];
     videoLabel: string;
     videoUrl: string;
+    videoPoster: string;
   };
   gallery: {
     title: string;

@@ -168,28 +168,54 @@ export const weddingContent: WeddingContent = {
     ],
   },
   proposal: {
-    intro:
-      "En Suiza, con montañas nevadas y una calma absoluta, llegó la pregunta que soñábamos desde hace tiempo. Fue íntimo, sencillo y profundamente nuestro.",
+    intro: "La pregunta en las montañas.",
     beats: [
       {
-        title: "Mañana entre montañas",
-        text: "Subimos temprano para ver la luz caer sobre la nieve. El paisaje parecía una postal en movimiento.",
+        text: "Después de tantos años juntos, Javier quería que la propuesta fuera en un lugar tan especial como nuestra historia.",
       },
       {
-        title: "La pregunta",
-        text: "Entre frío, lágrimas y risas, llegó el 'sí'. Un instante pequeño para el mundo, inmenso para nosotros.",
+        text: "En abril de 2025 viajamos a Europa con nuestras familias y llegamos a Suiza. En Eigergletscher, rodeados de montañas, frío y una vista imposible de olvidar, Javier le pidió matrimonio a Cata.",
       },
       {
-        title: "Un nuevo comienzo",
-        text: "Volvimos con anillo, video y la certeza de que queríamos celebrar esta historia con nuestra gente.",
+        text: "Cata dijo que sí.",
+        emphasis: "highlight",
+      },
+      {
+        text: "Tenemos fotos, tenemos el recuerdo y también tenemos un video grabado con mucho amor… y con poca estabilidad de cámara. Gracias, Dayana.",
+        emphasis: "humor",
+      },
+      {
+        text: "No fue perfecto. Fue mejor: fue nuestro.",
+      },
+    ],
+    photos: [
+      {
+        src: "https://picsum.photos/seed/eiger-propuesta-01/1400/980",
+        alt: "Vista amplia de montañas suizas cubiertas de nieve en Eigergletscher",
+        caption: "Eigergletscher, Suiza",
+        format: "landscape",
+      },
+      {
+        src: "https://picsum.photos/seed/eiger-propuesta-02/980/1280",
+        alt: "Cata y Javier abrazados en la nieve con el anillo de compromiso",
+        caption: "La pregunta y el sí",
+        format: "portrait",
+      },
+      {
+        src: "https://picsum.photos/seed/eiger-propuesta-03/1200/1200",
+        alt: "Manos juntas con anillo y paisaje de fondo",
+        caption: "Un recuerdo para siempre",
+        format: "square",
       },
     ],
     videoLabel: "Ver video de la propuesta",
     videoUrl: "#video-propuesta",
+    videoPoster: "https://picsum.photos/seed/eiger-propuesta-video/1400/880",
   },
   gallery: {
-    title: "Galería",
-    subtitle: "Fragmentos de nuestra historia en fotografías y recuerdos.",
+    title: "Galería — Nuestro camino",
+    subtitle:
+      "Nuestro camino en fotos. Algunos recuerdos de estos años: viajes, casas, despedidas, reencuentros, Milka, familia y todos esos momentos pequeños que nos trajeron hasta aquí.",
     categories: [
       {
         title: "Primeros años",
@@ -197,13 +223,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-01/1200/1600",
             alt: "Cata y Javier en una calle iluminada",
-            caption: "Noches que nunca querían terminar.",
+            caption: "Donde empezó todo",
             format: "portrait",
           },
           {
             src: "https://picsum.photos/seed/cj-02/1600/1100",
             alt: "Bolos sobre una mesa de madera",
-            caption: "El plan que se volvió tradición.",
+            caption: "Nuestra primera gran aventura",
             format: "landscape",
           },
         ],
@@ -214,13 +240,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-03/1200/1500",
             alt: "Ventana de aeropuerto al atardecer",
-            caption: "El amor también aprendió de salas de espera.",
+            caption: "Un aeropuerto más",
             format: "portrait",
           },
           {
             src: "https://picsum.photos/seed/cj-04/1200/1200",
             alt: "Postal de ciudad europea",
-            caption: "La distancia nos enseñó a elegirnos todos los días.",
+            caption: "Siempre volviendo a encontrarnos",
             format: "square",
           },
         ],
@@ -231,13 +257,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-05/1600/1100",
             alt: "Ruta de montaña con luz de tarde",
-            caption: "Cada viaje, una versión nueva de nosotros.",
+            caption: "Nuestra primera gran aventura",
             format: "landscape",
           },
           {
             src: "https://picsum.photos/seed/cj-06/1200/1500",
             alt: "Pareja frente a lago",
-            caption: "Donde hay paisaje, hay historia.",
+            caption: "Siempre volviendo a encontrarnos",
             format: "portrait",
           },
         ],
@@ -248,13 +274,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-07/1200/1200",
             alt: "Mesa de madera con velas",
-            caption: "Lo cotidiano también puede ser extraordinario.",
+            caption: "Nuestro hogar",
             format: "square",
           },
           {
             src: "https://picsum.photos/seed/cj-08/1600/1100",
             alt: "Sala cálida con plantas",
-            caption: "Nuestro lugar favorito siempre termina siendo el hogar.",
+            caption: "Nuestro hogar",
             format: "landscape",
           },
         ],
@@ -265,13 +291,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-09/1200/1500",
             alt: "Perrita observando por la ventana",
-            caption: "La dueña del sofá y del corazón.",
+            caption: "La familia creció con cuatro patas",
             format: "portrait",
           },
           {
             src: "https://picsum.photos/seed/cj-10/1200/1200",
             alt: "Huella sobre manta clara",
-            caption: "Siempre presente en cada capítulo.",
+            caption: "La familia creció con cuatro patas",
             format: "square",
           },
         ],
@@ -282,13 +308,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-11/1600/1100",
             alt: "Montañas nevadas bajo cielo limpio",
-            caption: "El lugar donde dijimos sí.",
+            caption: "El sí más bonito",
             format: "landscape",
           },
           {
             src: "https://picsum.photos/seed/cj-12/1200/1500",
             alt: "Anillo y flores blancas",
-            caption: "Un instante eterno.",
+            caption: "El sí más bonito",
             format: "portrait",
           },
         ],
@@ -299,13 +325,13 @@ export const weddingContent: WeddingContent = {
           {
             src: "https://picsum.photos/seed/cj-13/1200/1200",
             alt: "Mesa larga con flores y velas",
-            caption: "Gracias por acompañarnos hasta aquí.",
+            caption: "Siempre volviendo a encontrarnos",
             format: "square",
           },
           {
             src: "https://picsum.photos/seed/cj-14/1600/1100",
             alt: "Brindis al aire libre al atardecer",
-            caption: "Nos emociona celebrar este día con ustedes.",
+            caption: "Donde empezó todo",
             format: "landscape",
           },
         ],
