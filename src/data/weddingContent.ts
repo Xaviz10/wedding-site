@@ -12,27 +12,43 @@ export const weddingContent: WeddingContent = {
   },
   story: {
     intro:
-      "Todo comenzó en mensajes de Facebook, entre conversaciones tímidas y ganas de vernos en persona. Lo que parecía casual terminó convirtiéndose en la certeza de que queríamos caminar juntos.",
+      "Todo empezó en septiembre de 2016, sin planearlo demasiado: una fiesta, una confusión, una salida, un beso y una historia que desde entonces no dejó de crecer.",
     beats: [
       {
-        title: "El primer mensaje",
-        moment: "Facebook, una noche cualquiera",
-        text: "Entre bromas y respuestas largas apareció una conexión inesperada. Nadie imaginó que esa conversación sería el inicio de todo.",
+        title: "El inicio",
+        moment: "Septiembre de 2016",
+        text: "Nos conocimos en una fiesta de graduación.\nJavier pensó que Cata era una de las tías de su amigo.\nSí, así de romántico empezó esto.",
+        image:
+          "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+        alt: "Luces cálidas y ambiente de fiesta nocturna",
+        frame: "polaroid",
       },
       {
-        title: "Bowling y nervios",
-        moment: "Nuestra primera salida",
-        text: "Llegamos con planes simples y salimos con una sensación difícil de explicar. Fue la primera vez que el tiempo se nos fue sin darnos cuenta.",
+        title: "La distancia",
+        moment: "Colombia ↔ Portugal",
+        text: "Después de una salida, una mirada y un beso que lo cambió todo, Javier volvió a Portugal.\nAhí empezó nuestra historia a distancia: llamadas largas, aeropuertos, despedidas y reencuentros.",
+        image:
+          "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
+        alt: "Ventana de aeropuerto con avión durante el atardecer",
+        frame: "postcard",
       },
       {
-        title: "Caminatas nocturnas",
-        moment: "Cuando la ciudad se quedaba en silencio",
-        text: "Después de cada cita seguíamos hablando en la calle, sin querer despedirnos. Ahí entendimos que esta historia tenía rumbo.",
+        title: "Los viajes",
+        moment: "Aeropuertos, fotos y postales",
+        text: "Seguimos eligiéndonos a pesar de la distancia.\nVinieron viajes, fotos, nuevos países y la primera vez de Cata en avión.",
+        image:
+          "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
+        alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
+        frame: "instant",
       },
       {
-        title: "El beso que cambió todo",
-        moment: "Una noche inolvidable",
-        text: "El primer beso llegó natural, como si ya estuviera escrito. Desde entonces dejamos de preguntarnos si era posible y empezamos a construir.",
+        title: "Volver y construir hogar",
+        moment: "Colombia, 2021 hasta hoy",
+        text: "La pandemia empujó a Javier de vuelta a Colombia en 2021.\nDespués decidimos vivir juntos y aprender el amor en la vida diaria: la rutina, la paciencia, las mudanzas y los sueños compartidos.\nEste año compramos nuestro apartamento.\nDespués de tanto camino, seguimos llegando al mismo lugar: juntos.",
+        image:
+          "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1300&q=80",
+        alt: "Pareja en una cocina cálida con cajas de mudanza",
+        frame: "polaroid",
       },
     ],
   },

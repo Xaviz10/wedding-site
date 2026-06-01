@@ -2,7 +2,6 @@ import { MotionConfig, motion, useScroll } from "framer-motion";
 import weddingContent from "./data/weddingContent";
 import HeroSection from "./components/sections/HeroSection";
 import StorySection from "./components/sections/StorySection";
-import JourneySection from "./components/sections/JourneySection";
 import MilkaSection from "./components/sections/MilkaSection";
 import ProposalSection from "./components/sections/ProposalSection";
 import GallerySection from "./components/sections/GallerySection";
@@ -29,7 +28,6 @@ function App() {
         <main className="relative z-10">
           <HeroSection content={weddingContent.hero} />
           <StorySection content={weddingContent.story} />
-          <JourneySection content={weddingContent.journey} />
           <MilkaSection content={weddingContent.milka} />
           <ProposalSection content={weddingContent.proposal} />
           <GallerySection content={weddingContent.gallery} />

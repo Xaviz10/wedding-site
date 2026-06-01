@@ -1,4 +1,5 @@
 export type PhotoFormat = "portrait" | "landscape" | "square";
+export type StoryFrame = "instant" | "polaroid" | "postcard";
 
 export interface HeroContent {
   title: string;
@@ -12,6 +13,9 @@ export interface StoryBeat {
   title: string;
   moment: string;
   text: string;
+  image: string;
+  alt: string;
+  frame: StoryFrame;
 }
 
 export interface JourneyBeat {

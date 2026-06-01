@@ -482,7 +482,17 @@ The transition to the next section should feel like turning a page.
 
 # SECTION 2 — NUESTRA HISTORIA
 
-[Use all provided copy]
+Spanish copy:
+
+Nos conocimos en septiembre de 2016, en la fiesta de graduación del mejor amigo de Javier, quien hoy también será su padrino.
+
+Javier vio a Cata por primera vez ayudando a organizar todo y pensó que era una de las tías de su amigo. Sí, así de romántico empezó esto.
+
+Al día siguiente, con guayabo incluido, hablamos por primera vez. Días después llegó un mensaje por Facebook, y sin darnos cuenta empezamos a hablar hasta tarde, a conectar y a esperarnos.
+
+Luego vino una salida “de amigos” a jugar bolos. Reímos, hablamos, caminamos juntos y, al despedirnos, Javier miró a Cata a los ojos y no aguantó más: la besó.
+
+Hasta hoy seguimos diciendo que fue nuestro mejor beso.
 
 Visual concepts:
 
