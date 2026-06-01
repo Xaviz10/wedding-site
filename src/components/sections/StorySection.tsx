@@ -247,7 +247,7 @@ export default function StorySection({ content }: StorySectionProps) {
               d={connector.d}
               className="story-connector-path"
               initial={{ pathLength: 0, opacity: 0.25 }}
-              whileInView={{ pathLength: 1, opacity: 0.8 }}
+              whileInView={{ pathLength: 1, opacity: 0.45 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ duration: shouldReduceMotion ? 0 : 1.6, ease: [0.22, 1, 0.36, 1] }}
             />
