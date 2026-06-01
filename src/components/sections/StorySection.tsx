@@ -1,5 +1,5 @@
 import { motion, useInView, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import SectionWrapper from "../SectionWrapper";
 import type { StoryBeat, WeddingContent } from "../../types/wedding";
 
@@ -78,6 +78,7 @@ function buildConnectorPath(totalChapters: number) {
 
 function StoryChapterRow({ beat, index, shouldReduceMotion, resetNonce, scrollDirection }: StoryChapterRowProps) {
   const rowRef = useRef<HTMLElement | null>(null);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
   const isEnoughInView = useInView(rowRef, {
     amount: "all",
     margin: "0px",
@@ -87,6 +88,9 @@ function StoryChapterRow({ beat, index, shouldReduceMotion, resetNonce, scrollDi
     offset: ["start 94%", "start 42%"],
   });
   const [isRevealed, setIsRevealed] = useState(false);
+  const slides = beat.images && beat.images.length > 0 ? beat.images : [{ src: beat.image, alt: beat.alt }];
+  const hasMultipleSlides = slides.length > 1;
+  const [activeSlide, setActiveSlide] = useState(0);
 
   useEffect(() => {
     if (isEnoughInView && scrollDirection === "down") {
@@ -97,6 +101,64 @@ function StoryChapterRow({ beat, index, shouldReduceMotion, resetNonce, scrollDi
   useEffect(() => {
     setIsRevealed(false);
   }, [resetNonce]);
+
+  const syncActiveSlide = useCallback(
+    (target: HTMLDivElement) => {
+      if (!hasMultipleSlides) {
+        return;
+      }
+
+      const width = Math.max(target.clientWidth, 1);
+      const rawIndex = target.scrollLeft / width;
+      const nextIndex = Math.min(Math.max(Math.round(rawIndex), 0), slides.length - 1);
+
+      setActiveSlide((previous) => (previous === nextIndex ? previous : nextIndex));
+    },
+    [hasMultipleSlides, slides.length],
+  );
+
+  const handleCarouselScroll = useCallback(() => {
+    if (!carouselRef.current) {
+      return;
+    }
+
+    syncActiveSlide(carouselRef.current);
+  }, [syncActiveSlide]);
+
+  const scrollToSlide = useCallback(
+    (slideIndex: number) => {
+      if (!carouselRef.current) {
+        return;
+      }
+
+      const width = carouselRef.current.clientWidth;
+      carouselRef.current.scrollTo({
+        left: width * slideIndex,
+        behavior: shouldReduceMotion ? "auto" : "smooth",
+      });
+      setActiveSlide(slideIndex);
+    },
+    [shouldReduceMotion],
+  );
+
+  const handleCarouselKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (!hasMultipleSlides) {
+        return;
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        scrollToSlide(Math.min(activeSlide + 1, slides.length - 1));
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        scrollToSlide(Math.max(activeSlide - 1, 0));
+      }
+    },
+    [activeSlide, hasMultipleSlides, scrollToSlide, slides.length],
+  );
 
   const angle = shouldReduceMotion ? 0 : cardAngles[index % cardAngles.length];
   const frame = frameClasses[beat.frame];
@@ -113,8 +175,35 @@ function StoryChapterRow({ beat, index, shouldReduceMotion, resetNonce, scrollDi
     >
       <figure className={`story-photo ${frame.shell} ${isEven ? "lg:order-2" : ""}`} style={{ rotate: `${angle}deg` }}>
         <div className={`story-photo-frame ${frame.media}`}>
-          <img src={beat.image} alt={beat.alt} className="h-full w-full object-cover" loading="lazy" />
+          <div
+            ref={carouselRef}
+            className="story-photo-carousel"
+            onScroll={handleCarouselScroll}
+            onKeyDown={handleCarouselKeyDown}
+            tabIndex={hasMultipleSlides ? 0 : -1}
+            aria-label={`Galería ${beat.title}`}
+          >
+            {slides.map((slide, slideIndex) => (
+              <div key={`${beat.title}-slide-${slideIndex}`} className="story-photo-slide">
+                <img src={slide.src} alt={slide.alt} className="h-full w-full object-cover" loading="lazy" />
+              </div>
+            ))}
+          </div>
         </div>
+        {hasMultipleSlides ? (
+          <div className="story-photo-dots">
+            {slides.map((_, slideIndex) => (
+              <button
+                key={`${beat.title}-dot-${slideIndex}`}
+                type="button"
+                className={`story-photo-dot ${slideIndex === activeSlide ? "is-active" : ""}`}
+                onClick={() => scrollToSlide(slideIndex)}
+                aria-label={`Ir a la foto ${slideIndex + 1}`}
+                aria-pressed={slideIndex === activeSlide}
+              />
+            ))}
+          </div>
+        ) : null}
         <figcaption className="story-photo-caption">{beat.moment}</figcaption>
       </figure>
 

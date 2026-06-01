@@ -1,6 +1,11 @@
 export type PhotoFormat = "portrait" | "landscape" | "square";
 export type StoryFrame = "instant" | "polaroid" | "postcard";
 
+export interface StoryBeatImage {
+  src: string;
+  alt: string;
+}
+
 export interface HeroContent {
   title: string;
   subtitle: string;
@@ -15,6 +20,7 @@ export interface StoryBeat {
   text: string;
   image: string;
   alt: string;
+  images?: StoryBeatImage[];
   frame: StoryFrame;
 }
 

@@ -21,6 +21,20 @@ export const weddingContent: WeddingContent = {
         image:
           "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
         alt: "Luces cálidas y ambiente de fiesta nocturna",
+        images: [
+          {
+            src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
+            alt: "Luces cálidas y ambiente de fiesta nocturna",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
+            alt: "Personas celebrando en una fiesta con luces de colores",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1200&q=80",
+            alt: "Brindis en una fiesta con ambiente íntimo",
+          },
+        ],
         frame: "polaroid",
       },
       {
@@ -30,6 +44,20 @@ export const weddingContent: WeddingContent = {
         image:
           "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
         alt: "Ventana de aeropuerto con avión durante el atardecer",
+        images: [
+          {
+            src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
+            alt: "Ventana de aeropuerto con avión durante el atardecer",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=1400&q=80",
+            alt: "Mano sosteniendo pasaporte frente a una pista de aeropuerto",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=1400&q=80",
+            alt: "Pantalla de videollamada representando relación a distancia",
+          },
+        ],
         frame: "postcard",
       },
       {
@@ -39,6 +67,20 @@ export const weddingContent: WeddingContent = {
         image:
           "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
         alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
+        images: [
+          {
+            src: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
+            alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1300&q=80",
+            alt: "Vista aérea de un paisaje montañoso durante un viaje",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1300&q=80",
+            alt: "Pareja caminando por una calle europea",
+          },
+        ],
         frame: "instant",
       },
       {
@@ -48,6 +90,20 @@ export const weddingContent: WeddingContent = {
         image:
           "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1300&q=80",
         alt: "Pareja en una cocina cálida con cajas de mudanza",
+        images: [
+          {
+            src: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1300&q=80",
+            alt: "Pareja en una cocina cálida con cajas de mudanza",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1300&q=80",
+            alt: "Llaves de apartamento sobre una mesa de madera",
+          },
+          {
+            src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1300&q=80",
+            alt: "Sala luminosa de apartamento nuevo con plantas y sofá",
+          },
+        ],
         frame: "polaroid",
       },
     ],
