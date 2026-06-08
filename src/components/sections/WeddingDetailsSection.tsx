@@ -1,30 +1,16 @@
 import { motion, useReducedMotion } from "framer-motion";
 import SectionWrapper from "../SectionWrapper";
 import RSVPForm from "../RSVPForm";
-import type { EventBlock, RSVPConfig, WeddingContent } from "../../types/wedding";
+import type { DressCodeConfig, EventBlock, RSVPConfig, WeddingContent } from "../../types/wedding";
 
 interface WeddingDetailsSectionProps {
   event: WeddingContent["event"];
   rsvp: RSVPConfig;
 }
 
-function CalendarIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="h-5 w-5">
-      <rect x="3.5" y="5.5" width="17" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M7.5 3.8V7.2M16.5 3.8V7.2M3.5 9.5H20.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-      <circle cx="8.1" cy="13.1" r="0.85" fill="currentColor" />
-      <circle cx="12" cy="13.1" r="0.85" fill="currentColor" />
-      <circle cx="15.9" cy="13.1" r="0.85" fill="currentColor" />
-      <circle cx="8.1" cy="16.8" r="0.85" fill="currentColor" />
-      <circle cx="12" cy="16.8" r="0.85" fill="currentColor" />
-    </svg>
-  );
-}
-
 function PinIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="h-5 w-5">
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="h-4 w-4">
       <path
         d="M12 21C14.2 18.2 18.2 13.9 18.2 10.1C18.2 6.73 15.46 4 12 4C8.54 4 5.8 6.73 5.8 10.1C5.8 13.9 9.8 18.2 12 21Z"
         stroke="currentColor"
@@ -35,54 +21,89 @@ function PinIcon() {
   );
 }
 
-interface EventCardProps {
+function hasConfirmedLocation(block: EventBlock) {
+  return /^https?:\/\//u.test(block.locationCtaHref) && !/por confirmar/i.test(`${block.venue} ${block.location ?? ""}`);
+}
+
+interface EventTimelineItemProps {
   block: EventBlock;
-  delay: number;
+  index: number;
   shouldReduceMotion: boolean;
 }
 
-function EventCard({ block, delay, shouldReduceMotion }: EventCardProps) {
-  const isExternal = /^https?:\/\//u.test(block.locationCtaHref);
+function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineItemProps) {
+  const showLocationLink = hasConfirmedLocation(block);
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 22 }}
+      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: shouldReduceMotion ? 0 : 1, delay: shouldReduceMotion ? 0 : delay }}
-      className="paper-surface--soft overflow-hidden rounded-[10px]"
+      viewport={{ once: true, amount: 0.35 }}
+      transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: shouldReduceMotion ? 0 : 0.08 + index * 0.08 }}
+      className="wedding-itinerary-item"
     >
-      <figure className="aspect-[16/9] w-full overflow-hidden border-b border-[var(--color-olive)]/20">
-        <img src={block.image} alt={block.imageAlt} loading="lazy" className="h-full w-full object-cover" />
+      <figure className="wedding-itinerary-image">
+        <img src={block.image} alt={block.imageAlt} loading="lazy" />
       </figure>
 
-      <div className="grid gap-4 p-6 md:p-8">
-        <p className="text-xs uppercase tracking-[0.26em] text-[var(--color-terracotta)]/86">{block.title}</p>
-        <h3 className="font-heading text-4xl leading-[1.04]">{block.venue}</h3>
+      <div>
+        <p className="wedding-itinerary-label">{block.title}</p>
+        <h3 className="font-heading mt-2 text-3xl leading-[1.02] text-[#283618] md:text-[2.25rem]">{block.venue}</h3>
+      </div>
 
-        <div className="flex items-center gap-3 text-[var(--color-forest)]/82">
-          <CalendarIcon />
-          <p className="text-base md:text-lg">{block.time}</p>
-        </div>
-
-        {block.location && <p className="section-caption text-[var(--color-forest)]/84">{block.location}</p>}
-
-        <a
-          href={block.locationCtaHref}
-          target={isExternal ? "_blank" : undefined}
-          rel={isExternal ? "noreferrer" : undefined}
-          className="mt-2 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full border border-[var(--color-forest)]/55 px-5 py-3 text-sm uppercase tracking-[0.14em] text-[var(--color-forest)] transition hover:bg-[var(--color-forest)] hover:text-[var(--color-ivory)]"
-        >
-          <PinIcon />
-          <span>{block.locationCtaLabel}</span>
-        </a>
+      <div className="wedding-itinerary-meta">
+        <p>{block.time}</p>
+        {block.location && <p>{block.location}</p>}
+        {showLocationLink && (
+          <a
+            href={block.locationCtaHref}
+            target="_blank"
+            rel="noreferrer"
+            className="wedding-location-link"
+          >
+            <PinIcon />
+            <span>{block.locationCtaLabel}</span>
+          </a>
+        )}
       </div>
     </motion.article>
   );
 }
 
+interface DressCodeNoteProps {
+  config: DressCodeConfig;
+}
+
+function DressCodeNote({ config }: DressCodeNoteProps) {
+  return (
+    <aside className="wedding-dress-note" aria-labelledby="dress-code-title">
+      <div>
+        <p id="dress-code-title" className="wedding-itinerary-label">
+          {config.title}
+        </p>
+        <p className="font-editorial mt-1 text-2xl leading-tight text-[#283618]">{config.subtitle}</p>
+      </div>
+
+      <div className="grid gap-3">
+        {config.guidance.slice(1).map((item) => (
+          <p key={item}>{item}</p>
+        ))}
+        <p>{config.note}</p>
+        <div className="flex items-center gap-2" aria-label="Paleta sugerida para el código de vestimenta">
+          {config.palette.map((color) => (
+            <span key={color} className="wedding-dress-swatch" style={{ backgroundColor: color }} />
+          ))}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
 export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSectionProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
+  const dateParts = event.date.match(/^(.+?) de (\d{4})$/i);
+  const dateText = dateParts?.[1] ?? "5 de septiembre";
+  const yearText = dateParts?.[2] ?? "2026";
 
   return (
     <SectionWrapper
@@ -90,33 +111,58 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
       eyebrow="Capítulo 06"
       title={event.title}
       intro={event.subtitle}
-      className="bg-[var(--color-ivory)]"
+      className="overflow-hidden wedding-details-section"
+      contentClassName="relative"
       hideDivider
     >
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <div className="grid gap-6">
-          <motion.article
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-            className="paper-surface rounded-[8px] p-6 md:p-8"
+      <div className="wedding-details-shell relative overflow-hidden">
+        <div className="relative z-10 grid gap-12 xl:grid-cols-[minmax(0,1.05fr)_minmax(390px,0.76fr)] xl:items-start">
+          <div className="grid gap-10">
+            <motion.article
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.9 }}
+              className="wedding-date-editorial"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#bc6c25]">Nos casamos</p>
+              <h3 className="font-heading mt-4 text-[clamp(4.3rem,12vw,8.6rem)] font-medium leading-[0.82] text-[#283618]">
+                {dateText}
+              </h3>
+              <p className="font-editorial mt-4 text-[clamp(3.2rem,8vw,6.4rem)] leading-none text-[#606c38]">{yearText}</p>
+              <p className="section-caption mt-7 max-w-[34rem] text-[#283618]/82">{event.paragraphs[0]}</p>
+            </motion.article>
+
+            <motion.figure
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.35 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.9, delay: shouldReduceMotion ? 0 : 0.08 }}
+              className="wedding-mood-image"
+            >
+              <img src={event.reception.image} alt={event.reception.imageAlt} loading="lazy" />
+            </motion.figure>
+
+            <section className="wedding-itinerary" aria-label="Itinerario de la boda">
+              <EventTimelineItem block={event.ceremony} index={0} shouldReduceMotion={shouldReduceMotion} />
+              <EventTimelineItem block={event.reception} index={1} shouldReduceMotion={shouldReduceMotion} />
+            </section>
+
+            <DressCodeNote config={event.dressCode} />
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 20, y: shouldReduceMotion ? 0 : 18 }}
+            whileInView={{ opacity: 1, x: 0, y: 0 }}
+            viewport={{ once: true, amount: 0.22 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.9, delay: shouldReduceMotion ? 0 : 0.12 }}
+            className="details-rsvp-column"
           >
-            <h3 className="font-heading text-3xl">Celebra con nosotros</h3>
-            <div className="mt-5 grid gap-4">
-              {event.paragraphs.map((paragraph) => (
-                <p key={paragraph} className="section-caption text-[var(--color-forest)]/86">
-                  {paragraph}
-                </p>
-              ))}
+            <div className="sticky top-8">
+              <RSVPForm config={rsvp} />
             </div>
-          </motion.article>
-
-          <EventCard block={event.ceremony} delay={0.12} shouldReduceMotion={shouldReduceMotion} />
-          <EventCard block={event.reception} delay={0.18} shouldReduceMotion={shouldReduceMotion} />
+          </motion.div>
         </div>
-
-        <RSVPForm config={rsvp} />
       </div>
     </SectionWrapper>
   );

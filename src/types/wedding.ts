@@ -71,6 +71,14 @@ export interface EventBlock {
   locationCtaHref: string;
 }
 
+export interface DressCodeConfig {
+  title: string;
+  subtitle: string;
+  guidance: string[];
+  palette: string[];
+  note: string;
+}
+
 export interface RSVPConfig {
   title: string;
   intro: string;
@@ -115,9 +123,11 @@ export interface WeddingContent {
   event: {
     title: string;
     subtitle: string;
+    date: string;
     paragraphs: string[];
     ceremony: EventBlock;
     reception: EventBlock;
+    dressCode: DressCodeConfig;
   };
   rsvp: RSVPConfig;
 }

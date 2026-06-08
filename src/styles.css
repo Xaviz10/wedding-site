@@ -675,6 +675,287 @@ body {
   margin: 0;
 }
 
+.wedding-details-section {
+  background: #fff;
+}
+
+.wedding-details-shell {
+  padding: clamp(1.5rem, 3.5vw, 3.5rem);
+  background:
+    radial-gradient(circle at 16% 14%, rgba(255, 255, 255, 0.7), transparent 35%),
+    radial-gradient(circle at 80% 12%, rgba(221, 161, 94, 0.12), transparent 30%);
+}
+
+.wedding-details-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 22% 86%, rgba(188, 108, 37, 0.05), transparent 32%);
+}
+
+.wedding-details-shell::after {
+  display: none;
+}
+
+.wedding-date-editorial {
+  padding-top: clamp(0.5rem, 2vw, 2rem);
+}
+
+.wedding-mood-image {
+  margin: 0;
+  overflow: hidden;
+  width: min(100%, 680px);
+  aspect-ratio: 16 / 7;
+  border-radius: 10px;
+  background: #fefae0;
+}
+
+.wedding-mood-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.72) contrast(0.92) brightness(1.06);
+  opacity: 0.76;
+}
+
+.wedding-itinerary {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.wedding-itinerary-item {
+  display: grid;
+  grid-template-columns: minmax(110px, 0.32fr) minmax(0, 0.9fr);
+  gap: 1.2rem;
+  align-items: center;
+  padding: 0;
+}
+
+.wedding-itinerary-image {
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+  border-radius: 8px;
+  background: #f6f5f1;
+}
+
+.wedding-itinerary-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(0.74) contrast(0.94) brightness(1.04);
+  opacity: 0.86;
+}
+
+.wedding-itinerary-label {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #bc6c25;
+}
+
+.wedding-itinerary-meta {
+  display: grid;
+  gap: 0.42rem;
+  align-content: start;
+  color: rgba(40, 54, 24, 0.76);
+  font-size: 0.98rem;
+  line-height: 1.55;
+}
+
+.wedding-itinerary-meta p {
+  margin: 0;
+}
+
+.wedding-location-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  width: fit-content;
+  margin-top: 0.35rem;
+  color: #606c38;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+}
+
+.wedding-location-link:hover {
+  color: #283618;
+}
+
+.wedding-location-link:focus-visible {
+  border-radius: 4px;
+  outline: 2px solid rgba(188, 108, 37, 0.48);
+  outline-offset: 4px;
+}
+
+.wedding-dress-note {
+  display: grid;
+  gap: 1rem;
+  padding: 1.35rem 0 0;
+  color: rgba(40, 54, 24, 0.78);
+}
+
+.wedding-dress-note p {
+  margin: 0;
+}
+
+.wedding-dress-swatch {
+  width: 0.86rem;
+  height: 0.86rem;
+  border-radius: 999px;
+  box-shadow: 0 0 0 1px rgba(40, 54, 24, 0.12);
+}
+
+.details-rsvp-column {
+  align-self: start;
+}
+
+.details-rsvp-column form {
+  position: relative;
+  overflow: hidden;
+}
+
+.details-rsvp-column form::before {
+  content: "";
+  position: absolute;
+  right: -58px;
+  top: -70px;
+  width: 172px;
+  height: 172px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(167, 170, 132, 0.24), transparent 65%);
+  pointer-events: none;
+}
+
+.rsvp-form-shell {
+  background:
+    linear-gradient(150deg, rgba(255, 255, 255, 0.98), rgba(250, 250, 247, 0.96)),
+    radial-gradient(circle at 18% 12%, rgba(96, 108, 56, 0.05), transparent 38%);
+  border: 1px solid rgba(40, 54, 24, 0.1);
+  box-shadow: 0 18px 42px rgba(40, 54, 24, 0.08);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #606c38;
+}
+
+.form-control {
+  width: 100%;
+  min-height: 3rem;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 108, 56, 0.2);
+  background: rgba(255, 255, 255, 0.88);
+  padding: 1rem 1.1rem;
+  color: var(--color-forest);
+  font-size: 1rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: rgba(188, 108, 37, 0.72);
+  box-shadow: 0 0 0 4px rgba(221, 161, 94, 0.18);
+}
+
+.form-control::placeholder {
+  color: rgba(65, 74, 63, 0.5);
+}
+
+.form-error {
+  color: #bc6c25;
+  font-size: 0.9rem;
+}
+
+.form-note {
+  border-left: 2px solid rgba(96, 108, 56, 0.42);
+  padding: 1rem 1rem 1rem 1.1rem;
+  background: rgba(237, 231, 207, 0.34);
+  color: var(--color-forest);
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.rsvp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  border: 1px solid rgba(96, 108, 56, 0.16);
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--color-forest);
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+}
+
+.rsvp-chip input {
+  accent-color: #606c38;
+}
+
+.rsvp-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(96, 108, 56, 0.38);
+  background: rgba(246, 245, 241, 0.92);
+}
+
+.rsvp-chip input:checked + span,
+.rsvp-chip:hover span {
+  color: var(--color-forest);
+}
+
+.rsvp-submit-button {
+  width: 100%;
+  min-height: 3.5rem;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #283618, #606c38);
+  color: #fefae0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+
+.rsvp-submit-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(103, 88, 67, 0.18);
+}
+
+.rsvp-submit-button:disabled {
+  opacity: 0.65;
+}
+
+.form-feedback {
+  border-radius: 14px;
+  padding: 1rem 1rem;
+  font-size: 0.96rem;
+  line-height: 1.6;
+}
+
+.form-feedback--success {
+  background: rgba(141, 165, 98, 0.16);
+  color: var(--color-olive);
+}
+
+.form-feedback--error {
+  background: rgba(208, 132, 113, 0.14);
+  color: var(--color-terracotta);
+}
+
 @media (min-width: 1024px) {
   .story-chapters {
     gap: 1.4rem;
@@ -701,6 +982,11 @@ body {
     gap: 1rem;
     padding: 0.44rem 0.14rem 0.9rem;
   }
+
+  .details-rsvp-column {
+    position: sticky;
+    top: 2rem;
+  }
 }
 
 @media (max-width: 1023px) {
@@ -715,6 +1001,7 @@ body {
   .milka-polaroid--wide {
     width: 100%;
   }
+
 }
 
 @media (max-width: 767px) {
@@ -799,6 +1086,28 @@ body {
   .milka-note-card {
     padding: 1.06rem 0.96rem 1.12rem;
   }
+
+  .wedding-details-shell {
+    padding-inline: 0.7rem;
+  }
+
+  .wedding-details-shell::before {
+    background: radial-gradient(circle at 50% 44%, rgba(255, 255, 255, 0.34), transparent 46%);
+  }
+
+  .wedding-itinerary {
+    gap: 1.65rem;
+  }
+
+  .wedding-itinerary-item {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .wedding-itinerary-image {
+    aspect-ratio: 16 / 8.5;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -64,6 +64,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   const isSubmitting = status === "loading";
   const isSuccess = status === "success";
   const isError = status === "error";
+  const attendingYes = formData.attending === "si";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -108,31 +109,35 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="paper-surface rounded-[8px] p-6 md:p-8"
+      className="rounded-2xl p-6 md:p-8 rsvp-form-shell"
       noValidate
     >
-      <div className="mb-6">
-        <h3 className="font-heading text-3xl leading-tight">{config.title}</h3>
-        <p className="section-caption mt-2 text-[var(--color-forest)]/85">{config.intro}</p>
+      <div className="mb-8 grid gap-4">
+        <div className="grid gap-2">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#bc6c25]">RSVP</p>
+          <h3 className="font-heading text-3xl leading-tight md:text-4xl">{config.title}</h3>
+        </div>
+        <p className="section-caption max-w-xl text-(--color-forest)/85">{config.intro}</p>
       </div>
 
       <div className="grid gap-5">
         <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Nombre completo</span>
+          <span className="form-label">Nombre completo</span>
           <input
             value={formData.fullName}
             onChange={(event) => updateField("fullName", event.target.value)}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+            className="form-control"
             autoComplete="name"
+            placeholder="Ej. Ana García"
             required
           />
-          {errors.fullName && <span className="text-sm text-[var(--color-terracotta)]">{errors.fullName}</span>}
+          {errors.fullName && <span className="form-error">{errors.fullName}</span>}
         </label>
 
-        <fieldset className="grid gap-2">
-          <legend className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">¿Asistirás?</legend>
-          <div className="flex flex-wrap gap-3">
-            <label className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--color-olive)]/35 px-4 py-2">
+        <fieldset className="grid gap-3">
+          <legend className="form-label">¿Asistirás?</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="rsvp-chip">
               <input
                 type="radio"
                 name="attending"
@@ -142,7 +147,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
               />
               <span>Sí, con mucha emoción</span>
             </label>
-            <label className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--color-olive)]/35 px-4 py-2">
+            <label className="rsvp-chip">
               <input
                 type="radio"
                 name="attending"
@@ -155,87 +160,88 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           </div>
         </fieldset>
 
-        <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Número de acompañantes</span>
-          <input
-            type="number"
-            min={0}
-            max={6}
-            value={formData.companions}
-            onChange={(event) => updateField("companions", Number(event.target.value))}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
-            required
-          />
-          {errors.companions && <span className="text-sm text-[var(--color-terracotta)]">{errors.companions}</span>}
-        </label>
+        <div className="grid gap-5">
+          <label className="grid gap-2">
+            <span className="form-label">Número de acompañantes</span>
+            <input
+              type="number"
+              min={0}
+              max={6}
+              value={formData.companions}
+              onChange={(event) => updateField("companions", Number(event.target.value))}
+              className="form-control"
+              required
+            />
+            {errors.companions && <span className="form-error">{errors.companions}</span>}
+          </label>
+
+          {attendingYes ? (
+            <label className="grid gap-2">
+              <span className="form-label">Nombre de acompañante(s)</span>
+              <input
+                value={formData.companionNames}
+                onChange={(event) => updateField("companionNames", event.target.value)}
+                className="form-control"
+                placeholder="Si aplica"
+              />
+              {errors.companionNames && <span className="form-error">{errors.companionNames}</span>}
+            </label>
+          ) : (
+            <div className="form-note">Nos alegramos de recibir tu mensaje, gracias por avisarnos con cariño.</div>
+          )}
+        </div>
 
         <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Nombre de acompañante(s)</span>
-          <input
-            value={formData.companionNames}
-            onChange={(event) => updateField("companionNames", event.target.value)}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
-            placeholder="Si aplica"
-          />
-          {errors.companionNames && <span className="text-sm text-[var(--color-terracotta)]">{errors.companionNames}</span>}
-        </label>
-
-        <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Restricciones alimentarias</span>
+          <span className="form-label">Restricciones alimentarias</span>
           <textarea
             value={formData.dietaryRestrictions}
             onChange={(event) => updateField("dietaryRestrictions", event.target.value)}
             rows={3}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+            className="form-control resize-none"
+            placeholder="Ej. Sin frutos secos, vegetarian@"
           />
-          {errors.dietaryRestrictions && (
-            <span className="text-sm text-[var(--color-terracotta)]">{errors.dietaryRestrictions}</span>
-          )}
+          {errors.dietaryRestrictions && <span className="form-error">{errors.dietaryRestrictions}</span>}
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">
-            ¿Necesitas información de hospedaje o transporte?
-          </span>
+          <span className="form-label">¿Necesitas información de hospedaje o transporte?</span>
           <textarea
             value={formData.travelSupport}
             onChange={(event) => updateField("travelSupport", event.target.value)}
             rows={3}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+            className="form-control resize-none"
             placeholder="Cuéntanos si necesitas ayuda"
           />
-          {errors.travelSupport && <span className="text-sm text-[var(--color-terracotta)]">{errors.travelSupport}</span>}
+          {errors.travelSupport && <span className="form-error">{errors.travelSupport}</span>}
         </label>
 
         <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Mensaje para los novios</span>
+          <span className="form-label">Mensaje para los novios</span>
           <textarea
             value={formData.message}
             onChange={(event) => updateField("message", event.target.value)}
             rows={4}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+            className="form-control resize-none"
+            placeholder="Comparte un abrazo y buenos deseos"
           />
-          {errors.message && <span className="text-sm text-[var(--color-terracotta)]">{errors.message}</span>}
+          {errors.message && <span className="form-error">{errors.message}</span>}
         </label>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-2 inline-flex min-h-12 items-center justify-center rounded-[6px] border border-[var(--color-terracotta)]/55 bg-[var(--color-terracotta)] px-5 py-3 text-base font-medium text-[var(--color-ivory)] transition hover:bg-[var(--color-forest)] disabled:cursor-not-allowed disabled:opacity-60"
+          className="rsvp-submit-button"
         >
           {isSubmitting ? config.loadingLabel : config.submitLabel}
         </button>
 
         {isSuccess && (
-          <p
-            role="status"
-            className="whitespace-pre-line rounded-[6px] bg-[var(--color-olive)]/12 px-4 py-3 text-[var(--color-olive)]"
-          >
+          <p role="status" className="form-feedback form-feedback--success">
             {config.successMessage}
           </p>
         )}
         {isError && (
-          <p role="alert" className="rounded-[6px] bg-[var(--color-terracotta)]/12 px-4 py-3 text-[var(--color-terracotta)]">
+          <p role="alert" className="form-feedback form-feedback--error">
             {config.errorMessage}
           </p>
         )}

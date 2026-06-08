@@ -86,7 +86,7 @@ export const weddingContent: WeddingContent = {
       {
         title: "Volver y construir hogar",
         moment: "Colombia, 2021 hasta hoy",
-        text: "La pandemia empujó a Javier de vuelta a Colombia en 2021.\nDespués decidimos vivir juntos y aprender el amor en la vida diaria: la rutina, la paciencia, las mudanzas y los sueños compartidos.\nEste año compramos nuestro apartamento.\nDespués de tanto camino, seguimos llegando al mismo lugar: juntos.",
+        text: "La pandemia empujó a Javier de vuelta a Colombia en 2021.\nDespués decidimos vivir juntos y aprender el amor en la vida diaria: la rutina, la paciencia, las mudanzas y los sueños compartidos.\nDespués de tanto camino, seguimos llegando al mismo lugar: juntos.",
         image:
           "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1300&q=80",
         alt: "Pareja en una cocina cálida con cajas de mudanza",
@@ -339,8 +339,9 @@ export const weddingContent: WeddingContent = {
     ],
   },
   event: {
-    title: "EL GRAN DÍA + RSVP",
-    subtitle: "Celebra con nosotros.",
+    title: "El gran día",
+    subtitle: "Ceremonia, celebración y confirmación de asistencia.",
+    date: "5 de septiembre de 2026",
     paragraphs: [
       "Después de casi diez años de historia, queremos celebrar este nuevo capítulo con las personas que queremos.",
       "Nos casamos el 5 de septiembre de 2026 y nos encantaría que nos acompañes.",
@@ -367,11 +368,21 @@ export const weddingContent: WeddingContent = {
       locationCtaLabel: "Ver ubicación",
       locationCtaHref: "https://www.google.com/maps/search/?api=1&query=Hacienda%20La%20Mara%20Boyac%C3%A1",
     },
+    dressCode: {
+      title: "Código de vestimenta",
+      subtitle: "Elegante formal",
+      guidance: [
+        "Queremos una celebración elegante, cómoda y natural.",
+        "Te sugerimos trajes, vestidos o conjuntos en tonos neutros, tierra, oliva, champagne o colores suaves.",
+      ],
+      palette: ["#24291f", "#788267", "#949080", "#cbc2ad", "#f6f5f1"],
+      note: "Por favor evita blanco, marfil o tonos reservados para la novia.",
+    },
   },
   rsvp: {
     title: "Confirma tu asistencia",
-    intro: "Por favor confirma antes del [fecha límite] para ayudarnos a organizar cada detalle con mucho amor.",
-    submitLabel: "Enviar confirmación",
+    intro: "Nos ayudará mucho saber si podremos contar contigo en este día tan especial.",
+    submitLabel: "Confirmar asistencia",
     loadingLabel: "Enviando confirmación...",
     successMessage: "Gracias por ser parte de nuestra historia.\n\nCon amor,\n\nCata, Javier & Milka",
     errorMessage: "No pudimos registrar tu confirmación. Intenta de nuevo en unos minutos.",
