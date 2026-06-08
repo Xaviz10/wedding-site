@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { submitRSVP, type RSVPInput } from "../lib/submitRSVP";
 import type { RSVPConfig } from "../types/wedding";
@@ -9,10 +9,12 @@ type RSVPFormErrors = Partial<Record<keyof RSVPInput, string>>;
 
 const initialData: RSVPInput = {
   fullName: "",
-  email: "",
   attending: "si",
-  guests: 1,
-  dietaryNotes: "",
+  companions: 0,
+  companionNames: "",
+  dietaryRestrictions: "",
+  travelSupport: "",
+  message: "",
 };
 
 function validate(data: RSVPInput): RSVPFormErrors {
@@ -22,16 +24,28 @@ function validate(data: RSVPInput): RSVPFormErrors {
     errors.fullName = "Escribe nombre y apellido.";
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/u.test(data.email)) {
-    errors.email = "Escribe un correo válido.";
+  if (!Number.isInteger(data.companions) || data.companions < 0 || data.companions > 6) {
+    errors.companions = "Número de acompañantes entre 0 y 6.";
   }
 
-  if (data.guests < 1 || data.guests > 6) {
-    errors.guests = "Número de invitados entre 1 y 6.";
+  if (data.attending === "si" && data.companions > 0 && data.companionNames.trim().length < 3) {
+    errors.companionNames = "Escribe el nombre de tu acompañante.";
   }
 
-  if (data.dietaryNotes && data.dietaryNotes.length > 280) {
-    errors.dietaryNotes = "Máximo 280 caracteres.";
+  if (data.companionNames.length > 240) {
+    errors.companionNames = "Máximo 240 caracteres.";
+  }
+
+  if (data.dietaryRestrictions.length > 280) {
+    errors.dietaryRestrictions = "Máximo 280 caracteres.";
+  }
+
+  if (data.travelSupport.length > 280) {
+    errors.travelSupport = "Máximo 280 caracteres.";
+  }
+
+  if (data.message.length > 400) {
+    errors.message = "Máximo 400 caracteres.";
   }
 
   return errors;
@@ -50,8 +64,6 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   const isSubmitting = status === "loading";
   const isSuccess = status === "success";
   const isError = status === "error";
-
-  const charsLeft = useMemo(() => 280 - (formData.dietaryNotes?.length ?? 0), [formData.dietaryNotes]);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -74,7 +86,18 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   }
 
   function updateField<K extends keyof RSVPInput>(key: K, value: RSVPInput[K]) {
-    setFormData((current) => ({ ...current, [key]: value }));
+    setFormData((current) => {
+      if (key === "attending" && value === "no") {
+        return {
+          ...current,
+          attending: "no",
+          companions: 0,
+          companionNames: "",
+        };
+      }
+
+      return { ...current, [key]: value };
+    });
     setStatus("idle");
   }
 
@@ -90,7 +113,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
     >
       <div className="mb-6">
         <h3 className="font-heading text-3xl leading-tight">{config.title}</h3>
-        <p className="section-caption mt-2 text-[var(--color-forest)]/85">{config.subtitle}</p>
+        <p className="section-caption mt-2 text-[var(--color-forest)]/85">{config.intro}</p>
       </div>
 
       <div className="grid gap-5">
@@ -106,19 +129,6 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           {errors.fullName && <span className="text-sm text-[var(--color-terracotta)]">{errors.fullName}</span>}
         </label>
 
-        <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Correo electrónico</span>
-          <input
-            type="email"
-            value={formData.email}
-            onChange={(event) => updateField("email", event.target.value)}
-            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
-            autoComplete="email"
-            required
-          />
-          {errors.email && <span className="text-sm text-[var(--color-terracotta)]">{errors.email}</span>}
-        </label>
-
         <fieldset className="grid gap-2">
           <legend className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">¿Asistirás?</legend>
           <div className="flex flex-wrap gap-3">
@@ -130,7 +140,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
                 checked={formData.attending === "si"}
                 onChange={() => updateField("attending", "si")}
               />
-              <span>Sí, con gusto</span>
+              <span>Sí, con mucha emoción</span>
             </label>
             <label className="inline-flex items-center gap-2 rounded-[6px] border border-[var(--color-olive)]/35 px-4 py-2">
               <input
@@ -140,39 +150,72 @@ export default function RSVPForm({ config }: RSVPFormProps) {
                 checked={formData.attending === "no"}
                 onChange={() => updateField("attending", "no")}
               />
-              <span>No podré asistir</span>
+              <span>No podré asistir, pero les mando todo mi cariño</span>
             </label>
           </div>
         </fieldset>
 
         <label className="grid gap-2">
-          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Número de personas</span>
+          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Número de acompañantes</span>
           <input
             type="number"
-            min={1}
+            min={0}
             max={6}
-            value={formData.guests}
-            onChange={(event) => updateField("guests", Number(event.target.value))}
+            value={formData.companions}
+            onChange={(event) => updateField("companions", Number(event.target.value))}
             className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
             required
           />
-          {errors.guests && <span className="text-sm text-[var(--color-terracotta)]">{errors.guests}</span>}
+          {errors.companions && <span className="text-sm text-[var(--color-terracotta)]">{errors.companions}</span>}
+        </label>
+
+        <label className="grid gap-2">
+          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Nombre de acompañante(s)</span>
+          <input
+            value={formData.companionNames}
+            onChange={(event) => updateField("companionNames", event.target.value)}
+            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+            placeholder="Si aplica"
+          />
+          {errors.companionNames && <span className="text-sm text-[var(--color-terracotta)]">{errors.companionNames}</span>}
+        </label>
+
+        <label className="grid gap-2">
+          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Restricciones alimentarias</span>
+          <textarea
+            value={formData.dietaryRestrictions}
+            onChange={(event) => updateField("dietaryRestrictions", event.target.value)}
+            rows={3}
+            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+          />
+          {errors.dietaryRestrictions && (
+            <span className="text-sm text-[var(--color-terracotta)]">{errors.dietaryRestrictions}</span>
+          )}
         </label>
 
         <label className="grid gap-2">
           <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">
-            Restricciones alimentarias o mensaje
+            ¿Necesitas información de hospedaje o transporte?
           </span>
           <textarea
-            value={formData.dietaryNotes}
-            onChange={(event) => updateField("dietaryNotes", event.target.value)}
+            value={formData.travelSupport}
+            onChange={(event) => updateField("travelSupport", event.target.value)}
+            rows={3}
+            className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
+            placeholder="Cuéntanos si necesitas ayuda"
+          />
+          {errors.travelSupport && <span className="text-sm text-[var(--color-terracotta)]">{errors.travelSupport}</span>}
+        </label>
+
+        <label className="grid gap-2">
+          <span className="text-sm uppercase tracking-[0.16em] text-[var(--color-olive)]">Mensaje para los novios</span>
+          <textarea
+            value={formData.message}
+            onChange={(event) => updateField("message", event.target.value)}
             rows={4}
             className="w-full rounded-[6px] border border-[var(--color-olive)]/30 bg-[var(--color-ivory)] px-4 py-3 text-base text-[var(--color-forest)] focus:border-[var(--color-gold)] focus:outline-none"
           />
-          <div className="flex items-center justify-between text-sm text-[var(--color-forest)]/70">
-            <span>{errors.dietaryNotes ?? ""}</span>
-            <span>{charsLeft} caracteres</span>
-          </div>
+          {errors.message && <span className="text-sm text-[var(--color-terracotta)]">{errors.message}</span>}
         </label>
 
         <button
@@ -184,7 +227,10 @@ export default function RSVPForm({ config }: RSVPFormProps) {
         </button>
 
         {isSuccess && (
-          <p role="status" className="rounded-[6px] bg-[var(--color-olive)]/12 px-4 py-3 text-[var(--color-olive)]">
+          <p
+            role="status"
+            className="whitespace-pre-line rounded-[6px] bg-[var(--color-olive)]/12 px-4 py-3 text-[var(--color-olive)]"
+          >
             {config.successMessage}
           </p>
         )}

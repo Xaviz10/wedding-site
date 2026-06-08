@@ -339,56 +339,41 @@ export const weddingContent: WeddingContent = {
     ],
   },
   event: {
-    title: "El gran día",
-    subtitle: "Queremos celebrar este capítulo junto a ustedes.",
-    details: [
-      {
-        label: "Fecha",
-        value: "5 de septiembre de 2026",
-      },
-      {
-        label: "Ceremonia",
-        value: "Por confirmar · Tibasosa / Nobsa / Sogamoso",
-      },
-      {
-        label: "Recepción",
-        value: "Hacienda La Mara",
-      },
-      {
-        label: "Código de vestuario",
-        value: "Elegante · tonos tierra y verdes naturales",
-      },
+    title: "EL GRAN DÍA + RSVP",
+    subtitle: "Celebra con nosotros.",
+    paragraphs: [
+      "Después de casi diez años de historia, queremos celebrar este nuevo capítulo con las personas que queremos.",
+      "Nos casamos el 5 de septiembre de 2026 y nos encantaría que nos acompañes.",
     ],
-    schedule: [
-      {
-        time: "3:30 p. m.",
-        event: "Llegada y bienvenida",
-      },
-      {
-        time: "4:00 p. m.",
-        event: "Ceremonia",
-      },
-      {
-        time: "5:00 p. m.",
-        event: "Cóctel en jardines",
-      },
-      {
-        time: "7:00 p. m.",
-        event: "Cena y brindis",
-      },
-      {
-        time: "9:00 p. m.",
-        event: "Celebración",
-      },
-    ],
-    note: "Tu presencia es lo más importante. Si tienes restricciones alimentarias o necesidades especiales, cuéntanos en el RSVP.",
+    ceremony: {
+      title: "Ceremonia religiosa",
+      image:
+        "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=80",
+      imageAlt: "Arco floral en ceremonia al aire libre",
+      venue: "Lugar por confirmar",
+      location: "Tibasosa / Nobsa / Sogamoso",
+      time: "Hora por confirmar",
+      locationCtaLabel: "Ver ubicación",
+      locationCtaHref: "https://www.google.com/maps/search/?api=1&query=Tibasosa%20Nobsa%20Sogamoso",
+    },
+    reception: {
+      title: "Recepción",
+      image:
+        "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1800&q=80",
+      imageAlt: "Montaje de recepción con flores y velas",
+      venue: "Hacienda La Mara",
+      location: "Boyacá, Colombia",
+      time: "Hora por confirmar",
+      locationCtaLabel: "Ver ubicación",
+      locationCtaHref: "https://www.google.com/maps/search/?api=1&query=Hacienda%20La%20Mara%20Boyac%C3%A1",
+    },
   },
   rsvp: {
-    title: "Confirmación de asistencia",
-    subtitle: "Agradecemos confirmar tu asistencia antes del 15 de julio de 2026.",
-    submitLabel: "Confirmar asistencia",
+    title: "Confirma tu asistencia",
+    intro: "Por favor confirma antes del [fecha límite] para ayudarnos a organizar cada detalle con mucho amor.",
+    submitLabel: "Enviar confirmación",
     loadingLabel: "Enviando confirmación...",
-    successMessage: "Gracias por confirmar. Nos emociona celebrar contigo.",
+    successMessage: "Gracias por ser parte de nuestra historia.\n\nCon amor,\n\nCata, Javier & Milka",
     errorMessage: "No pudimos registrar tu confirmación. Intenta de nuevo en unos minutos.",
   },
 };

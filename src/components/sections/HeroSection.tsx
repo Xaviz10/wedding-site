@@ -15,7 +15,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
   return (
     <section
       id="portada"
-      className="relative overflow-hidden px-4 pb-14 pt-10 md:min-h-[100svh] md:px-8 md:pt-12 lg:pb-24"
+      className="relative min-h-[100svh] overflow-hidden px-4 pb-14 pt-10 md:px-8 md:pt-12 lg:pb-24"
     >
       <div className="hero-backdrop-image" aria-hidden />
       <div className="hero-backdrop" aria-hidden />
@@ -26,7 +26,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
           initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -22 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: shouldReduceMotion ? 0 : 1.1 }}
-          className="relative order-2 px-1 pb-2 pt-1 lg:order-1"
+          className="relative order-1 px-1 pb-2 pt-1 lg:order-1"
         >
           <p className="text-sm font-medium tracking-[0.02em] text-[var(--color-muted)] sm:text-base md:text-2xl">
             Bienvenidos a
@@ -44,12 +44,12 @@ export default function HeroSection({ content }: HeroSectionProps) {
           </p>
         </motion.header>
 
-        <div className="relative order-1 mx-auto w-full max-w-[580px] pb-2 pt-2 sm:pb-16 lg:order-2 lg:pb-20">
+        <div className="relative order-2 mx-auto w-full max-w-[580px] pb-14 pt-3 sm:pb-16 lg:order-2 lg:pb-20">
           <motion.figure
             initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 20, y: shouldReduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: shouldReduceMotion ? 0 : 1.15 }}
-            className="hero-photo-mask relative aspect-[10/8] overflow-hidden border border-[var(--color-olive)]/20 bg-[var(--color-surface)] shadow-[0_20px_46px_rgba(54,59,48,0.18)] sm:aspect-[4/5]"
+            className="hero-photo-mask relative aspect-[4/5] overflow-hidden border border-[var(--color-olive)]/20 bg-[var(--color-surface)] shadow-[0_20px_46px_rgba(54,59,48,0.18)]"
           >
             <img
               src={HERO_IMAGE}
@@ -61,31 +61,31 @@ export default function HeroSection({ content }: HeroSectionProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-white/20" />
           </motion.figure>
 
-          <AnimatedOrchid className="absolute -left-10 top-20 hidden h-[220px] w-[145px] text-[var(--color-olive)]/66 sm:block md:-left-16 md:h-[250px] md:w-[166px]" />
+          <AnimatedOrchid className="absolute -left-7 top-14 h-[150px] w-[98px] text-[var(--color-olive)]/56 sm:-left-10 sm:top-20 sm:h-[220px] sm:w-[145px] sm:text-[var(--color-olive)]/66 md:-left-16 md:h-[250px] md:w-[166px]" />
           <AnimatedOrchid
             mirrored
-            className="absolute -right-8 top-5 hidden h-[170px] w-[116px] text-[var(--color-olive)]/64 sm:block md:-right-12 md:h-[195px] md:w-[132px]"
+            className="absolute -right-6 top-4 h-[126px] w-[84px] text-[var(--color-olive)]/54 sm:-right-8 sm:top-5 sm:h-[170px] sm:w-[116px] sm:text-[var(--color-olive)]/64 md:-right-12 md:h-[195px] md:w-[132px]"
           />
 
           <motion.div
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: shouldReduceMotion ? 0 : 1.05, delay: shouldReduceMotion ? 0 : 0.32 }}
-            className="paper-surface absolute -left-2 top-[58%] z-20 hidden rounded-[20px] px-4 py-3 sm:block md:-left-7 md:px-5"
+            className="paper-surface absolute left-1 top-[60%] z-20 rounded-[16px] px-3 py-2 sm:-left-2 sm:top-[58%] sm:rounded-[20px] sm:px-4 sm:py-3 md:-left-7 md:px-5"
           >
             <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[var(--color-muted)]">
               Nos casamos
             </p>
-            <p className="mt-1 text-lg font-semibold text-[var(--color-forest)]">{content.date}</p>
+            <p className="mt-1 text-base font-semibold text-[var(--color-forest)] sm:text-lg">{content.date}</p>
           </motion.div>
 
           <motion.div
             initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: shouldReduceMotion ? 0 : 1.05, delay: shouldReduceMotion ? 0 : 0.42 }}
-            className="paper-surface absolute -right-2 bottom-3 z-20 hidden rounded-full px-5 py-3 sm:block md:-right-6 md:px-7"
+            className="paper-surface absolute right-1 bottom-5 z-20 rounded-full px-4 py-2 sm:-right-2 sm:bottom-3 sm:px-5 sm:py-3 md:-right-6 md:px-7"
           >
-            <p className="font-heading text-lg leading-none text-[var(--color-olive)] md:text-2xl">{content.subtitle}</p>
+            <p className="font-heading text-base leading-none text-[var(--color-olive)] sm:text-lg md:text-2xl">{content.subtitle}</p>
           </motion.div>
 
         </div>
@@ -95,7 +95,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
         initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: shouldReduceMotion ? 0 : 1.3, delay: shouldReduceMotion ? 0 : 0.35 }}
-        className="relative z-10 mx-auto mt-1 flex max-w-[1220px] justify-center lg:justify-start"
+        className="relative z-10 mx-auto mt-1 flex max-w-[1220px] justify-start"
       >
         <a
           href="#nuestra-historia"

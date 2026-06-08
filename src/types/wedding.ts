@@ -60,19 +60,20 @@ export interface GalleryCategory {
   photos: GalleryPhoto[];
 }
 
-export interface EventDetail {
-  label: string;
-  value: string;
-}
-
-export interface ScheduleItem {
+export interface EventBlock {
+  title: string;
+  image: string;
+  imageAlt: string;
+  venue: string;
+  location?: string;
   time: string;
-  event: string;
+  locationCtaLabel: string;
+  locationCtaHref: string;
 }
 
 export interface RSVPConfig {
   title: string;
-  subtitle: string;
+  intro: string;
   successMessage: string;
   errorMessage: string;
   submitLabel: string;
@@ -114,9 +115,9 @@ export interface WeddingContent {
   event: {
     title: string;
     subtitle: string;
-    details: EventDetail[];
-    schedule: ScheduleItem[];
-    note: string;
+    paragraphs: string[];
+    ceremony: EventBlock;
+    reception: EventBlock;
   };
   rsvp: RSVPConfig;
 }
