@@ -97,7 +97,7 @@ export default function GallerySection({ content }: GallerySectionProps) {
             >
               <aside className="gallery-category-note paper-surface--soft rounded-[8px] p-5 md:p-6">
                 <p className="text-xs uppercase tracking-[0.2em] text-[var(--color-olive)]">Colección {String(index + 1).padStart(2, "0")}</p>
-                <h3 className="font-heading mt-2 text-3xl leading-[0.96] md:text-[2.2rem]">{category.title}</h3>
+                <h3 className="font-heading mt-2 text-2xl leading-[1] md:text-[1.8rem]">{category.title}</h3>
               </aside>
 
               <div className="gallery-lane" role="list" aria-label={`Galería ${category.title}`}>

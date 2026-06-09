@@ -91,10 +91,10 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
           <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
             Capítulo 05
           </p>
-          <h2 className="font-heading mt-6 text-[clamp(4rem,9vw,6.5rem)] leading-[0.9] text-[var(--color-forest)]">
+          <h2 className="font-heading mt-6 text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
             La propuesta
           </h2>
-          <p className="font-editorial mt-6 text-[clamp(2.5rem,5vw,3.5rem)] italic text-[var(--color-terracotta)]">
+          <p className="font-editorial mt-6 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
             {content.intro}
           </p>
         </motion.header>
@@ -110,7 +110,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
           >
             <div className="grid gap-10">
               {narrativeBeats.slice(0, 2).map((beat, i) => (
-                <p key={i} className="font-editorial text-[1.4rem] leading-relaxed text-[var(--color-forest)]/85 md:text-3xl">
+                <p key={i} className="font-editorial text-[1.15rem] leading-[1.42] text-[var(--color-forest)]/85 md:text-2xl">
                   {beat.text}
                 </p>
               ))}
@@ -142,7 +142,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             transition={{ duration: shouldReduceMotion ? 0 : 1.5 }}
             className="mt-32 text-center md:mt-48"
           >
-            <h3 className="font-heading text-[clamp(4.5rem,11vw,9rem)] leading-[0.85] text-[var(--color-forest)]">
+            <h3 className="font-heading text-[clamp(3rem,8vw,6rem)] leading-[0.9] text-[var(--color-forest)]">
               {highlightBeat.text}
             </h3>
           </motion.div>
@@ -173,7 +173,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             className="grid gap-12 lg:col-span-4"
           >
             {narrativeBeats[2] && (
-              <p className="font-editorial text-right text-3xl italic leading-relaxed text-[var(--color-terracotta)] md:text-4xl">
+              <p className="font-editorial text-right text-2xl italic leading-[1.32] text-[var(--color-terracotta)] md:text-3xl">
                 "{narrativeBeats[2].text}"
               </p>
             )}
@@ -196,7 +196,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
               transition={{ duration: shouldReduceMotion ? 0 : 1.5, delay: 0.3 }}
               className="order-2 text-center lg:order-1 lg:col-span-5 lg:col-start-2 lg:text-left"
             >
-              <p className="font-editorial text-2xl italic leading-relaxed text-[var(--color-forest)]/80 md:text-4xl">
+              <p className="font-editorial text-xl italic leading-[1.32] text-[var(--color-forest)]/80 md:text-3xl">
                 "{humorBeat.text}"
               </p>
             </motion.div>

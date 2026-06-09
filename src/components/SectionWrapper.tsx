@@ -38,7 +38,7 @@ export default function SectionWrapper({
             </p>
           )}
           {title && (
-            <h2 className="font-heading text-4xl leading-[1.08] md:text-5xl lg:text-6xl">{title}</h2>
+            <h2 className="font-heading text-3xl leading-[1.08] md:text-4xl lg:text-5xl">{title}</h2>
           )}
           {intro && <p className="section-caption mt-5 max-w-3xl text-[var(--color-forest)]/86">{intro}</p>}
         </div>

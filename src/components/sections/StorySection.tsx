@@ -157,17 +157,17 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
           {getChapter(index)}
         </p>
         
-        <h3 className="font-heading mt-6 text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] text-[var(--color-forest)]">
+        <h3 className="font-heading mt-6 text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] text-[var(--color-forest)]">
           {beat.title}
         </h3>
         
-        <p className="font-editorial mt-3 text-[1.5rem] italic text-[var(--color-terracotta)] md:text-[2rem]">
+        <p className="font-editorial mt-3 text-[1.25rem] leading-[1.25] italic text-[var(--color-terracotta)] md:text-[1.6rem]">
           {beat.moment}
         </p>
 
         <div className="mt-8 grid gap-5">
           {beat.text.split("\n").map((line, lineIndex) => (
-            <p key={`${beat.title}-${lineIndex}`} className="font-editorial text-[1.3rem] leading-relaxed text-[var(--color-forest)]/80 md:text-[1.5rem]">
+            <p key={`${beat.title}-${lineIndex}`} className="font-editorial text-[1.1rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.25rem]">
               {line}
             </p>
           ))}
@@ -189,8 +189,10 @@ export default function StorySection({ content }: StorySectionProps) {
   const connectorPathRef = useRef<SVGPathElement | null>(null);
   const planeRef = useRef<HTMLSpanElement | null>(null);
   const topResetRef = useRef<HTMLDivElement | null>(null);
+  const introRef = useRef<HTMLElement | null>(null);
   
   const topInView = useInView(topResetRef, { amount: 0.92 });
+  const introInView = useInView(introRef, { once: true, amount: 0.35 });
   const { scrollY } = useScroll();
   
   // Starting the plane movement slightly earlier so it is active right away
@@ -201,6 +203,7 @@ export default function StorySection({ content }: StorySectionProps) {
   
   const scrollDirectionRef = useRef<"up" | "down">("down");
   const hasResetAtCurrentTopRef = useRef(false);
+  const [hasUserScrolled, setHasUserScrolled] = useState(false);
   const [resetNonce, setResetNonce] = useState(0);
 
   const positionPlaneOnPath = useCallback(
@@ -243,6 +246,9 @@ export default function StorySection({ content }: StorySectionProps) {
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious();
+    if (latest > 4 && !hasUserScrolled) {
+      setHasUserScrolled(true);
+    }
     if (previous === undefined || latest === previous) return;
     const nextDirection = latest < previous ? "up" : "down";
     if (nextDirection !== scrollDirectionRef.current) {
@@ -276,19 +282,19 @@ export default function StorySection({ content }: StorySectionProps) {
       <div className="mx-auto max-w-[1100px] px-4 md:px-8">
         
         <motion.header
+          ref={introRef}
           initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: "some", margin: "0px 0px 100px 0px" }}
-          transition={{ duration: 0.5 }}
+          animate={hasUserScrolled && introInView ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
           className="relative z-10 text-center"
         >
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">
             Capítulo 01
           </p>
-          <h2 className="font-heading mt-6 text-[clamp(4rem,9vw,6.5rem)] leading-[0.9] text-[var(--color-forest)]">
+          <h2 className="font-heading mt-6 text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
             Nuestra historia
           </h2>
-          <p className="font-editorial mt-5 text-[clamp(2.5rem,5vw,3.5rem)] italic text-[var(--color-terracotta)]">
+          <p className="font-editorial mt-5 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
             {content.intro}
           </p>
         </motion.header>
