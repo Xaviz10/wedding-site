@@ -1,7 +1,6 @@
 import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
 import { Fragment, useCallback, useEffect, useRef } from "react";
 import SectionWrapper from "../SectionWrapper";
-import PawPrintDivider from "../PawPrintDivider";
 import type { WeddingContent } from "../../types/wedding";
 
 interface MilkaSectionProps {
@@ -27,58 +26,16 @@ function PawIcon({ className }: { className?: string }) {
   );
 }
 
-function BotanicalSprig({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 130 220" className={className} aria-hidden>
-      <path
-        d="M66 208C67 188 69 150 70 114C71 78 70 40 76 12"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M70 128C53 123 38 111 30 93C45 95 60 103 70 118"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M70 98C49 90 35 77 24 58C44 60 59 72 70 89"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M70 150C86 145 97 133 106 116C91 119 80 127 70 140"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-      <path
-        d="M72 121C92 114 108 101 118 84C99 86 84 96 72 112"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.3"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
 export default function MilkaSection({ content }: MilkaSectionProps) {
   const shouldReduceMotion = useReducedMotion();
-  const shellRef = useRef<HTMLDivElement | null>(null);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
   const pawPathRef = useRef<SVGPathElement | null>(null);
   const pawMarkerRefs = useRef<Array<HTMLSpanElement | null>>([]);
   const { scrollYProgress } = useScroll({
-    target: shellRef,
+    target: sectionRef,
     offset: ["start 80%", "end 34%"],
   });
-  const photoAngles = ["lg:-rotate-[2.6deg]", "lg:rotate-[2.2deg]", "lg:-rotate-[1.6deg]"];
+  
   const PAW_ROTATION_OFFSET = 86;
 
   const positionPawsOnPath = useCallback((rawProgress: number) => {
@@ -145,37 +102,34 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
     positionPawsOnPath(shouldReduceMotion ? 0.78 : 0.02);
   }, [positionPawsOnPath, shouldReduceMotion]);
 
+  // Extract photos for the editorial layout
+  const portraitPhoto = content.photos[0];
+  const squarePhoto = content.photos[1];
+  const landscapePhoto = content.photos[2] || content.photos[0];
+
   return (
     <SectionWrapper
       id="milka"
-      eyebrow="Capítulo 03"
-      title="Y entonces llegó Milka"
-      intro={content.intro}
-      className="bg-[var(--color-ivory)]"
-      contentClassName="relative"
+      className="bg-[var(--color-surface)] pb-24 pt-24 md:pb-40 md:pt-40"
+      contentClassName="relative max-w-none px-0"
+      hideDivider
     >
-      <div
-        ref={shellRef}
-        className="milka-section-shell paper-surface--soft relative overflow-hidden rounded-[10px] px-5 py-8 pr-12 sm:pr-14 md:px-8 md:py-10 md:pr-16 lg:pr-20"
-      >
-        <BotanicalSprig className="milka-sprig milka-sprig--left" />
-        <BotanicalSprig className="milka-sprig milka-sprig--right" />
-
-        <PawPrintDivider />
-
+      <div ref={sectionRef} className="relative mx-auto max-w-[1200px] px-4 md:px-8">
+        
+        {/* Animated Background Paw Track - Stretches down the right side */}
         <motion.div
-          className="milka-paw-walk pointer-events-none absolute inset-y-8 right-1 z-[1] block md:inset-y-10 md:right-2 lg:right-4"
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 8 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.75 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.85 }}
+          className="pointer-events-none absolute bottom-0 right-0 top-0 z-0 w-[120px] text-[var(--color-olive)]/20 md:w-[220px]"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 1.5 }}
           aria-hidden
         >
-          <svg viewBox={`0 0 ${PAW_TRACK_WIDTH} ${PAW_TRACK_HEIGHT}`} className="milka-paw-walk-line" aria-hidden>
+          <svg viewBox={`0 0 ${PAW_TRACK_WIDTH} ${PAW_TRACK_HEIGHT}`} preserveAspectRatio="none" className="h-full w-full" aria-hidden>
             <path
               ref={pawPathRef}
               d="M112 24C62 118 160 196 102 312C46 428 166 512 98 630C48 720 122 812 114 916"
-              className="milka-paw-walk-path"
+              fill="none"
             />
           </svg>
 
@@ -185,7 +139,7 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
                 ref={(node) => {
                   pawMarkerRefs.current[pairIndex * 2] = node;
                 }}
-                className="milka-paw-marker milka-paw-marker--left"
+                className="absolute w-[18%] text-current transition-opacity duration-300 will-change-transform"
               >
                 <PawIcon className="h-full w-full" />
               </span>
@@ -193,7 +147,7 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
                 ref={(node) => {
                   pawMarkerRefs.current[pairIndex * 2 + 1] = node;
                 }}
-                className="milka-paw-marker milka-paw-marker--right milka-paw-marker--small"
+                className="absolute w-[14%] text-current transition-opacity duration-300 will-change-transform"
               >
                 <PawIcon className="h-full w-full" />
               </span>
@@ -201,78 +155,132 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
           ))}
         </motion.div>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:gap-8">
-          <div className="milka-copy-stack">
-            {content.paragraphs.map((paragraph, index) => (
-              <motion.p
-                key={`milka-line-${index}`}
-                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.4 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.9, delay: shouldReduceMotion ? 0 : index * 0.09 }}
-                className={`section-caption text-[var(--color-forest)]/88 ${
-                  index === 1 ? "font-heading text-[2.1rem] leading-[0.9] md:text-[2.7rem]" : ""
-                }`}
-              >
-                {paragraph}
-              </motion.p>
-            ))}
+        {/* Editorial Content - Sits on top of paw tracks */}
+        <div className="relative z-10">
+          
+          {/* Header */}
+          <motion.header
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+          >
+            <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
+              Capítulo 03
+            </p>
+            <h2 className="font-heading mt-6 text-[clamp(4rem,9vw,6.5rem)] leading-[0.9] text-[var(--color-forest)]">
+              Y entonces llegó Milka
+            </h2>
+            <p className="font-editorial mt-6 text-[clamp(2.5rem,5vw,3.5rem)] italic text-[var(--color-terracotta)]">
+              {content.intro}
+            </p>
+          </motion.header>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.65 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 1.15, delay: shouldReduceMotion ? 0 : 0.28 }}
-              className="milka-quote mt-2"
+          {/* Grid 1: Text & Portrait Photo */}
+          <div className="mt-20 grid items-center gap-16 md:mt-32 lg:grid-cols-12">
+            <motion.div 
+              initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+              className="grid gap-10 lg:col-span-5 lg:col-start-1"
             >
-              {content.quote}
-            </motion.p>
-          </div>
-
-          <div className="milka-visual-stack">
-            <div className="milka-photo-grid">
-              {content.photos.map((photo, index) => (
-                <motion.figure
-                  key={photo.caption}
-                  initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.45 }}
-                  transition={{ duration: shouldReduceMotion ? 0 : 0.95, delay: shouldReduceMotion ? 0 : index * 0.12 }}
-                  className={`paper-surface milka-polaroid ${index === 2 ? "milka-polaroid--wide" : ""} ${
-                    photoAngles[index] ?? ""
-                  }`}
+              {content.paragraphs.map((paragraph, index) => (
+                <p 
+                  key={`milka-line-${index}`} 
+                  className={`font-editorial text-[var(--color-forest)]/85 ${index === 1 ? "text-3xl italic text-[var(--color-terracotta)]" : "text-[1.4rem] leading-relaxed md:text-3xl"}`}
                 >
-                  <div className={`overflow-hidden rounded-[6px] ${index === 2 ? "aspect-[16/11]" : "aspect-[4/5]"}`}>
-                    <img src={photo.src} alt={photo.alt} className="h-full w-full object-cover" loading="lazy" />
-                  </div>
-                  <figcaption className="milka-photo-caption">{photo.caption}</figcaption>
-                </motion.figure>
-              ))}
-            </div>
-
-            <motion.aside
-              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.45 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 1, delay: shouldReduceMotion ? 0 : 0.2 }}
-              className="paper-surface milka-note-card"
-            >
-              {content.note.map((line, index) => (
-                <p
-                  key={`milka-note-${index}`}
-                  className={`${
-                    index === 0
-                      ? "font-heading text-2xl"
-                      : index === content.note.length - 1
-                        ? "font-script text-3xl"
-                        : "section-caption text-[var(--color-forest)]/84"
-                  }`}
-                >
-                  {line}
+                  {paragraph}
                 </p>
               ))}
-            </motion.aside>
+            </motion.div>
+
+            <motion.figure 
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+              className="lg:col-span-6 lg:col-start-7"
+            >
+              <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[8px] shadow-[0_24px_54px_rgba(36,41,31,0.08)]">
+                <img src={portraitPhoto.src} alt={portraitPhoto.alt} className="h-full w-full object-cover transition-transform duration-[2s] hover:scale-105" loading="lazy" />
+              </div>
+              <figcaption className="mt-5 text-right text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">
+                {portraitPhoto.caption}
+              </figcaption>
+            </motion.figure>
           </div>
+
+          {/* Massive Quote Highlight */}
+          <motion.div 
+            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 1.5 }}
+            className="mx-auto mt-32 max-w-4xl text-center md:mt-48"
+          >
+            <h3 className="font-heading text-[clamp(3.5rem,8vw,6rem)] leading-[0.95] text-[var(--color-forest)]">
+              "{content.quote}"
+            </h3>
+          </motion.div>
+
+          {/* Grid 2: Square Photo, Landscape Photo & Note */}
+          <div className="mt-32 grid items-end gap-16 md:mt-48 lg:grid-cols-12">
+            <motion.figure 
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.3 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+              className="lg:col-span-4 lg:col-start-1"
+            >
+              <div className="relative aspect-square w-full overflow-hidden rounded-[8px] shadow-[0_24px_40px_rgba(36,41,31,0.08)]">
+                <img src={squarePhoto.src} alt={squarePhoto.alt} className="h-full w-full object-cover" loading="lazy" />
+              </div>
+              <figcaption className="mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">
+                {squarePhoto.caption}
+              </figcaption>
+            </motion.figure>
+
+            <div className="grid gap-20 lg:col-span-7 lg:col-start-6">
+              <motion.figure 
+                initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, amount: 0.3 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+              >
+                <div className="relative aspect-[16/10] w-full overflow-hidden rounded-[8px] shadow-[0_32px_64px_rgba(36,41,31,0.12)]">
+                  <img src={landscapePhoto.src} alt={landscapePhoto.alt} className="h-full w-full object-cover transition-transform duration-[3s] hover:scale-105" loading="lazy" />
+                </div>
+                <figcaption className="mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">
+                  {landscapePhoto.caption}
+                </figcaption>
+              </motion.figure>
+
+              <motion.aside
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.6 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+                className="mx-auto max-w-lg text-center"
+              >
+                {content.note.map((line, index) => (
+                  <p
+                    key={`milka-note-${index}`}
+                    className={`mt-4 ${
+                      index === 0
+                        ? "font-heading text-[2.5rem] text-[var(--color-forest)]"
+                        : index === content.note.length - 1
+                          ? "font-editorial mt-8 text-4xl italic text-[var(--color-terracotta)]"
+                          : "font-editorial text-2xl text-[var(--color-forest)]/80"
+                    }`}
+                  >
+                    {line}
+                  </p>
+                ))}
+              </motion.aside>
+            </div>
+          </div>
+
         </div>
       </div>
     </SectionWrapper>

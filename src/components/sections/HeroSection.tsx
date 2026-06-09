@@ -1,6 +1,6 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useRef } from "react";
 import type { HeroContent } from "../../types/wedding";
-import AnimatedOrchid from "../AnimatedOrchid";
 
 interface HeroSectionProps {
   content: HeroContent;
@@ -9,119 +9,151 @@ interface HeroSectionProps {
 const HERO_IMAGE =
   "https://images.unsplash.com/photo-1520854221256-17451cc331bf?auto=format&fit=crop&w=1200&q=80";
 
+// Cinematic light dust particles to make the scene feel alive
+const ambientParticles = [
+  { size: 4, left: "15%", top: "20%", delay: 0, duration: 12 },
+  { size: 6, left: "85%", top: "15%", delay: 2, duration: 15 },
+  { size: 3, left: "55%", top: "40%", delay: 1, duration: 10 },
+  { size: 5, left: "25%", top: "60%", delay: 3, duration: 18 },
+  { size: 7, left: "75%", top: "70%", delay: 0.5, duration: 14 },
+  { size: 4, left: "45%", top: "85%", delay: 4, duration: 16 },
+];
+
 export default function HeroSection({ content }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // Parallax scroll effects
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const textY = useTransform(scrollYProgress, [0, 1], ["0%", "60%"]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <section
+      ref={sectionRef}
       id="portada"
-      className="relative min-h-[100svh] overflow-hidden px-4 pb-14 pt-10 md:px-8 md:pt-12 lg:pb-24"
+      className="relative flex min-h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-[var(--color-forest)]"
     >
-      <div className="hero-backdrop-image" aria-hidden />
-      <div className="hero-backdrop" aria-hidden />
-      <div className="hero-clouds" aria-hidden />
-
-      <div className="relative z-10 mx-auto grid max-w-[1220px] gap-8 md:gap-12 lg:mt-4 lg:grid-cols-[minmax(0,1.02fr)_minmax(0,0.98fr)] lg:items-center">
-        <motion.header
-          initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -22 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 1.1 }}
-          className="relative order-1 px-1 pb-2 pt-1 lg:order-1"
-        >
-          <p className="text-sm font-medium tracking-[0.02em] text-[var(--color-muted)] sm:text-base md:text-2xl">
-            Bienvenidos a
-          </p>
-          <h1 className="font-script mt-3 text-[clamp(3.2rem,18vw,8rem)] leading-[0.9] text-[var(--color-forest)]">
-            {content.title}
-          </h1>
-          <p className="font-editorial mt-2 text-[2.15rem] leading-tight text-[var(--color-olive)] sm:text-4xl md:text-5xl">
-            {content.subtitle}
-          </p>
-          <p className="section-caption mt-5 max-w-[42ch] text-[var(--color-muted)] md:mt-7">{content.text}</p>
-
-          <p className="mt-6 inline-flex rounded-full bg-[var(--color-surface)]/84 px-4 py-2 text-xs font-medium tracking-[0.05em] text-[var(--color-muted)] sm:mt-8 sm:px-5 sm:text-sm sm:tracking-[0.06em]">
-            {content.date}
-          </p>
-        </motion.header>
-
-        <div className="relative order-2 mx-auto w-full max-w-[580px] pb-14 pt-3 sm:pb-16 lg:order-2 lg:pb-20">
-          <motion.figure
-            initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 20, y: shouldReduceMotion ? 0 : 16 }}
-            animate={{ opacity: 1, x: 0, y: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.15 }}
-            className="hero-photo-mask relative aspect-[4/5] overflow-hidden border border-[var(--color-olive)]/20 bg-[var(--color-surface)] shadow-[0_20px_46px_rgba(54,59,48,0.18)]"
-          >
-            <img
-              src={HERO_IMAGE}
-              alt="Pareja de novios abrazados frente a un paisaje natural"
-              className="h-full w-full object-cover object-center"
-              loading="eager"
-              decoding="async"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/18 via-transparent to-white/20" />
-          </motion.figure>
-
-          <AnimatedOrchid className="absolute -left-7 top-14 h-[150px] w-[98px] text-[var(--color-olive)]/56 sm:-left-10 sm:top-20 sm:h-[220px] sm:w-[145px] sm:text-[var(--color-olive)]/66 md:-left-16 md:h-[250px] md:w-[166px]" />
-          <AnimatedOrchid
-            mirrored
-            className="absolute -right-6 top-4 h-[126px] w-[84px] text-[var(--color-olive)]/54 sm:-right-8 sm:top-5 sm:h-[170px] sm:w-[116px] sm:text-[var(--color-olive)]/64 md:-right-12 md:h-[195px] md:w-[132px]"
-          />
-
-          <motion.div
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.05, delay: shouldReduceMotion ? 0 : 0.32 }}
-            className="paper-surface absolute left-1 top-[60%] z-20 rounded-[16px] px-3 py-2 sm:-left-2 sm:top-[58%] sm:rounded-[20px] sm:px-4 sm:py-3 md:-left-7 md:px-5"
-          >
-            <p className="text-[0.68rem] uppercase tracking-[0.2em] text-[var(--color-muted)]">
-              Nos casamos
-            </p>
-            <p className="mt-1 text-base font-semibold text-[var(--color-forest)] sm:text-lg">{content.date}</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: shouldReduceMotion ? 0 : 16 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.05, delay: shouldReduceMotion ? 0 : 0.42 }}
-            className="paper-surface absolute right-1 bottom-5 z-20 rounded-full px-4 py-2 sm:-right-2 sm:bottom-3 sm:px-5 sm:py-3 md:-right-6 md:px-7"
-          >
-            <p className="font-heading text-base leading-none text-[var(--color-olive)] sm:text-lg md:text-2xl">{content.subtitle}</p>
-          </motion.div>
-
-        </div>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: shouldReduceMotion ? 0 : 1.3, delay: shouldReduceMotion ? 0 : 0.35 }}
-        className="relative z-10 mx-auto mt-1 flex max-w-[1220px] justify-start"
+      {/* Immersive Parallax Background Image */}
+      <motion.div 
+        className="absolute inset-0 z-0 origin-top"
+        style={{ y: shouldReduceMotion ? 0 : backgroundY }}
       >
-        <a
-          href="#nuestra-historia"
-          className="inline-flex items-center gap-3 text-[0.62rem] font-semibold uppercase tracking-[0.15em] text-[var(--color-olive)] sm:text-xs sm:tracking-[0.18em] md:text-sm"
-        >
-          <span className="h-px w-9 bg-[var(--color-olive)]/70 sm:w-14" aria-hidden />
-          Abrir la historia
-        </a>
+        <motion.img
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 3, ease: "easeOut" }}
+          src={HERO_IMAGE}
+          alt="Ale y Dani"
+          className="h-full w-full object-cover object-center"
+          loading="eager"
+          decoding="async"
+        />
+        {/* Cinematic Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70" />
       </motion.div>
 
-      <div className="absolute inset-x-0 bottom-8 pointer-events-none hidden justify-center lg:flex" aria-hidden>
-        <svg viewBox="0 0 420 72" className="h-14 w-[320px] text-[var(--color-moss-soft)]/70">
-          <path
-            d="M16 38C54 14 80 14 118 38C156 62 182 62 220 38C258 14 284 14 322 38C352 56 377 56 404 40"
-            stroke="currentColor"
-            strokeWidth="2"
-            fill="none"
-            strokeDasharray="6 10"
-            strokeLinecap="round"
-          />
-          <circle cx="16" cy="38" r="4" fill="currentColor" />
-          <circle cx="404" cy="40" r="4" fill="currentColor" />
-        </svg>
-      </div>
+      {/* Ambient Light Particles */}
+      {!shouldReduceMotion && (
+        <div className="absolute inset-0 z-[1] overflow-hidden pointer-events-none mix-blend-screen" aria-hidden>
+          {ambientParticles.map((particle, i) => (
+            <motion.div
+              key={i}
+              className="absolute rounded-full bg-white/30 blur-[2px]"
+              style={{
+                width: particle.size,
+                height: particle.size,
+                left: particle.left,
+                top: particle.top,
+              }}
+              animate={{
+                y: ["-20px", "20px", "-20px"],
+                x: ["-10px", "10px", "-10px"],
+                opacity: [0.2, 0.6, 0.2],
+              }}
+              transition={{
+                duration: particle.duration,
+                delay: particle.delay,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          ))}
+        </div>
+      )}
 
-      <div className="section-divider" aria-hidden />
+      {/* Main Cinematic Typography - Parallax Enabled */}
+      <motion.div 
+        className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-4 text-center"
+        style={{ y: shouldReduceMotion ? 0 : textY, opacity: textOpacity }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+        >
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-white/80 md:text-[0.85rem]">
+            Bienvenidos a la boda de
+          </p>
+        </motion.div>
+        
+        <motion.h1 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
+          className="font-heading mt-6 text-[clamp(4.5rem,18vw,12rem)] leading-[0.85] text-white drop-shadow-2xl"
+        >
+          {content.title}
+        </motion.h1>
+        
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
+          className="font-editorial mt-6 text-[clamp(2rem,6vw,4.5rem)] italic text-white/90 drop-shadow-md"
+        >
+          {content.subtitle}
+        </motion.p>
+      </motion.div>
+
+      {/* Bottom Information & Dynamic Scroll Indicator */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.5, delay: 1 }}
+        style={{ opacity: textOpacity }}
+        className="relative z-10 mb-8 flex w-full flex-col items-center justify-between gap-10 px-8 md:mb-12 md:flex-row md:px-16"
+      >
+        <div className="flex flex-col items-center text-center md:items-start md:text-left">
+          <span className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-white/70">
+            La Fecha
+          </span>
+          <span className="font-editorial mt-2 text-2xl text-white md:text-3xl">
+            {content.date}
+          </span>
+        </div>
+
+        <a
+          href="#nuestra-historia"
+          className="group flex flex-col items-center gap-4 text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-white transition-opacity hover:opacity-80 md:items-end"
+        >
+          Descubrir más
+          <motion.span 
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-white/5 backdrop-blur-sm transition-colors group-hover:bg-white/10"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-white">
+              <path d="M12 4V20M12 20L6 14M12 20L18 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </motion.span>
+        </a>
+      </motion.div>
     </section>
   );
 }
