@@ -189,8 +189,10 @@ export default function StorySection({ content }: StorySectionProps) {
   const connectorPathRef = useRef<SVGPathElement | null>(null);
   const planeRef = useRef<HTMLSpanElement | null>(null);
   const topResetRef = useRef<HTMLDivElement | null>(null);
+  const introRef = useRef<HTMLElement | null>(null);
   
   const topInView = useInView(topResetRef, { amount: 0.92 });
+  const introInView = useInView(introRef, { once: true, amount: 0.35 });
   const { scrollY } = useScroll();
   
   // Starting the plane movement slightly earlier so it is active right away
@@ -201,6 +203,7 @@ export default function StorySection({ content }: StorySectionProps) {
   
   const scrollDirectionRef = useRef<"up" | "down">("down");
   const hasResetAtCurrentTopRef = useRef(false);
+  const [hasUserScrolled, setHasUserScrolled] = useState(false);
   const [resetNonce, setResetNonce] = useState(0);
 
   const positionPlaneOnPath = useCallback(
@@ -243,6 +246,9 @@ export default function StorySection({ content }: StorySectionProps) {
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     const previous = scrollY.getPrevious();
+    if (latest > 4 && !hasUserScrolled) {
+      setHasUserScrolled(true);
+    }
     if (previous === undefined || latest === previous) return;
     const nextDirection = latest < previous ? "up" : "down";
     if (nextDirection !== scrollDirectionRef.current) {
@@ -276,10 +282,10 @@ export default function StorySection({ content }: StorySectionProps) {
       <div className="mx-auto max-w-[1100px] px-4 md:px-8">
         
         <motion.header
+          ref={introRef}
           initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: "some", margin: "0px 0px 100px 0px" }}
-          transition={{ duration: 0.5 }}
+          animate={hasUserScrolled && introInView ? { opacity: 1, y: 0 } : { opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
           className="relative z-10 text-center"
         >
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">
