@@ -157,17 +157,17 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
           {getChapter(index)}
         </p>
         
-        <h3 className="font-heading mt-6 text-[clamp(2.5rem,5vw,4.5rem)] leading-[1.05] text-[var(--color-forest)]">
+        <h3 className="font-heading mt-6 text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] text-[var(--color-forest)]">
           {beat.title}
         </h3>
         
-        <p className="font-editorial mt-3 text-[1.5rem] italic text-[var(--color-terracotta)] md:text-[2rem]">
+        <p className="font-editorial mt-3 text-[1.25rem] leading-[1.25] italic text-[var(--color-terracotta)] md:text-[1.6rem]">
           {beat.moment}
         </p>
 
         <div className="mt-8 grid gap-5">
           {beat.text.split("\n").map((line, lineIndex) => (
-            <p key={`${beat.title}-${lineIndex}`} className="font-editorial text-[1.3rem] leading-relaxed text-[var(--color-forest)]/80 md:text-[1.5rem]">
+            <p key={`${beat.title}-${lineIndex}`} className="font-editorial text-[1.1rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.25rem]">
               {line}
             </p>
           ))}
@@ -291,10 +291,10 @@ export default function StorySection({ content }: StorySectionProps) {
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">
             Capítulo 01
           </p>
-          <h2 className="font-heading mt-6 text-[clamp(4rem,9vw,6.5rem)] leading-[0.9] text-[var(--color-forest)]">
+          <h2 className="font-heading mt-6 text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
             Nuestra historia
           </h2>
-          <p className="font-editorial mt-5 text-[clamp(2.5rem,5vw,3.5rem)] italic text-[var(--color-terracotta)]">
+          <p className="font-editorial mt-5 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
             {content.intro}
           </p>
         </motion.header>

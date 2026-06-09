@@ -59,16 +59,16 @@ function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineIt
           {block.title}
         </p>
         
-        <h3 className="font-heading mt-6 text-[clamp(2.5rem,5vw,3.5rem)] leading-[1.05] text-[var(--color-forest)]">
+        <h3 className="font-heading mt-6 text-[clamp(2rem,4vw,2.75rem)] leading-[1.05] text-[var(--color-forest)]">
           {block.venue}
         </h3>
         
         <div className="mt-8 grid gap-4">
-          <p className="font-editorial text-3xl text-[var(--color-terracotta)]">
+          <p className="font-editorial text-2xl leading-[1.25] text-[var(--color-terracotta)]">
             {block.time}
           </p>
           {block.location && (
-            <p className="font-editorial text-2xl text-[var(--color-forest)]/80">
+            <p className="font-editorial text-xl leading-[1.35] text-[var(--color-forest)]/80">
               {block.location}
             </p>
           )}
@@ -110,13 +110,13 @@ function DressCodeNote({ config, shouldReduceMotion }: DressCodeNoteProps) {
       <p id="dress-code-title" className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
         {config.title}
       </p>
-      <p className="font-editorial mt-5 text-[clamp(2.5rem,4vw,3.5rem)] leading-tight text-[var(--color-forest)]">
+      <p className="font-editorial mt-5 text-[clamp(1.8rem,3vw,2.5rem)] leading-[1.18] text-[var(--color-forest)]">
         {config.subtitle}
       </p>
 
       <div className="mt-10 grid gap-6">
         {config.guidance.map((item) => (
-          <p key={item} className="font-editorial text-[1.4rem] leading-relaxed text-[var(--color-forest)]/85">
+          <p key={item} className="font-editorial text-[1.15rem] leading-[1.42] text-[var(--color-forest)]/85">
             {item}
           </p>
         ))}
@@ -162,15 +162,15 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
           <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
             El Gran Día
           </p>
-          <h2 className="font-heading mt-8 text-[clamp(4.5rem,10vw,8rem)] leading-[0.85] text-[var(--color-forest)]">
+          <h2 className="font-heading mt-8 text-[clamp(3.25rem,8vw,5.5rem)] leading-[0.9] text-[var(--color-forest)]">
             {dateText}
           </h2>
-          <p className="font-editorial mt-4 text-[clamp(3rem,6vw,5rem)] italic text-[var(--color-terracotta)]">
+          <p className="font-editorial mt-4 text-[clamp(2rem,5vw,3.25rem)] leading-[1.15] italic text-[var(--color-terracotta)]">
             {yearText}
           </p>
           <div className="mx-auto mt-12 max-w-2xl">
             {event.paragraphs.map((p, i) => (
-              <p key={i} className="mb-6 font-editorial text-2xl text-[var(--color-forest)]/80">
+              <p key={i} className="mb-6 font-editorial text-xl leading-[1.38] text-[var(--color-forest)]/80">
                 {p}
               </p>
             ))}

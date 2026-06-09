@@ -115,7 +115,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       <div className="mb-8 grid gap-4">
         <div className="grid gap-2">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#bc6c25]">RSVP</p>
-          <h3 className="font-heading text-3xl leading-tight md:text-4xl">{config.title}</h3>
+          <h3 className="font-heading text-2xl leading-tight md:text-3xl">{config.title}</h3>
         </div>
         <p className="section-caption max-w-xl text-(--color-forest)/85">{config.intro}</p>
       </div>

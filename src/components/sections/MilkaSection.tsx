@@ -168,10 +168,10 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
             <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
               Capítulo 03
             </p>
-            <h2 className="font-heading mt-6 text-[clamp(4rem,9vw,6.5rem)] leading-[0.9] text-[var(--color-forest)]">
+            <h2 className="font-heading mt-6 text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
               Y entonces llegó Milka
             </h2>
-            <p className="font-editorial mt-6 text-[clamp(2.5rem,5vw,3.5rem)] italic text-[var(--color-terracotta)]">
+            <p className="font-editorial mt-6 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
               {content.intro}
             </p>
           </motion.header>
@@ -188,7 +188,7 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
               {content.paragraphs.map((paragraph, index) => (
                 <p 
                   key={`milka-line-${index}`} 
-                  className={`font-editorial text-[var(--color-forest)]/85 ${index === 1 ? "text-3xl italic text-[var(--color-terracotta)]" : "text-[1.4rem] leading-relaxed md:text-3xl"}`}
+                  className={`font-editorial text-[var(--color-forest)]/85 ${index === 1 ? "text-2xl leading-[1.28] italic text-[var(--color-terracotta)] md:text-[1.7rem]" : "text-[1.15rem] leading-[1.42] md:text-2xl"}`}
                 >
                   {paragraph}
                 </p>
@@ -219,7 +219,7 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
             transition={{ duration: shouldReduceMotion ? 0 : 1.5 }}
             className="mx-auto mt-32 max-w-4xl text-center md:mt-48"
           >
-            <h3 className="font-heading text-[clamp(3.5rem,8vw,6rem)] leading-[0.95] text-[var(--color-forest)]">
+            <h3 className="font-heading text-[clamp(2.5rem,6vw,4.25rem)] leading-[0.98] text-[var(--color-forest)]">
               "{content.quote}"
             </h3>
           </motion.div>
@@ -268,10 +268,10 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
                     key={`milka-note-${index}`}
                     className={`mt-4 ${
                       index === 0
-                        ? "font-heading text-[2.5rem] text-[var(--color-forest)]"
+                        ? "font-heading text-[2rem] text-[var(--color-forest)] md:text-[2.25rem]"
                         : index === content.note.length - 1
-                          ? "font-editorial mt-8 text-4xl italic text-[var(--color-terracotta)]"
-                          : "font-editorial text-2xl text-[var(--color-forest)]/80"
+                          ? "font-editorial mt-8 text-3xl leading-[1.22] italic text-[var(--color-terracotta)]"
+                          : "font-editorial text-xl leading-[1.38] text-[var(--color-forest)]/80"
                     }`}
                   >
                     {line}

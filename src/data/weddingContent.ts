@@ -17,7 +17,7 @@ export const weddingContent: WeddingContent = {
       {
         title: "El inicio",
         moment: "Septiembre de 2016",
-        text: "Nos conocimos en una fiesta de graduación.\nJavier pensó que Cata era una de las tías de su amigo.\nSí, así de romántico empezó esto.",
+        text: "Javier estaba de vacaciones en Colombia y Cata ayudaba a organizar la celebración. Se vieron por primera vez sin imaginar que, después de esa noche, algo empezaría a cambiar. Entre fiesta, risas y una conversación casual, comenzó nuestra historia.",
         image:
           "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
         alt: "Luces cálidas y ambiente de fiesta nocturna",
