@@ -17,7 +17,7 @@ export const weddingContent: WeddingContent = {
       {
         title: "El inicio",
         moment: "Septiembre de 2016",
-        text: "Javier estaba de vacaciones en Colombia y Cata ayudaba a organizar la celebración. Se vieron por primera vez sin imaginar que, después de esa noche, algo empezaría a cambiar. Entre fiesta, risas y una conversación casual, comenzó nuestra historia.",
+        text: "Javier estaba de vacaciones en Colombia y Cata ayudaba a organizar la celebración. Se vieron por primera vez sin imaginar que, después de esa noche, algo empezaría a cambiar.\nDías después, una salida entre amigos, una conversación larga y una despedida que se hizo eterna terminaron en el beso que lo cambió todo.\nJavier estaba a pocos días de volver a Portugal, pero esa noche entendimos que algo mucho más grande acababa de empezar.",
         image:
           "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
         alt: "Luces cálidas y ambiente de fiesta nocturna",
@@ -40,7 +40,7 @@ export const weddingContent: WeddingContent = {
       {
         title: "La distancia",
         moment: "Colombia ↔ Portugal",
-        text: "Después de una salida, una mirada y un beso que lo cambió todo, Javier volvió a Portugal.\nAhí empezó nuestra historia a distancia: llamadas largas, aeropuertos, despedidas y reencuentros.",
+        text: "Con Javier en Portugal y Cata en Colombia, aprendimos a querernos entre llamadas, mensajes, aeropuertos y despedidas.\nLa distancia no fue fácil, pero nos enseñó a elegirnos todos los días. Vinieron viajes, reencuentros, nuevos países y la primera vez de Cata en avión.",
         image:
           "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
         alt: "Ventana de aeropuerto con avión durante el atardecer",
@@ -57,17 +57,6 @@ export const weddingContent: WeddingContent = {
             src: "https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=1400&q=80",
             alt: "Pantalla de videollamada representando relación a distancia",
           },
-        ],
-        frame: "postcard",
-      },
-      {
-        title: "Los viajes",
-        moment: "Aeropuertos, fotos y postales",
-        text: "Seguimos eligiéndonos a pesar de la distancia.\nVinieron viajes, fotos, nuevos países y la primera vez de Cata en avión.",
-        image:
-          "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
-        alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
-        images: [
           {
             src: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
             alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
@@ -81,7 +70,7 @@ export const weddingContent: WeddingContent = {
             alt: "Pareja caminando por una calle europea",
           },
         ],
-        frame: "instant",
+        frame: "postcard",
       },
       {
         title: "Volver y construir hogar",

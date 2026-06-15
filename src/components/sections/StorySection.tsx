@@ -165,7 +165,7 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
           {beat.moment}
         </p>
 
-        <div className="mt-8 grid gap-5">
+        <div className="mt-6 grid gap-3 md:mt-7 md:gap-4">
           {beat.text.split("\n").map((line, lineIndex) => (
             <p key={`${beat.title}-${lineIndex}`} className="font-editorial text-[1.1rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.25rem]">
               {line}

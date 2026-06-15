@@ -124,7 +124,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
             className="lg:col-span-6 lg:col-start-7"
           >
-            <div className="relative w-full overflow-hidden rounded-[8px] shadow-[0_24px_54px_rgba(36,41,31,0.08)] md:aspect-[4/5]">
+            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[8px] shadow-[0_24px_54px_rgba(36,41,31,0.08)]">
               <img src={portraitPhoto.src} alt={portraitPhoto.alt} className="h-full w-full object-cover transition-transform duration-[2s] hover:scale-105" loading="lazy" />
             </div>
             <figcaption className="mt-5 text-right text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">
