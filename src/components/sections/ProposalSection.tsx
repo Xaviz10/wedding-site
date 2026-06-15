@@ -1,6 +1,7 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { useRef } from "react";
 import SectionWrapper from "../SectionWrapper";
-import type { WeddingContent } from "../../types/wedding";
+import type { ProposalPhoto, WeddingContent } from "../../types/wedding";
 
 interface ProposalSectionProps {
   content: WeddingContent["proposal"];
@@ -23,8 +24,79 @@ const sectionSnowParticles = [
   { left: "94%", size: 4, opacity: 0.26, duration: 15.6, delay: 1.7, drift: 5 },
 ];
 
+interface ProposalPhotoFrameProps {
+  photo: ProposalPhoto;
+  className?: string;
+  imageClassName?: string;
+  captionAlign?: "left" | "right";
+  shouldReduceMotion: boolean;
+}
+
+function ProposalPhotoFrame({
+  photo,
+  className,
+  imageClassName = "aspect-[4/5]",
+  captionAlign = "left",
+  shouldReduceMotion,
+}: ProposalPhotoFrameProps) {
+  const frameRef = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: frameRef,
+    offset: ["start 86%", "end 18%"],
+  });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 84, damping: 28, mass: 0.55 });
+  const y = useTransform(smoothProgress, [0, 1], shouldReduceMotion ? [0, 0] : [38, -30]);
+  const scale = useTransform(smoothProgress, [0, 0.55, 1], shouldReduceMotion ? [1, 1, 1] : [1.08, 1.01, 1.045]);
+  const opacity = useTransform(smoothProgress, [0, 0.18, 0.9, 1], [0.28, 1, 1, 0.76]);
+
+  return (
+    <motion.figure ref={frameRef} className={className} style={{ y, opacity }}>
+      <motion.div
+        className={`relative w-full overflow-hidden rounded-[4px] shadow-[0_30px_72px_rgba(36,41,31,0.14)] ${imageClassName}`}
+        initial={shouldReduceMotion ? false : { clipPath: "inset(15% 9% 15% 9%)" }}
+        whileInView={shouldReduceMotion ? undefined : { clipPath: "inset(0% 0% 0% 0%)" }}
+        viewport={{ once: true, amount: 0.42 }}
+        transition={{ duration: 1.45, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.img
+          src={photo.src}
+          alt={photo.alt}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          style={{ scale }}
+        />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.01),rgba(36,41,31,0.18))]" />
+      </motion.div>
+      <figcaption
+        className={`mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)] ${
+          captionAlign === "right" ? "text-right" : ""
+        }`}
+      >
+        {photo.caption}
+      </figcaption>
+    </motion.figure>
+  );
+}
+
 export default function ProposalSection({ content }: ProposalSectionProps) {
   const shouldReduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const videoRef = useRef<HTMLAnchorElement | null>(null);
+  const { scrollYProgress: sectionProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start 82%", "end 24%"],
+  });
+  const { scrollYProgress: videoProgress } = useScroll({
+    target: videoRef,
+    offset: ["start 90%", "end 20%"],
+  });
+  const smoothSectionProgress = useSpring(sectionProgress, { stiffness: 76, damping: 28, mass: 0.6 });
+  const smoothVideoProgress = useSpring(videoProgress, { stiffness: 86, damping: 30, mass: 0.55 });
+  const headerY = useTransform(smoothSectionProgress, [0, 0.28], shouldReduceMotion ? [0, 0] : [34, 0]);
+  const headerOpacity = useTransform(smoothSectionProgress, [0, 0.16], [0.2, 1]);
+  const snowOpacity = useTransform(smoothSectionProgress, [0, 0.12, 0.86, 1], [0, 0.72, 0.72, 0.18]);
+  const videoScale = useTransform(smoothVideoProgress, [0, 0.55, 1], shouldReduceMotion ? [1, 1, 1] : [0.94, 1, 1.025]);
+  const videoImageScale = useTransform(smoothVideoProgress, [0, 1], shouldReduceMotion ? [1, 1] : [1.08, 1.01]);
 
   // Categorize photos by format to place them strategically in the editorial layout
   const landscapePhoto = content.photos.find(p => p.format === "landscape") || content.photos[0];
@@ -43,8 +115,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
       contentClassName="relative max-w-none px-0"
       hideDivider
     >
-      {/* Ambient snow falling across the entire section */}
-      <div className="proposal-section-snow-layer" aria-hidden>
+      <motion.div className="proposal-section-snow-layer" style={{ opacity: shouldReduceMotion ? 0.7 : snowOpacity }} aria-hidden>
         {sectionSnowParticles.map((particle, index) => (
           <motion.span
             key={`section-snow-${index}`}
@@ -77,21 +148,18 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             }
           />
         ))}
-      </div>
+      </motion.div>
 
-      <div className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-8">
+      <div ref={sectionRef} className="relative z-10 mx-auto max-w-[1200px] px-4 md:px-8">
         
-        {/* Editorial Header */}
         <motion.header
           initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 1.15, ease: [0.16, 1, 0.3, 1] }}
+          style={{ y: headerY, opacity: headerOpacity }}
         >
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
-            Capítulo 05
-          </p>
-          <h2 className="font-heading mt-6 text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
+          <h2 className="font-heading text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
             La propuesta
           </h2>
           <p className="font-editorial mt-6 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
@@ -99,47 +167,53 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
           </p>
         </motion.header>
 
-        {/* Grid 1: Narrative & Portrait Photo */}
-        <div className="mt-20 grid items-center gap-16 md:mt-32 lg:grid-cols-12">
+        <div className="mt-20 grid items-end gap-16 md:mt-32 lg:grid-cols-12">
           <motion.div 
-            initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
-            className="lg:col-span-5 lg:col-start-1"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.28 }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: shouldReduceMotion ? 0 : 0.1,
+                },
+              },
+            }}
+            className="lg:col-span-5 lg:col-start-1 lg:pb-12"
           >
             <div className="grid gap-10">
               {narrativeBeats.slice(0, 2).map((beat, i) => (
-                <p key={i} className="font-editorial text-[1.15rem] leading-[1.42] text-[var(--color-forest)]/85 md:text-2xl">
+                <motion.p
+                  key={i}
+                  variants={{
+                    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 22 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+                  className="font-editorial text-[1.15rem] leading-[1.42] text-[var(--color-forest)]/85 md:text-2xl"
+                >
                   {beat.text}
-                </p>
+                </motion.p>
               ))}
             </div>
           </motion.div>
 
-          <motion.figure 
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+          <ProposalPhotoFrame
+            photo={portraitPhoto}
+            shouldReduceMotion={shouldReduceMotion === true}
+            captionAlign="right"
             className="lg:col-span-6 lg:col-start-7"
-          >
-            <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[8px] shadow-[0_24px_54px_rgba(36,41,31,0.08)]">
-              <img src={portraitPhoto.src} alt={portraitPhoto.alt} className="h-full w-full object-cover transition-transform duration-[2s] hover:scale-105" loading="lazy" />
-            </div>
-            <figcaption className="mt-5 text-right text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">
-              {portraitPhoto.caption}
-            </figcaption>
-          </motion.figure>
+            imageClassName="aspect-[4/5] md:aspect-[3/4]"
+          />
         </div>
 
-        {/* The Highlight Moment */}
         {highlightBeat && (
           <motion.div 
-            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.5 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.5 }}
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 34, scale: shouldReduceMotion ? 1 : 0.95 }}
+            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            viewport={{ once: true, amount: 0.42 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 1.35, ease: [0.16, 1, 0.3, 1] }}
             className="mt-32 text-center md:mt-48"
           >
             <h3 className="font-heading text-[clamp(3rem,8vw,6rem)] leading-[0.9] text-[var(--color-forest)]">
@@ -148,76 +222,73 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
           </motion.div>
         )}
 
-        {/* Grid 2: Landscape Photo, Final Text, and Square Photo */}
         <div className="mt-32 grid items-end gap-16 md:mt-48 lg:grid-cols-12">
-          <motion.figure 
-            initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+          <ProposalPhotoFrame
+            photo={landscapePhoto}
+            shouldReduceMotion={shouldReduceMotion === true}
             className="lg:col-span-8"
-          >
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[8px] shadow-[0_24px_54px_rgba(36,41,31,0.08)] md:aspect-[16/10]">
-              <img src={landscapePhoto.src} alt={landscapePhoto.alt} className="h-full w-full object-cover transition-transform duration-[2s] hover:scale-105" loading="lazy" />
-            </div>
-            <figcaption className="mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">
-              {landscapePhoto.caption}
-            </figcaption>
-          </motion.figure>
+            imageClassName="aspect-[4/3] md:aspect-[16/10]"
+          />
 
           <motion.div 
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.2, delay: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 1.1, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
             className="grid gap-12 lg:col-span-4"
           >
             {narrativeBeats[2] && (
               <p className="font-editorial text-right text-2xl italic leading-[1.32] text-[var(--color-terracotta)] md:text-3xl">
-                "{narrativeBeats[2].text}"
+                “{narrativeBeats[2].text}”
               </p>
             )}
             
-            <figure className="relative ml-auto aspect-square w-3/4 overflow-hidden rounded-[8px] shadow-[0_20px_40px_rgba(36,41,31,0.08)] md:w-2/3">
-              <img src={squarePhoto.src} alt={squarePhoto.alt} className="h-full w-full object-cover" loading="lazy" />
-            </figure>
+            <ProposalPhotoFrame
+              photo={squarePhoto}
+              shouldReduceMotion={shouldReduceMotion === true}
+              className="ml-auto w-3/4 md:w-2/3"
+              imageClassName="aspect-square"
+            />
           </motion.div>
         </div>
 
-        {/* Editorial Vertical Video Block */}
         <div className="mt-32 grid items-center gap-12 md:mt-48 lg:grid-cols-12 lg:gap-16">
-          
-          {/* Humor Text dynamically placed beside the vertical video */}
           {humorBeat && (
             <motion.div 
-              initial={{ opacity: 0, x: shouldReduceMotion ? 0 : -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 1.5, delay: 0.3 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 1.15, delay: shouldReduceMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
               className="order-2 text-center lg:order-1 lg:col-span-5 lg:col-start-2 lg:text-left"
             >
               <p className="font-editorial text-xl italic leading-[1.32] text-[var(--color-forest)]/80 md:text-3xl">
-                "{humorBeat.text}"
+                “{humorBeat.text}”
               </p>
             </motion.div>
           )}
 
           <motion.a
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
+            ref={videoRef}
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 34 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 1.2, ease: [0.16, 1, 0.3, 1] }}
+            style={{ scale: videoScale }}
             href={content.videoUrl}
             target="_blank"
             rel="noreferrer"
             className={`group relative block overflow-hidden rounded-[8px] shadow-[0_32px_64px_rgba(36,41,31,0.12)] order-1 mx-auto w-full max-w-sm lg:order-2 lg:col-span-4 lg:max-w-none ${!humorBeat ? 'lg:col-start-5' : ''}`}
           >
-            {/* Vertical Aspect Ratio 9:16 */}
             <div className="aspect-[9/16] w-full bg-[var(--color-olive)]/10">
-              <img src={content.videoPoster} alt="Video Poster" className="h-full w-full object-cover transition-transform duration-[3s] group-hover:scale-105" loading="lazy" />
+              <motion.img
+                src={content.videoPoster}
+                alt="Video de la propuesta"
+                className="h-full w-full object-cover"
+                loading="lazy"
+                style={{ scale: videoImageScale }}
+              />
               <div className="absolute inset-0 bg-[var(--color-forest)]/20 transition-colors duration-700 group-hover:bg-[var(--color-forest)]/10" />
               
-              {/* Play Button Overlay */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
                 <span className="flex h-16 w-16 items-center justify-center rounded-full bg-white/95 shadow-2xl transition-transform duration-500 group-hover:scale-110 md:h-20 md:w-20">
                   <svg viewBox="0 0 24 24" fill="var(--color-forest)" className="ml-1.5 h-8 w-8 md:h-10 md:w-10">

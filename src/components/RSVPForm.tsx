@@ -109,18 +109,22 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="rounded-2xl p-6 md:p-8 rsvp-form-shell"
+      className="rsvp-form-shell rounded-[4px] p-5 md:p-8"
       noValidate
     >
-      <div className="mb-8 grid gap-4">
+      <div className="mb-7 grid gap-4 md:mb-8">
         <div className="grid gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#bc6c25]">RSVP</p>
-          <h3 className="font-heading text-2xl leading-tight md:text-3xl">{config.title}</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-olive)]">RSVP</p>
+          <h3 className="font-heading text-[clamp(2rem,5vw,3rem)] leading-[0.98] text-[var(--color-forest)]">
+            {config.title}
+          </h3>
         </div>
-        <p className="section-caption max-w-xl text-(--color-forest)/85">{config.intro}</p>
+        <p className="font-editorial max-w-xl text-[1.18rem] leading-[1.34] text-[var(--color-forest)]/80 md:text-[1.3rem]">
+          {config.intro}
+        </p>
       </div>
 
-      <div className="grid gap-5">
+      <div className="grid gap-4 md:gap-5">
         <label className="grid gap-2">
           <span className="form-label">Nombre completo</span>
           <input

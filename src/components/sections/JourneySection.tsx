@@ -13,7 +13,6 @@ export default function JourneySection({ content }: JourneySectionProps) {
   return (
     <SectionWrapper
       id="distancia-viajes-y-hogar"
-      eyebrow="Capítulo 02"
       title="Distancia, viajes y hogar"
       intro={content.intro}
       className="bg-[var(--color-ivory)]"

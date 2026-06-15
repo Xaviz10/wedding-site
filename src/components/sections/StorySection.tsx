@@ -1,4 +1,12 @@
-import { motion, useInView, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
+import {
+  motion,
+  useInView,
+  useMotionValueEvent,
+  useReducedMotion,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import SectionWrapper from "../SectionWrapper";
 import type { StoryBeat, WeddingContent } from "../../types/wedding";
@@ -11,10 +19,6 @@ interface StoryChapterRowProps {
   beat: StoryBeat;
   index: number;
   shouldReduceMotion: boolean;
-}
-
-function getChapter(index: number) {
-  return `Capítulo ${String(index + 1).padStart(2, "0")}`;
 }
 
 function buildConnectorPath(totalChapters: number) {
@@ -58,10 +62,21 @@ function buildConnectorPath(totalChapters: number) {
 }
 
 function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowProps) {
+  const articleRef = useRef<HTMLElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const slides = beat.images && beat.images.length > 0 ? beat.images : [{ src: beat.image, alt: beat.alt }];
   const hasMultipleSlides = slides.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
+  const { scrollYProgress } = useScroll({
+    target: articleRef,
+    offset: ["start 88%", "end 18%"],
+  });
+  const easedProgress = useSpring(scrollYProgress, { stiffness: 90, damping: 28, mass: 0.55 });
+  const imageY = useTransform(easedProgress, [0, 1], shouldReduceMotion ? [0, 0] : [36, -36]);
+  const imageScale = useTransform(easedProgress, [0, 0.55, 1], shouldReduceMotion ? [1, 1, 1] : [1.08, 1.01, 1.04]);
+  const imageOpacity = useTransform(easedProgress, [0, 0.16, 0.9, 1], [0.35, 1, 1, 0.72]);
+  const copyY = useTransform(easedProgress, [0, 0.45], shouldReduceMotion ? [0, 0] : [28, 0]);
+  const copyOpacity = useTransform(easedProgress, [0, 0.32], [0.18, 1]);
 
   const syncActiveSlide = useCallback(
     (target: HTMLDivElement) => {
@@ -111,31 +126,42 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
 
   return (
     <motion.article
-      initial={{ opacity: 0, x: entryX, y: shouldReduceMotion ? 0 : 30 }}
-      // "amount: some" with a large bottom margin triggers the animation long before the user scrolls to it!
+      ref={articleRef}
+      initial={{ opacity: 0, x: entryX, y: shouldReduceMotion ? 0 : 48 }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
-      viewport={{ once: true, amount: "some", margin: "0px 0px 400px 0px" }} 
-      transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, amount: 0.28, margin: "0px 0px -8% 0px" }}
+      transition={{ duration: shouldReduceMotion ? 0 : 1.35, ease: [0.16, 1, 0.3, 1] }}
       className={`relative z-10 grid items-center gap-10 md:gap-20 lg:grid-cols-2 ${
-        index === 0 ? "pt-4 md:pt-10" : "pt-24 md:pt-36"
+        index === 0 ? "pt-8 md:pt-16" : "pt-28 md:pt-44"
       } ${isEven ? "lg:[&>*:first-child]:order-2" : ""}`}
     >
-      <figure className={`relative w-full ${isEven ? "lg:pl-12" : "lg:pr-12"}`}>
-        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[4px] shadow-[0_20px_50px_rgba(36,41,31,0.12)] md:aspect-[3/4]">
-          <div
+      <motion.figure
+        className={`relative w-full ${isEven ? "lg:pl-12" : "lg:pr-12"}`}
+        style={{ y: imageY, opacity: imageOpacity }}
+      >
+        <motion.div
+          className="relative aspect-[4/5] w-full overflow-hidden rounded-[4px] shadow-[0_28px_70px_rgba(36,41,31,0.16)] md:aspect-[3/4]"
+          initial={shouldReduceMotion ? false : { clipPath: "inset(18% 10% 18% 10%)" }}
+          whileInView={shouldReduceMotion ? undefined : { clipPath: "inset(0% 0% 0% 0%)" }}
+          viewport={{ once: true, amount: 0.45 }}
+          transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
             ref={carouselRef}
             className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide"
             onScroll={handleCarouselScroll}
             onKeyDown={handleCarouselKeyDown}
             tabIndex={hasMultipleSlides ? 0 : -1}
+            style={{ scale: imageScale }}
           >
             {slides.map((slide, slideIndex) => (
               <div key={`${beat.title}-slide-${slideIndex}`} className="h-full w-full shrink-0 snap-center">
                 <img src={slide.src} alt={slide.alt} className="h-full w-full object-cover" loading="lazy" />
               </div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.02),rgba(36,41,31,0.18))]" />
+        </motion.div>
         
         {hasMultipleSlides && (
           <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-white/40 px-4 py-2 backdrop-blur-md">
@@ -150,29 +176,51 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
             ))}
           </div>
         )}
-      </figure>
+      </motion.figure>
 
-      <div className={`flex flex-col justify-center px-4 md:px-0 ${isEven ? "lg:pr-16" : "lg:pl-16"}`}>
-        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">
-          {getChapter(index)}
-        </p>
-        
-        <h3 className="font-heading mt-6 text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] text-[var(--color-forest)]">
+      <motion.div
+        className={`flex flex-col justify-center px-4 md:px-0 ${isEven ? "lg:pr-16" : "lg:pl-16"}`}
+        style={{ y: copyY, opacity: copyOpacity }}
+      >
+        <motion.h3
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.7 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 1, delay: shouldReduceMotion ? 0 : 0.08, ease: [0.16, 1, 0.3, 1] }}
+          className="font-heading text-[clamp(2rem,4vw,3.25rem)] leading-[1.05] text-[var(--color-forest)]"
+        >
           {beat.title}
-        </h3>
+        </motion.h3>
         
-        <p className="font-editorial mt-3 text-[1.25rem] leading-[1.25] italic text-[var(--color-terracotta)] md:text-[1.6rem]">
+        <motion.p
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.7 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.9, delay: shouldReduceMotion ? 0 : 0.16, ease: [0.16, 1, 0.3, 1] }}
+          className="font-editorial mt-3 text-[1.25rem] leading-[1.25] italic text-[var(--color-terracotta)] md:text-[1.6rem]"
+        >
           {beat.moment}
-        </p>
+        </motion.p>
 
         <div className="mt-6 grid gap-3 md:mt-7 md:gap-4">
           {beat.text.split("\n").map((line, lineIndex) => (
-            <p key={`${beat.title}-${lineIndex}`} className="font-editorial text-[1.1rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.25rem]">
+            <motion.p
+              key={`${beat.title}-${lineIndex}`}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{
+                duration: shouldReduceMotion ? 0 : 0.8,
+                delay: shouldReduceMotion ? 0 : 0.22 + lineIndex * 0.08,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+              className="font-editorial text-[1.1rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.25rem]"
+            >
               {line}
-            </p>
+            </motion.p>
           ))}
         </div>
-      </div>
+      </motion.div>
     </motion.article>
   );
 }
@@ -198,8 +246,11 @@ export default function StorySection({ content }: StorySectionProps) {
   // Starting the plane movement slightly earlier so it is active right away
   const { scrollYProgress: sectionProgress } = useScroll({
     target: chaptersRef,
-    offset: ["start 70%", "end 90%"],
+    offset: ["start 78%", "end 86%"],
   });
+  const smoothSectionProgress = useSpring(sectionProgress, { stiffness: 80, damping: 26, mass: 0.5 });
+  const connectorPathLength = useTransform(smoothSectionProgress, [0, 1], [0.02, 1]);
+  const connectorOpacity = useTransform(smoothSectionProgress, [0, 0.08, 0.92, 1], [0.18, 1, 1, 0.38]);
   
   const scrollDirectionRef = useRef<"up" | "down">("down");
   const hasResetAtCurrentTopRef = useRef(false);
@@ -235,7 +286,7 @@ export default function StorySection({ content }: StorySectionProps) {
     [connector.height, shouldReduceMotion],
   );
 
-  useMotionValueEvent(sectionProgress, "change", (latest) => {
+  useMotionValueEvent(smoothSectionProgress, "change", (latest) => {
     if (shouldReduceMotion) return;
     positionPlaneOnPath(latest);
   });
@@ -288,10 +339,7 @@ export default function StorySection({ content }: StorySectionProps) {
           transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
           className="relative z-10 text-center"
         >
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">
-            Capítulo 01
-          </p>
-          <h2 className="font-heading mt-6 text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
+          <h2 className="font-heading text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
             Nuestra historia
           </h2>
           <p className="font-editorial mt-5 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
@@ -300,6 +348,15 @@ export default function StorySection({ content }: StorySectionProps) {
         </motion.header>
 
         <div ref={chaptersRef} className="relative mt-12 md:mt-16">
+          <motion.div
+            className="pointer-events-none sticky top-24 z-20 ml-auto hidden w-fit pr-8 text-right lg:block"
+            style={{ opacity: connectorOpacity }}
+            aria-hidden
+          >
+            <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.34em] text-[var(--color-olive)]/75">
+              Recuerdos
+            </span>
+          </motion.div>
           
           <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden>
             <svg
@@ -314,11 +371,10 @@ export default function StorySection({ content }: StorySectionProps) {
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeDasharray="6 8"
-                initial={{ pathLength: 0, opacity: 0 }}
-                whileInView={{ pathLength: 1, opacity: 1 }}
-                // Looks 500px down below the screen to start the dashed line early!
-                viewport={{ once: true, amount: "some", margin: "0px 0px 500px 0px" }} 
-                transition={{ duration: shouldReduceMotion ? 0 : 2, ease: [0.22, 1, 0.36, 1] }}
+                style={{
+                  pathLength: shouldReduceMotion ? 1 : connectorPathLength,
+                  opacity: shouldReduceMotion ? 1 : connectorOpacity,
+                }}
               />
             </svg>
             <div className="absolute inset-0 left-1/2 w-full min-w-[700px] -translate-x-1/2">
