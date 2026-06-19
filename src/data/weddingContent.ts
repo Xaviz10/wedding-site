@@ -364,6 +364,12 @@ export const weddingContent: WeddingContent = {
         "Queremos una celebración elegante, cómoda y natural.",
         "Te sugerimos trajes, vestidos o conjuntos en tonos neutros, tierra, oliva, champagne o colores suaves.",
       ],
+      examples: [
+        "Vestido midi o largo en oliva, champagne, terracota suave o tonos tierra.",
+        "Traje o conjunto formal en verde oscuro, gris cálido, beige, arena o azul profundo.",
+        "Camisa clara con pantalón sastre, lino estructurado o blazer en tonos neutros.",
+        "Zapatos cómodos para caminar, bailar y moverse con tranquilidad durante la celebración.",
+      ],
       palette: ["#24291f", "#788267", "#949080", "#cbc2ad", "#f6f5f1"],
       note: "Por favor evita blanco, marfil o tonos reservados para la novia.",
     },

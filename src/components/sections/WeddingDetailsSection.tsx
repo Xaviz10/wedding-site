@@ -26,13 +26,22 @@ function hasConfirmedLocation(block: EventBlock) {
   return /^https?:\/\//u.test(block.locationCtaHref) && !/por confirmar/i.test(`${block.venue} ${block.location ?? ""}`);
 }
 
+function getEventNarrative(block: EventBlock, index: number) {
+  if (index === 0) {
+    return `El día empieza con la ${block.title.toLowerCase()}. Nos encontraremos para vivir juntos este momento antes de seguir hacia la celebración.`;
+  }
+
+  return "Después de la ceremonia seguimos con la recepción: comida, brindis, música y ese rato largo para abrazarnos, conversar y celebrar sin afán.";
+}
+
 interface EventTimelineItemProps {
   block: EventBlock;
   index: number;
+  step: number;
   shouldReduceMotion: boolean;
 }
 
-function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineItemProps) {
+function EventTimelineItem({ block, index, step, shouldReduceMotion }: EventTimelineItemProps) {
   const articleRef = useRef<HTMLElement | null>(null);
   const showLocationLink = hasConfirmedLocation(block);
   const isEven = index % 2 === 0;
@@ -54,12 +63,16 @@ function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineIt
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.28 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1.25, ease: [0.16, 1, 0.3, 1] }}
-      className={`grid items-center gap-7 md:gap-14 lg:grid-cols-2 ${
+      className={`relative grid items-center gap-6 pl-12 md:gap-10 md:pl-16 lg:grid-cols-2 lg:gap-16 lg:pl-0 ${
         isEven ? "" : "lg:[&>*:first-child]:order-2"
       }`}
     >
+      <span className="absolute left-0 top-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-ivory)] text-[0.64rem] font-semibold tracking-[0.16em] text-[var(--color-olive)] shadow-[0_8px_18px_rgba(36,41,31,0.08)] lg:left-1/2 lg:-translate-x-1/2">
+        {String(step).padStart(2, "0")}
+      </span>
+
       <motion.figure
-        className="relative mx-auto aspect-[5/4] w-full max-w-[360px] overflow-hidden rounded-[4px] shadow-[0_22px_50px_rgba(36,41,31,0.12)] md:aspect-[4/5] md:max-w-none lg:w-[88%]"
+        className="relative mx-auto aspect-[5/4] w-full max-w-[340px] overflow-hidden rounded-[4px] shadow-[0_22px_50px_rgba(36,41,31,0.12)] md:aspect-[4/5] md:max-w-[430px] lg:w-[82%] lg:max-w-none"
         style={{ y: imageY, opacity: imageOpacity }}
       >
         <motion.img 
@@ -72,7 +85,7 @@ function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineIt
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.01),rgba(36,41,31,0.16))]" />
       </motion.figure>
 
-      <motion.div className={`flex flex-col justify-center px-1 md:px-8 ${isEven ? "lg:pr-12" : "lg:pl-12"}`} style={{ y: copyY, opacity: copyOpacity }}>
+      <motion.div className={`flex flex-col justify-center px-1 md:px-4 ${isEven ? "lg:pr-14" : "lg:pl-14"}`} style={{ y: copyY, opacity: copyOpacity }}>
         <motion.p
           initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -92,28 +105,48 @@ function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineIt
         >
           {block.venue}
         </motion.h3>
+
+        <motion.p
+          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.7 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.85, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
+          className="font-editorial mt-4 text-[1.12rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.22rem]"
+        >
+          {getEventNarrative(block, index)}
+        </motion.p>
         
-        <div className="mt-5 grid gap-3 md:mt-8 md:gap-4">
+        <div className="mt-6 grid gap-3 border-y border-[var(--color-olive)]/14 py-4 md:grid-cols-2 md:gap-5">
+          <div>
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">
+              Hora
+            </p>
+            <p className="font-editorial mt-2 text-[1.35rem] leading-[1.15] text-[var(--color-terracotta)]">
+              {block.time}
+            </p>
+          </div>
+          <div>
+            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">
+              Dónde
+            </p>
+            <p className="font-editorial mt-2 text-[1.12rem] leading-[1.28] text-[var(--color-forest)]/82">
+              {block.location ?? "Ubicación por confirmar"}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 grid gap-3">
           <motion.p
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.7 }}
             transition={{ duration: shouldReduceMotion ? 0 : 0.85, delay: shouldReduceMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
-            className="font-editorial text-2xl leading-[1.25] text-[var(--color-terracotta)]"
+            className="text-sm leading-[1.55] text-[var(--color-forest)]/66"
           >
-            {block.time}
+            {showLocationLink
+              ? "La ubicación exacta ya está lista para abrirla en el mapa."
+              : "La ubicación exacta se compartirá apenas esté confirmada."}
           </motion.p>
-          {block.location && (
-            <motion.p
-              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.7 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.85, delay: shouldReduceMotion ? 0 : 0.2, ease: [0.16, 1, 0.3, 1] }}
-              className="font-editorial text-xl leading-[1.35] text-[var(--color-forest)]/80"
-            >
-              {block.location}
-            </motion.p>
-          )}
         </div>
 
         {showLocationLink && (
@@ -140,54 +173,81 @@ function EventTimelineItem({ block, index, shouldReduceMotion }: EventTimelineIt
 
 interface DressCodeNoteProps {
   config: DressCodeConfig;
+  step: number;
   shouldReduceMotion: boolean;
 }
 
-function DressCodeNote({ config, shouldReduceMotion }: DressCodeNoteProps) {
+function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps) {
+  const examples = config.examples ?? [];
+
   return (
     <motion.aside
       initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 32, scale: shouldReduceMotion ? 1 : 0.97 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.34 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1.2, ease: [0.16, 1, 0.3, 1] }}
-      className="mx-auto mt-16 max-w-3xl px-2 text-center md:mt-28 md:px-4"
+      className="relative grid gap-7 pl-12 md:gap-10 md:pl-16 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-start lg:pl-0"
       aria-labelledby="dress-code-title"
     >
-      <p id="dress-code-title" className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
-        {config.title}
-      </p>
-      <p className="font-editorial mt-5 text-[clamp(1.8rem,3vw,2.5rem)] leading-[1.18] text-[var(--color-forest)]">
-        {config.subtitle}
-      </p>
+      <span className="absolute left-0 top-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-ivory)] text-[0.64rem] font-semibold tracking-[0.16em] text-[var(--color-olive)] shadow-[0_8px_18px_rgba(36,41,31,0.08)] lg:left-1/2 lg:-translate-x-1/2">
+        {String(step).padStart(2, "0")}
+      </span>
 
-      <div className="mt-8 grid gap-5 md:mt-10 md:gap-6">
-        {config.guidance.map((item, index) => (
-          <motion.p
-            key={item}
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.7 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: shouldReduceMotion ? 0 : index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-            className="font-editorial text-[1.15rem] leading-[1.42] text-[var(--color-forest)]/85"
-          >
-            {item}
-          </motion.p>
-        ))}
-        
-        <div className="mt-6 flex justify-center gap-3 md:mt-8 md:gap-4" aria-label="Paleta sugerida para el código de vestimenta">
+      <div className="lg:pr-14">
+        <p id="dress-code-title" className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
+          {config.title}
+        </p>
+        <p className="font-editorial mt-4 text-[clamp(1.8rem,3vw,2.5rem)] leading-[1.1] text-[var(--color-forest)]">
+          {config.subtitle}
+        </p>
+
+        <div className="mt-6 grid gap-4">
+          {config.guidance.map((item, index) => (
+            <motion.p
+              key={item}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: shouldReduceMotion ? 0 : index * 0.08, ease: [0.16, 1, 0.3, 1] }}
+              className="font-editorial text-[1.12rem] leading-[1.42] text-[var(--color-forest)]/84 md:text-[1.2rem]"
+            >
+              {item}
+            </motion.p>
+          ))}
+        </div>
+
+        <div className="mt-7 flex gap-3" aria-label="Paleta sugerida para el código de vestimenta">
           {config.palette.map((color, index) => (
-            <motion.span 
-              key={color} 
-              className="h-10 w-10 rounded-full shadow-md md:h-12 md:w-12" 
+            <motion.span
+              key={color}
+              className="h-10 w-10 rounded-full shadow-md md:h-11 md:w-11"
               initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.82 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true, amount: 0.7 }}
               transition={{ duration: shouldReduceMotion ? 0 : 0.55, delay: shouldReduceMotion ? 0 : 0.16 + index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-              style={{ backgroundColor: color, border: '1px solid rgba(0,0,0,0.06)' }} 
+              style={{ backgroundColor: color, border: "1px solid rgba(0,0,0,0.06)" }}
             />
           ))}
         </div>
-        <p className="mt-6 text-sm italic tracking-wide text-[var(--color-terracotta)] md:mt-8">{config.note}</p>
+      </div>
+
+      <div className="grid gap-3 lg:pl-14">
+        <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">
+          Ejemplos
+        </p>
+        {examples.map((example, index) => (
+          <motion.p
+            key={example}
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.7 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.72, delay: shouldReduceMotion ? 0 : index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+            className="border-l border-[var(--color-olive)]/24 pl-4 font-editorial text-[1.05rem] leading-[1.32] text-[var(--color-forest)]/84 md:text-[1.18rem]"
+          >
+            {example}
+          </motion.p>
+        ))}
+        <p className="mt-3 text-sm italic tracking-wide text-[var(--color-terracotta)]">{config.note}</p>
       </div>
     </motion.aside>
   );
@@ -257,17 +317,38 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
           </div>
         </motion.header>
 
-        <section className="mt-16 grid gap-16 md:mt-28 md:gap-28" aria-label="Itinerario de la boda">
-          <EventTimelineItem block={event.ceremony} index={0} shouldReduceMotion={shouldReduceMotion} />
-          <EventTimelineItem block={event.reception} index={1} shouldReduceMotion={shouldReduceMotion} />
+        <section className="relative mt-16 grid gap-16 md:mt-28 md:gap-28" aria-label="Camino del día de la boda">
+          <div
+            className="pointer-events-none absolute bottom-[-3rem] left-[17px] top-0 w-px bg-[linear-gradient(180deg,var(--color-olive),var(--color-gold),transparent)] opacity-35 lg:left-1/2"
+            aria-hidden
+          />
+          <EventTimelineItem block={event.ceremony} index={0} step={1} shouldReduceMotion={shouldReduceMotion} />
+          <EventTimelineItem block={event.reception} index={1} step={2} shouldReduceMotion={shouldReduceMotion} />
+          <DressCodeNote config={event.dressCode} step={3} shouldReduceMotion={shouldReduceMotion} />
         </section>
-
-        <DressCodeNote config={event.dressCode} shouldReduceMotion={shouldReduceMotion} />
       </div>
 
       <div ref={rsvpRef} className="relative mt-20 bg-[var(--color-surface)] py-20 md:mt-28 md:py-28">
         <div className="absolute inset-0 pointer-events-none border-t border-[var(--color-olive)]/10 bg-[linear-gradient(180deg,rgba(246,245,241,0.58),rgba(252,251,248,0))]" aria-hidden />
         <div className="relative mx-auto max-w-[820px] px-4 md:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.4 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto mb-10 max-w-2xl text-center"
+          >
+            <span className="mx-auto flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-surface)] text-[0.64rem] font-semibold tracking-[0.16em] text-[var(--color-olive)] shadow-[0_8px_18px_rgba(36,41,31,0.08)]">
+              04
+            </span>
+            <h3 className="font-heading mt-5 text-[clamp(2rem,5vw,3.4rem)] leading-[0.98] text-[var(--color-forest)]">
+              Último paso
+            </h3>
+            <p className="font-editorial mx-auto mt-4 max-w-xl text-[1.18rem] leading-[1.34] text-[var(--color-forest)]/78 md:text-[1.3rem]">
+              Para cerrar el camino del día, cuéntanos si podremos celebrar contigo.
+            </p>
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 40 }}
             whileInView={{ opacity: 1, y: 0 }}
