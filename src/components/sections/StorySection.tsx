@@ -123,6 +123,7 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
 
   const isEven = index % 2 === 1;
   const entryX = shouldReduceMotion ? 0 : isEven ? 50 : -50;
+  const isHorizontalCarousel = index === 0 || beat.title === "Volver y construir hogar";
 
   return (
     <motion.article
@@ -140,7 +141,9 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
         style={{ y: imageY, opacity: imageOpacity }}
       >
         <motion.div
-          className="relative aspect-[4/5] w-full overflow-hidden rounded-[4px] shadow-[0_28px_70px_rgba(36,41,31,0.16)] md:aspect-[3/4]"
+          className={`relative w-full overflow-hidden rounded-[4px] shadow-[0_28px_70px_rgba(36,41,31,0.16)] ${
+            isHorizontalCarousel ? "aspect-[16/10] bg-[var(--color-surface)]" : "aspect-[4/5] md:aspect-[3/4]"
+          }`}
           initial={shouldReduceMotion ? false : { clipPath: "inset(18% 10% 18% 10%)" }}
           whileInView={shouldReduceMotion ? undefined : { clipPath: "inset(0% 0% 0% 0%)" }}
           viewport={{ once: true, amount: 0.45 }}
@@ -156,7 +159,12 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
           >
             {slides.map((slide, slideIndex) => (
               <div key={`${beat.title}-slide-${slideIndex}`} className="h-full w-full shrink-0 snap-center">
-                <img src={slide.src} alt={slide.alt} className="h-full w-full object-cover" loading="lazy" />
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  className={`h-full w-full ${isHorizontalCarousel ? "object-contain" : "object-cover"}`}
+                  loading="lazy"
+                />
               </div>
             ))}
           </motion.div>

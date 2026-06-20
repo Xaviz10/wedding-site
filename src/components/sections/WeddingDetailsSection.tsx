@@ -23,7 +23,7 @@ function PinIcon() {
 }
 
 function hasConfirmedLocation(block: EventBlock) {
-  return /^https?:\/\//u.test(block.locationCtaHref) && !/por confirmar/i.test(`${block.venue} ${block.location ?? ""}`);
+  return /^https?:\/\//u.test(block.locationCtaHref);
 }
 
 function getEventNarrative(block: EventBlock, index: number) {
@@ -179,6 +179,7 @@ interface DressCodeNoteProps {
 
 function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps) {
   const examples = config.examples ?? [];
+  const womenExamples = config.womenExamples ?? [];
 
   return (
     <motion.aside
@@ -231,23 +232,46 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
         </div>
       </div>
 
-      <div className="grid gap-3 lg:pl-14">
-        <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">
-          Ejemplos
-        </p>
-        {examples.map((example, index) => (
-          <motion.p
-            key={example}
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.7 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.72, delay: shouldReduceMotion ? 0 : index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-            className="border-l border-[var(--color-olive)]/24 pl-4 font-editorial text-[1.05rem] leading-[1.32] text-[var(--color-forest)]/84 md:text-[1.18rem]"
-          >
-            {example}
-          </motion.p>
-        ))}
-        <p className="mt-3 text-sm italic tracking-wide text-[var(--color-terracotta)]">{config.note}</p>
+      <div className="grid gap-9 lg:pl-16">
+        <div className="grid gap-3 border-l border-[var(--color-olive)]/24 pl-5">
+          <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">
+            Hombres
+          </p>
+          {examples.map((example, index) => (
+            <motion.p
+              key={example}
+              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.7 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.72, delay: shouldReduceMotion ? 0 : index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+              className="font-editorial text-[1.05rem] leading-[1.32] text-[var(--color-forest)]/84 md:text-[1.18rem]"
+            >
+              {example}
+            </motion.p>
+          ))}
+        </div>
+
+        {womenExamples.length > 0 && (
+          <div className="grid gap-3 border-l border-[var(--color-olive)]/24 pl-5">
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">
+              Mujeres
+            </p>
+            {womenExamples.map((example, index) => (
+              <motion.p
+                key={example}
+                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.7 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.72, delay: shouldReduceMotion ? 0 : 0.12 + index * 0.06, ease: [0.16, 1, 0.3, 1] }}
+                className="font-editorial text-[1.05rem] leading-[1.32] text-[var(--color-forest)]/84 md:text-[1.18rem]"
+              >
+                {example}
+              </motion.p>
+            ))}
+          </div>
+        )}
+
+        {config.note && <p className="text-sm italic tracking-wide text-[var(--color-terracotta)]">{config.note}</p>}
       </div>
     </motion.aside>
   );

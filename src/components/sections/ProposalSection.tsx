@@ -28,6 +28,7 @@ interface ProposalPhotoFrameProps {
   photo: ProposalPhoto;
   className?: string;
   imageClassName?: string;
+  imageFit?: "cover" | "contain";
   captionAlign?: "left" | "right";
   shouldReduceMotion: boolean;
 }
@@ -36,6 +37,7 @@ function ProposalPhotoFrame({
   photo,
   className,
   imageClassName = "aspect-[4/5]",
+  imageFit = "cover",
   captionAlign = "left",
   shouldReduceMotion,
 }: ProposalPhotoFrameProps) {
@@ -61,19 +63,21 @@ function ProposalPhotoFrame({
         <motion.img
           src={photo.src}
           alt={photo.alt}
-          className="h-full w-full object-cover"
+          className={`h-full w-full ${imageFit === "contain" ? "object-contain" : "object-cover"}`}
           loading="lazy"
           style={{ scale }}
         />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.01),rgba(36,41,31,0.18))]" />
       </motion.div>
-      <figcaption
-        className={`mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)] ${
-          captionAlign === "right" ? "text-right" : ""
-        }`}
-      >
-        {photo.caption}
-      </figcaption>
+      {photo.caption && (
+        <figcaption
+          className={`mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)] ${
+            captionAlign === "right" ? "text-right" : ""
+          }`}
+        >
+          {photo.caption}
+        </figcaption>
+      )}
     </motion.figure>
   );
 }
@@ -99,9 +103,8 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
   const videoImageScale = useTransform(smoothVideoProgress, [0, 1], shouldReduceMotion ? [1, 1] : [1.08, 1.01]);
 
   // Categorize photos by format to place them strategically in the editorial layout
-  const landscapePhoto = content.photos.find(p => p.format === "landscape") || content.photos[0];
   const portraitPhoto = content.photos.find(p => p.format === "portrait") || content.photos[1];
-  const squarePhoto = content.photos.find(p => p.format === "square") || content.photos[2];
+  const locationPhoto = content.photos.find(p => p.format === "landscape") || content.photos[0];
 
   // Categorize the text beats based on their emphasis
   const narrativeBeats = content.beats.filter(b => !b.emphasis);
@@ -167,7 +170,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
           </p>
         </motion.header>
 
-        <div className="mt-20 grid items-end gap-16 md:mt-32 lg:grid-cols-12">
+        <div className="mt-10 grid items-start gap-12 md:mt-16 lg:grid-cols-12 lg:gap-16">
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -180,7 +183,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
                 },
               },
             }}
-            className="lg:col-span-5 lg:col-start-1 lg:pb-12"
+            className="lg:col-span-5 lg:col-start-1"
           >
             <div className="grid gap-10">
               {narrativeBeats.slice(0, 2).map((beat, i) => (
@@ -204,7 +207,8 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             shouldReduceMotion={shouldReduceMotion === true}
             captionAlign="right"
             className="lg:col-span-6 lg:col-start-7"
-            imageClassName="aspect-[4/5] md:aspect-[3/4]"
+            imageClassName="aspect-[4/5] bg-[var(--color-surface)] md:aspect-[3/4]"
+            imageFit="contain"
           />
         </div>
 
@@ -216,52 +220,27 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             transition={{ duration: shouldReduceMotion ? 0 : 1.35, ease: [0.16, 1, 0.3, 1] }}
             className="mt-32 text-center md:mt-48"
           >
-            <h3 className="font-heading text-[clamp(3rem,8vw,6rem)] leading-[0.9] text-[var(--color-forest)]">
+            <h3 className="font-heading text-[clamp(3.5rem,10vw,7.5rem)] leading-[0.88] text-[var(--color-forest)]">
               {highlightBeat.text}
             </h3>
-          </motion.div>
-        )}
-
-        <div className="mt-32 grid items-end gap-16 md:mt-48 lg:grid-cols-12">
-          <ProposalPhotoFrame
-            photo={landscapePhoto}
-            shouldReduceMotion={shouldReduceMotion === true}
-            className="lg:col-span-8"
-            imageClassName="aspect-[4/3] md:aspect-[16/10]"
-          />
-
-          <motion.div 
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 1.1, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
-            className="grid gap-12 lg:col-span-4"
-          >
             {narrativeBeats[2] && (
-              <p className="font-editorial text-right text-2xl italic leading-[1.32] text-[var(--color-terracotta)] md:text-3xl">
+              <p className="font-editorial mx-auto mt-8 max-w-4xl text-[clamp(2rem,4.5vw,3.1rem)] italic leading-[1.05] text-[var(--color-olive)]/70">
                 “{narrativeBeats[2].text}”
               </p>
             )}
-            
-            <ProposalPhotoFrame
-              photo={squarePhoto}
-              shouldReduceMotion={shouldReduceMotion === true}
-              className="ml-auto w-3/4 md:w-2/3"
-              imageClassName="aspect-square"
-            />
           </motion.div>
-        </div>
+        )}
 
-        <div className="mt-32 grid items-center gap-12 md:mt-48 lg:grid-cols-12 lg:gap-16">
+        <div className="mt-14 grid items-center gap-12 bg-[var(--color-surface)] px-6 py-10 md:mt-16 md:px-8 md:py-14 lg:grid-cols-12 lg:gap-16">
           {humorBeat && (
             <motion.div 
               initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.5 }}
               transition={{ duration: shouldReduceMotion ? 0 : 1.15, delay: shouldReduceMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
-              className="order-2 text-center lg:order-1 lg:col-span-5 lg:col-start-2 lg:text-left"
+              className="order-2 text-center lg:order-1 lg:col-span-5 lg:text-left"
             >
-              <p className="font-editorial text-xl italic leading-[1.32] text-[var(--color-forest)]/80 md:text-3xl">
+              <p className="font-editorial text-[clamp(1.75rem,3vw,2.45rem)] italic leading-[1.2] text-[var(--color-forest)]/80">
                 “{humorBeat.text}”
               </p>
             </motion.div>
@@ -277,7 +256,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             href={content.videoUrl}
             target="_blank"
             rel="noreferrer"
-            className={`group relative block overflow-hidden rounded-[8px] shadow-[0_32px_64px_rgba(36,41,31,0.12)] order-1 mx-auto w-full max-w-sm lg:order-2 lg:col-span-4 lg:max-w-none ${!humorBeat ? 'lg:col-start-5' : ''}`}
+            className={`group relative order-1 mx-auto block w-full max-w-sm overflow-hidden rounded-[8px] shadow-[0_32px_64px_rgba(36,41,31,0.12)] lg:order-2 lg:col-span-5 lg:col-start-8 lg:max-w-none ${!humorBeat ? 'lg:col-start-5' : ''}`}
           >
             <div className="aspect-[9/16] w-full bg-[var(--color-olive)]/10">
               <motion.img
@@ -302,6 +281,9 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
             </div>
           </motion.a>
         </div>
+        <p className="mt-6 text-right text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-olive)]">
+          {locationPhoto.caption}
+        </p>
 
       </div>
     </SectionWrapper>

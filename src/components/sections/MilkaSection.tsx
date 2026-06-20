@@ -6,7 +6,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { Fragment, useCallback, useEffect, useRef } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import SectionWrapper from "../SectionWrapper";
 import type { MilkaPhoto, WeddingContent } from "../../types/wedding";
 
@@ -33,11 +33,134 @@ function PawIcon({ className }: { className?: string }) {
   );
 }
 
+interface MilkaPhotoCarouselProps {
+  photos: MilkaPhoto[];
+  className?: string;
+  imageClassName?: string;
+  captionAlign?: "left" | "right";
+  captionOverride?: string;
+  shouldReduceMotion: boolean;
+}
+
+function MilkaPhotoCarousel({
+  photos,
+  className,
+  imageClassName = "aspect-[4/5]",
+  captionAlign = "left",
+  captionOverride,
+  shouldReduceMotion,
+}: MilkaPhotoCarouselProps) {
+  const frameRef = useRef<HTMLElement | null>(null);
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
+  const hasMultipleSlides = photos.length > 1;
+  const { scrollYProgress } = useScroll({
+    target: frameRef,
+    offset: ["start 86%", "end 20%"],
+  });
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 86, damping: 28, mass: 0.55 });
+  const y = useTransform(smoothProgress, [0, 1], shouldReduceMotion ? [0, 0] : [34, -26]);
+  const scale = useTransform(smoothProgress, [0, 0.52, 1], shouldReduceMotion ? [1, 1, 1] : [1.08, 1.01, 1.04]);
+  const opacity = useTransform(smoothProgress, [0, 0.18, 0.88, 1], [0.28, 1, 1, 0.78]);
+
+  const syncActiveSlide = useCallback(
+    (target: HTMLDivElement) => {
+      if (!hasMultipleSlides) return;
+      const width = Math.max(target.clientWidth, 1);
+      const nextIndex = Math.min(Math.max(Math.round(target.scrollLeft / width), 0), photos.length - 1);
+      setActiveSlide((previous) => (previous === nextIndex ? previous : nextIndex));
+    },
+    [hasMultipleSlides, photos.length],
+  );
+
+  const scrollToSlide = useCallback(
+    (slideIndex: number) => {
+      if (!carouselRef.current) return;
+      carouselRef.current.scrollTo({
+        left: carouselRef.current.clientWidth * slideIndex,
+        behavior: shouldReduceMotion ? "auto" : "smooth",
+      });
+      setActiveSlide(slideIndex);
+    },
+    [shouldReduceMotion],
+  );
+
+  const handleCarouselKeyDown = useCallback(
+    (event: KeyboardEvent<HTMLDivElement>) => {
+      if (!hasMultipleSlides) return;
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        scrollToSlide(Math.min(activeSlide + 1, photos.length - 1));
+      }
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        scrollToSlide(Math.max(activeSlide - 1, 0));
+      }
+    },
+    [activeSlide, hasMultipleSlides, photos.length, scrollToSlide],
+  );
+
+  const caption = captionOverride || photos[activeSlide]?.caption || photos[0]?.caption;
+
+  return (
+    <motion.figure ref={frameRef} className={className} style={{ y, opacity }}>
+      <motion.div
+        className={`relative w-full overflow-hidden rounded-[4px] shadow-[0_28px_70px_rgba(36,41,31,0.14)] ${imageClassName}`}
+        initial={shouldReduceMotion ? false : { clipPath: "inset(14% 10% 14% 10%)" }}
+        whileInView={shouldReduceMotion ? undefined : { clipPath: "inset(0% 0% 0% 0%)" }}
+        viewport={{ once: true, amount: 0.42 }}
+        transition={{ duration: 1.45, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
+          ref={carouselRef}
+          className="flex h-full w-full snap-x snap-mandatory overflow-x-auto overflow-y-hidden scroll-smooth scrollbar-hide"
+          onScroll={() => {
+            if (carouselRef.current) syncActiveSlide(carouselRef.current);
+          }}
+          onKeyDown={handleCarouselKeyDown}
+          tabIndex={hasMultipleSlides ? 0 : -1}
+          style={{ scale }}
+        >
+          {photos.map((photo, index) => (
+            <div key={`${photo.caption}-${index}`} className="h-full w-full shrink-0 snap-center">
+              <img src={photo.src} alt={photo.alt} className="h-full w-full object-cover" loading="lazy" />
+            </div>
+          ))}
+        </motion.div>
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.02),rgba(36,41,31,0.16))]" />
+
+        {hasMultipleSlides && (
+          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-white/45 px-4 py-2 backdrop-blur-md">
+            {photos.map((_, index) => (
+              <button
+                key={`milka-carousel-dot-${index}`}
+                type="button"
+                className={`h-1.5 rounded-full transition-all ${index === activeSlide ? "w-5 bg-white" : "w-1.5 bg-white/70"}`}
+                onClick={() => scrollToSlide(index)}
+                aria-label={`Ir a la foto ${index + 1} de Milka cachorra`}
+              />
+            ))}
+          </div>
+        )}
+      </motion.div>
+      <figcaption
+        className={`mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)] ${
+          captionAlign === "right" ? "text-right" : ""
+        }`}
+      >
+        {caption}
+      </figcaption>
+    </motion.figure>
+  );
+}
+
 interface MilkaPhotoFrameProps {
   photo: MilkaPhoto;
   className?: string;
   imageClassName?: string;
   captionAlign?: "left" | "right";
+  captionOverride?: string;
+  hideCaption?: boolean;
   shouldReduceMotion: boolean;
 }
 
@@ -46,6 +169,8 @@ function MilkaPhotoFrame({
   className,
   imageClassName = "aspect-[4/5]",
   captionAlign = "left",
+  captionOverride,
+  hideCaption = false,
   shouldReduceMotion,
 }: MilkaPhotoFrameProps) {
   const frameRef = useRef<HTMLElement | null>(null);
@@ -76,13 +201,15 @@ function MilkaPhotoFrame({
         />
         <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.02),rgba(36,41,31,0.16))]" />
       </motion.div>
-      <figcaption
-        className={`mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)] ${
-          captionAlign === "right" ? "text-right" : ""
-        }`}
-      >
-        {photo.caption}
-      </figcaption>
+      {!hideCaption && (
+        <figcaption
+          className={`mt-5 text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)] ${
+            captionAlign === "right" ? "text-right" : ""
+          }`}
+        >
+          {captionOverride || photo.caption}
+        </figcaption>
+      )}
     </motion.figure>
   );
 }
@@ -168,9 +295,10 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
   }, [positionPawsOnPath, shouldReduceMotion]);
 
   // Extract photos for the editorial layout
-  const portraitPhoto = content.photos[0];
-  const squarePhoto = content.photos[1];
-  const landscapePhoto = content.photos[2] || content.photos[0];
+  const puppyPhotos = content.photos.filter((photo) => photo.caption === "Milka cachorra");
+  const portraitPhotos = puppyPhotos.length > 0 ? puppyPhotos : [content.photos[0]];
+  const noteCarouselPhotos = content.photos.filter((photo) => photo.caption === "Milka carrusel");
+  const milkaSoloPhoto = content.photos.find((photo) => photo.caption === "Milka") || content.photos[2] || content.photos[0];
 
   return (
     <SectionWrapper
@@ -238,8 +366,8 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
               </p>
             </motion.header>
 
-            <MilkaPhotoFrame
-              photo={portraitPhoto}
+            <MilkaPhotoCarousel
+              photos={portraitPhotos}
               shouldReduceMotion={shouldReduceMotion === true}
               captionAlign="right"
               className="lg:col-span-5 lg:col-start-8"
@@ -282,16 +410,19 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
             </motion.div>
 
             <MilkaPhotoFrame
-              photo={squarePhoto}
+              photo={milkaSoloPhoto}
+              captionOverride="Milka"
+              hideCaption
               shouldReduceMotion={shouldReduceMotion === true}
-              className="lg:col-span-4 lg:col-start-8 lg:mt-20"
-              imageClassName="aspect-square"
+              className="lg:col-span-5 lg:col-start-8 lg:mt-12"
+              imageClassName="aspect-[16/10]"
             />
           </div>
 
           <div className="mt-20 grid items-end gap-16 md:mt-32 lg:grid-cols-12">
-            <MilkaPhotoFrame
-              photo={landscapePhoto}
+            <MilkaPhotoCarousel
+              photos={noteCarouselPhotos.length > 0 ? noteCarouselPhotos : [milkaSoloPhoto]}
+              captionOverride="Milka"
               shouldReduceMotion={shouldReduceMotion === true}
               className="lg:col-span-7 lg:col-start-1"
               imageClassName="aspect-[16/10]"

@@ -76,6 +76,7 @@ export interface DressCodeConfig {
   subtitle: string;
   guidance: string[];
   examples?: string[];
+  womenExamples?: string[];
   palette: string[];
   note: string;
 }
