@@ -834,58 +834,137 @@ body {
 }
 
 .rsvp-form-shell {
-  background:
-    linear-gradient(145deg, rgba(252, 251, 248, 0.98), rgba(246, 245, 241, 0.94)),
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.52), transparent 40%);
-  border: var(--paper-outline);
-  box-shadow: 0 24px 58px rgba(36, 41, 31, 0.12);
-  overflow: hidden;
+  --rsvp-petrol: #193741;
+  --rsvp-petrol-light: #8c9ba0;
+  --rsvp-gold: #eac486;
+  --rsvp-line: rgba(25, 55, 65, 0.2);
+  --rsvp-line-strong: rgba(25, 55, 65, 0.5);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  color: var(--rsvp-petrol);
+  background: #f8f8f8;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  overflow: visible;
+}
+
+.rsvp-form-header {
+  display: grid;
+  gap: 1.15rem;
+  max-width: 30rem;
+  margin: 0 auto 3.8rem;
+  text-align: center;
+}
+
+.rsvp-form-eyebrow {
+  margin: 0;
+  color: var(--rsvp-petrol);
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.rsvp-form-title {
+  margin: 0;
+  color: var(--rsvp-petrol);
+  font-family: "Manrope", "Inter", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.rsvp-form-intro {
+  margin: 0;
+  color: rgba(25, 55, 65, 0.78);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.rsvp-form-fields {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.rsvp-form-fields > label,
+.rsvp-form-fields > fieldset,
+.rsvp-form-fields > div {
+  width: 100%;
 }
 
 .form-label {
   display: block;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: color-mix(in oklab, var(--color-olive) 84%, var(--color-forest) 16%);
+  color: rgba(25, 55, 65, 0.62);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.35;
+  text-transform: none;
 }
 
 .form-control {
   width: 100%;
-  min-height: 2.9rem;
-  border-radius: 4px;
-  border: 1px solid color-mix(in oklab, var(--color-olive) 24%, white);
-  background: rgba(252, 251, 248, 0.74);
-  padding: 0.86rem 0.95rem;
-  color: var(--color-forest);
+  height: 3rem;
+  border: 0;
+  border-bottom: 1px solid var(--rsvp-line);
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--rsvp-petrol);
   font-size: 1rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
-  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+  box-shadow: none;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+
+.form-control:hover {
+  border-color: var(--rsvp-line-strong);
 }
 
 .form-control:focus {
   outline: none;
-  border-color: color-mix(in oklab, var(--color-terracotta) 72%, var(--color-olive) 28%);
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-gold) 34%, transparent);
+  border-color: var(--rsvp-petrol);
+  box-shadow: none;
 }
 
 .form-control::placeholder {
-  color: rgba(65, 74, 63, 0.5);
+  color: rgba(25, 55, 65, 0.5);
+}
+
+textarea.form-control {
+  min-height: 8.5rem;
+  height: auto;
+  border: 1px solid var(--rsvp-line);
+  padding: 0.95rem;
+  line-height: 1.5;
+}
+
+textarea.form-control:hover {
+  border-color: var(--rsvp-line-strong);
+}
+
+textarea.form-control:focus {
+  border-color: var(--rsvp-petrol);
 }
 
 .form-error {
   color: #bc6c25;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .form-note {
-  border-left: 2px solid color-mix(in oklab, var(--color-olive) 52%, var(--color-gold) 48%);
-  padding: 0.92rem 0.95rem 0.92rem 1rem;
-  background: color-mix(in oklab, var(--color-gold) 22%, white);
-  color: var(--color-forest);
-  border-radius: 4px;
+  width: 100%;
+  border-bottom: 1px solid var(--rsvp-line);
+  padding: 0 0 0.85rem;
+  background: transparent;
+  color: rgba(25, 55, 65, 0.78);
+  border-radius: 0;
   font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .rsvp-chip {
@@ -894,67 +973,97 @@ body {
   gap: 0.78rem;
   width: 100%;
   min-height: 3rem;
-  padding: 0.82rem 0.9rem;
-  border-radius: 4px;
-  border: 1px solid color-mix(in oklab, var(--color-olive) 18%, white);
-  background: rgba(252, 251, 248, 0.7);
-  color: var(--color-forest);
+  padding: 0.85rem 0;
+  border: 0;
+  border-bottom: 1px solid var(--rsvp-line);
+  border-radius: 0;
+  background: transparent;
+  color: var(--rsvp-petrol);
+  font-size: 1rem;
+  line-height: 1.45;
   cursor: pointer;
-  transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  transition: border-color 0.3s ease, color 0.3s ease;
 }
 
 .rsvp-chip input {
-  accent-color: #606c38;
+  margin-top: 0.25rem;
+  accent-color: var(--rsvp-petrol);
 }
 
 .rsvp-chip:hover {
-  transform: translateY(-1px);
-  border-color: color-mix(in oklab, var(--color-olive) 42%, white);
-  background: rgba(246, 245, 241, 0.92);
+  border-color: var(--rsvp-line-strong);
 }
 
 .rsvp-chip input:checked + span,
 .rsvp-chip:hover span {
-  color: var(--color-forest);
+  color: var(--rsvp-petrol);
 }
 
 .rsvp-submit-button {
-  width: 100%;
-  min-height: 3.35rem;
-  border-radius: 4px;
-  border: none;
-  background: linear-gradient(135deg, var(--color-forest), color-mix(in oklab, var(--color-olive) 72%, var(--color-forest) 28%));
-  color: var(--color-ivory);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  min-height: 0;
+  margin-top: 0.5rem;
+  border-radius: 5rem;
+  border: 1px solid var(--rsvp-line);
+  background: transparent;
+  color: var(--rsvp-petrol);
+  padding: 1rem 2rem;
   font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+  font-weight: 400;
+  line-height: 1;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.rsvp-submit-button::before {
+  content: "";
+  position: absolute;
+  left: 1.55rem;
+  width: 0.68rem;
+  height: 0.68rem;
+  background: var(--color-ivory);
+  opacity: 0;
+  transform: scale(0) rotate(0);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .rsvp-submit-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 16px 30px rgba(103, 88, 67, 0.18);
+  border-color: var(--rsvp-petrol);
+  background: var(--rsvp-petrol);
+  color: var(--color-ivory);
+  padding-left: 3.25rem;
+}
+
+.rsvp-submit-button:hover:not(:disabled)::before {
+  opacity: 1;
+  transform: scale(1) rotate(225deg);
 }
 
 .rsvp-submit-button:disabled {
   opacity: 0.65;
+  cursor: wait;
 }
 
 .form-feedback {
-  border-radius: 4px;
-  padding: 1rem 1rem;
+  width: 100%;
+  border-radius: 0;
+  padding: 1.25rem;
   font-size: 0.96rem;
   line-height: 1.6;
 }
 
 .form-feedback--success {
-  background: rgba(141, 165, 98, 0.16);
-  color: var(--color-olive);
+  background: var(--rsvp-gold);
+  color: var(--rsvp-petrol);
 }
 
 .form-feedback--error {
-  background: rgba(208, 132, 113, 0.14);
-  color: var(--color-terracotta);
+  border: 1px solid rgba(188, 108, 37, 0.45);
+  background: rgba(188, 108, 37, 0.12);
+  color: #8f4813;
 }
 
 @media (min-width: 1024px) {

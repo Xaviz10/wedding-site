@@ -109,22 +109,22 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="rsvp-form-shell rounded-[4px] p-5 md:p-8"
+      className="rsvp-form-shell p-6 md:p-12"
       noValidate
     >
-      <div className="mb-7 grid gap-4 md:mb-8">
-        <div className="grid gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[var(--color-olive)]">RSVP</p>
-          <h3 className="font-heading text-[clamp(2rem,5vw,3rem)] leading-[0.98] text-[var(--color-forest)]">
+      <div className="rsvp-form-header">
+        <div className="grid gap-3">
+          <p className="rsvp-form-eyebrow">RSVP</p>
+          <h3 className="rsvp-form-title">
             {config.title}
           </h3>
         </div>
-        <p className="font-editorial max-w-xl text-[1.18rem] leading-[1.34] text-[var(--color-forest)]/80 md:text-[1.3rem]">
+        <p className="rsvp-form-intro">
           {config.intro}
         </p>
       </div>
 
-      <div className="grid gap-4 md:gap-5">
+      <div className="rsvp-form-fields">
         <label className="grid gap-2">
           <span className="form-label">Nombre completo</span>
           <input
@@ -236,7 +236,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           disabled={isSubmitting}
           className="rsvp-submit-button"
         >
-          {isSubmitting ? config.loadingLabel : config.submitLabel}
+          <span>{isSubmitting ? config.loadingLabel : config.submitLabel}</span>
         </button>
 
         {isSuccess && (
