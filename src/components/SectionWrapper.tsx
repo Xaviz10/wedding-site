@@ -53,7 +53,7 @@ export default function SectionWrapper({
         <motion.div
           initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 34 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.22 }}
+          viewport={{ once: true, amount: "some" }}
           transition={{ duration: shouldReduceMotion ? 0 : 1.1 }}
           className={cx("mx-auto max-w-[1180px]", contentClassName)}
         >

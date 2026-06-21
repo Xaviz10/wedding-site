@@ -74,7 +74,6 @@ export default function GallerySection({ content }: GallerySectionProps) {
   return (
     <SectionWrapper
       id="galeria"
-      eyebrow="Capítulo 06"
       title={content.title}
       intro={content.subtitle}
       className="bg-[var(--color-ivory)]"

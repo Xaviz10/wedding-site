@@ -109,18 +109,22 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.35 }}
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
-      className="rounded-2xl p-6 md:p-8 rsvp-form-shell"
+      className="rsvp-form-shell p-6 md:p-12"
       noValidate
     >
-      <div className="mb-8 grid gap-4">
-        <div className="grid gap-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#bc6c25]">RSVP</p>
-          <h3 className="font-heading text-2xl leading-tight md:text-3xl">{config.title}</h3>
+      <div className="rsvp-form-header">
+        <div className="grid gap-3">
+          <p className="rsvp-form-eyebrow">RSVP</p>
+          <h3 className="rsvp-form-title">
+            {config.title}
+          </h3>
         </div>
-        <p className="section-caption max-w-xl text-(--color-forest)/85">{config.intro}</p>
+        <p className="rsvp-form-intro">
+          {config.intro}
+        </p>
       </div>
 
-      <div className="grid gap-5">
+      <div className="rsvp-form-fields">
         <label className="grid gap-2">
           <span className="form-label">Nombre completo</span>
           <input
@@ -232,7 +236,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           disabled={isSubmitting}
           className="rsvp-submit-button"
         >
-          {isSubmitting ? config.loadingLabel : config.submitLabel}
+          <span>{isSubmitting ? config.loadingLabel : config.submitLabel}</span>
         </button>
 
         {isSuccess && (

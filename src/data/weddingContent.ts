@@ -1,4 +1,23 @@
 import type { WeddingContent } from "../types/wedding";
+import distancia1Image from "../assets/distancia-1.jpg";
+import distancia2Image from "../assets/distancia-2.jpg";
+import distancia3Image from "../assets/distancia-3.jpg";
+import distancia4Image from "../assets/distancia-4.jpg";
+import distancia5Image from "../assets/distancia-5.jpg";
+import fincaLaMaraImage from "../assets/finca-la-mara.avif";
+import hogar1Image from "../assets/hogar-1.jpg";
+import hogar2Image from "../assets/hogar-2.jpg";
+import hogar3Image from "../assets/hogar-3.jpg";
+import hogar4Image from "../assets/hogar-4.jpg";
+import hogar5Image from "../assets/hogar-5.jpg";
+import inicio2016Image from "../assets/inicio-2016.jpg";
+import milkaCachorra1Image from "../assets/milka-cachorra-1.jpg";
+import milkaCachorra2Image from "../assets/milka-cachorra-2.jpg";
+import milkaCarrusel1Image from "../assets/milka-carrusel-1.jpg";
+import milkaCarrusel2Image from "../assets/milka-carrusel-2.jpg";
+import milkaCarrusel3Image from "../assets/milka-carrusel-3.jpg";
+import milkaConNosotrosImage from "../assets/milka-con-nosotros.jpg";
+import propuestaFamiliaEigerImage from "../assets/propuesta-familia-eiger.jpg";
 
 export const weddingContent: WeddingContent = {
   couple: "Cata & Javier",
@@ -17,14 +36,13 @@ export const weddingContent: WeddingContent = {
       {
         title: "El inicio",
         moment: "Septiembre de 2016",
-        text: "Javier estaba de vacaciones en Colombia y Cata ayudaba a organizar la celebración. Se vieron por primera vez sin imaginar que, después de esa noche, algo empezaría a cambiar. Entre fiesta, risas y una conversación casual, comenzó nuestra historia.",
-        image:
-          "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
-        alt: "Luces cálidas y ambiente de fiesta nocturna",
+        text: "Javier estaba de vacaciones en Colombia y Cata estaba en la fiesta de graduación de nuestro mejor amigo. Allí nos vimos por primera vez, sin imaginar que, después de esa noche, algo comenzaría a cambiar entre nosotros.\nEntre fiesta, risas y una conversación casual, comenzó nuestra historia. Tras una salida, una mirada y un beso que lo cambió todo, Javier volvió a Portugal.",
+        image: inicio2016Image,
+        alt: "Javier con amigos en la fiesta de graduación en Colombia",
         images: [
           {
-            src: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=1200&q=80",
-            alt: "Luces cálidas y ambiente de fiesta nocturna",
+            src: inicio2016Image,
+            alt: "Javier con amigos en la fiesta de graduación en Colombia",
           },
           {
             src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
@@ -40,68 +58,59 @@ export const weddingContent: WeddingContent = {
       {
         title: "La distancia",
         moment: "Colombia ↔ Portugal",
-        text: "Después de una salida, una mirada y un beso que lo cambió todo, Javier volvió a Portugal.\nAhí empezó nuestra historia a distancia: llamadas largas, aeropuertos, despedidas y reencuentros.",
-        image:
-          "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
-        alt: "Ventana de aeropuerto con avión durante el atardecer",
+        text: "Con Javier en Portugal y Cata en Colombia, aprendimos a querernos entre mensajes y llamadas.\nLa distancia no fue fácil, pero nos enseñó a elegirnos todos los días. Después vinieron los viajes, los reencuentros, nuevos países y la primera vez de Cata en avión.",
+        image: distancia1Image,
+        alt: "Vista aérea de Portugal desde el avión",
         images: [
           {
-            src: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1400&q=80",
-            alt: "Ventana de aeropuerto con avión durante el atardecer",
+            src: distancia1Image,
+            alt: "Vista aérea de Portugal desde el avión",
           },
           {
-            src: "https://images.unsplash.com/photo-1540339832862-474599807836?auto=format&fit=crop&w=1400&q=80",
-            alt: "Mano sosteniendo pasaporte frente a una pista de aeropuerto",
+            src: distancia2Image,
+            alt: "Cata y Javier durante un viaje por Europa",
           },
           {
-            src: "https://images.unsplash.com/photo-1529074963764-98f45c47344b?auto=format&fit=crop&w=1400&q=80",
-            alt: "Pantalla de videollamada representando relación a distancia",
+            src: distancia3Image,
+            alt: "Cata y Javier tomados de la mano durante un viaje",
+          },
+          {
+            src: distancia4Image,
+            alt: "Cata y Javier frente a la Torre Eiffel",
+          },
+          {
+            src: distancia5Image,
+            alt: "Vuelo en parapente durante uno de sus viajes",
           },
         ],
         frame: "postcard",
       },
       {
-        title: "Los viajes",
-        moment: "Aeropuertos, fotos y postales",
-        text: "Seguimos eligiéndonos a pesar de la distancia.\nVinieron viajes, fotos, nuevos países y la primera vez de Cata en avión.",
-        image:
-          "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
-        alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
-        images: [
-          {
-            src: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=1300&q=80",
-            alt: "Pasaporte, mapa y recuerdos de viaje sobre una mesa",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1300&q=80",
-            alt: "Vista aérea de un paisaje montañoso durante un viaje",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1300&q=80",
-            alt: "Pareja caminando por una calle europea",
-          },
-        ],
-        frame: "instant",
-      },
-      {
         title: "Volver y construir hogar",
         moment: "Colombia, 2021 hasta hoy",
-        text: "La pandemia empujó a Javier de vuelta a Colombia en 2021.\nDespués decidimos vivir juntos y aprender el amor en la vida diaria: la rutina, la paciencia, las mudanzas y los sueños compartidos.\nDespués de tanto camino, seguimos llegando al mismo lugar: juntos.",
-        image:
-          "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1300&q=80",
-        alt: "Pareja en una cocina cálida con cajas de mudanza",
+        text: "La pandemia empujó a Javier de vuelta a Colombia, decidimos vivir juntos y aprender el amor en la vida diaria, la rutina, la paciencia, las mudanzas y los sueños compartidos.\nDespués de tanto camino, seguimos llegando al mismo lugar: juntos.",
+        image: hogar1Image,
+        alt: "Cata y Javier juntos durante la pandemia en Colombia",
         images: [
           {
-            src: "https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1300&q=80",
-            alt: "Pareja en una cocina cálida con cajas de mudanza",
+            src: hogar1Image,
+            alt: "Cata y Javier juntos durante la pandemia en Colombia",
           },
           {
-            src: "https://images.unsplash.com/photo-1449844908441-8829872d2607?auto=format&fit=crop&w=1300&q=80",
-            alt: "Llaves de apartamento sobre una mesa de madera",
+            src: hogar2Image,
+            alt: "Cata y Javier con familia durante un viaje en Colombia",
           },
           {
-            src: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1300&q=80",
-            alt: "Sala luminosa de apartamento nuevo con plantas y sofá",
+            src: hogar3Image,
+            alt: "Cata y Javier compartiendo con familia en un restaurante",
+          },
+          {
+            src: hogar4Image,
+            alt: "Celebración familiar de año nuevo",
+          },
+          {
+            src: hogar5Image,
+            alt: "Cata y Javier con sus familias en el campo",
           },
         ],
         frame: "polaroid",
@@ -137,8 +146,6 @@ export const weddingContent: WeddingContent = {
       "Era Milka.",
       "La vimos y nos enamoramos. Lo que no sabíamos era todo el amor que traería a nuestras vidas: las risas, la unión, la ternura y esa forma tan suya de hablarnos con esas perlas negras que tiene por ojos.",
       "Desde entonces va con nosotros a todas partes y se convirtió en una parte enorme de nuestra familia.",
-      "Milka nos recuerda, todos los días, lo que verdaderamente importa.",
-      "Por eso, obviamente, también estará en nuestra boda. Porque esta historia no estaría completa sin sus patitas.",
     ],
     quote: "Gracias, Milka, por ser ese ser de luz que nos recuerda lo que verdaderamente importa.",
     note: [
@@ -151,19 +158,34 @@ export const weddingContent: WeddingContent = {
     ],
     photos: [
       {
-        src: "https://picsum.photos/seed/milka-cachorra/900/1100",
-        alt: "Milka de cachorra envuelta en una manta clara",
+        src: milkaCachorra1Image,
+        alt: "Milka cachorra sentada frente a una puerta azul",
         caption: "Milka cachorra",
       },
       {
-        src: "https://picsum.photos/seed/milka-actual/900/1100",
-        alt: "Milka adulta mirando con ternura a cámara",
-        caption: "Milka hoy",
+        src: milkaCachorra2Image,
+        alt: "Milka cachorra en brazos de una niña en casa",
+        caption: "Milka cachorra",
       },
       {
-        src: "https://picsum.photos/seed/milka-familia/1100/900",
-        alt: "Milka junto a nosotros durante un paseo",
-        caption: "Milka con nosotros",
+        src: milkaConNosotrosImage,
+        alt: "Cata y Javier con Milka en un día de campo",
+        caption: "Milka",
+      },
+      {
+        src: milkaCarrusel1Image,
+        alt: "Milka descansando en el sofá",
+        caption: "Milka carrusel",
+      },
+      {
+        src: milkaCarrusel2Image,
+        alt: "Milka acostada en la cama con su peluche",
+        caption: "Milka carrusel",
+      },
+      {
+        src: milkaCarrusel3Image,
+        alt: "Milka jugando acostada en el piso",
+        caption: "Milka carrusel",
       },
     ],
   },
@@ -196,9 +218,9 @@ export const weddingContent: WeddingContent = {
         format: "landscape",
       },
       {
-        src: "https://picsum.photos/seed/eiger-propuesta-02/980/1280",
-        alt: "Cata y Javier abrazados en la nieve con el anillo de compromiso",
-        caption: "La pregunta y el sí",
+        src: propuestaFamiliaEigerImage,
+        alt: "Familia reunida en Grindelwald durante el viaje de la propuesta",
+        caption: "",
         format: "portrait",
       },
       {
@@ -344,7 +366,7 @@ export const weddingContent: WeddingContent = {
     date: "5 de septiembre de 2026",
     paragraphs: [
       "Después de casi diez años de historia, queremos celebrar este nuevo capítulo con las personas que queremos.",
-      "Nos casamos el 5 de septiembre de 2026 y nos encantaría que nos acompañes.",
+      "Nos encantaría que nos acompañes.",
     ],
     ceremony: {
       title: "Ceremonia religiosa",
@@ -353,20 +375,19 @@ export const weddingContent: WeddingContent = {
       imageAlt: "Arco floral en ceremonia al aire libre",
       venue: "Lugar por confirmar",
       location: "Tibasosa / Nobsa / Sogamoso",
-      time: "Hora por confirmar",
+      time: "2:30 pm",
       locationCtaLabel: "Ver ubicación",
       locationCtaHref: "https://www.google.com/maps/search/?api=1&query=Tibasosa%20Nobsa%20Sogamoso",
     },
     reception: {
       title: "Recepción",
-      image:
-        "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1800&q=80",
-      imageAlt: "Montaje de recepción con flores y velas",
-      venue: "Hacienda La Mara",
-      location: "Boyacá, Colombia",
-      time: "Hora por confirmar",
+      image: fincaLaMaraImage,
+      imageAlt: "Finca La Mara",
+      venue: "Finca La Mara",
+      location: "Vía Tibasosa Km 4 via Duitama- Tibasosa",
+      time: "4:30 pm",
       locationCtaLabel: "Ver ubicación",
-      locationCtaHref: "https://www.google.com/maps/search/?api=1&query=Hacienda%20La%20Mara%20Boyac%C3%A1",
+      locationCtaHref: "https://maps.app.goo.gl/pKbaD39XnPYG72tg6",
     },
     dressCode: {
       title: "Código de vestimenta",
@@ -375,8 +396,17 @@ export const weddingContent: WeddingContent = {
         "Queremos una celebración elegante, cómoda y natural.",
         "Te sugerimos trajes, vestidos o conjuntos en tonos neutros, tierra, oliva, champagne o colores suaves.",
       ],
+      examples: [
+        "Traje Formal, sin chaleco.",
+        "Se restringe el color azul.",
+      ],
+      womenExamples: [
+        "Vestido largo",
+        "Unicolor.",
+        "Se restringe el color blanco y amarillo.",
+      ],
       palette: ["#24291f", "#788267", "#949080", "#cbc2ad", "#f6f5f1"],
-      note: "Por favor evita blanco, marfil o tonos reservados para la novia.",
+      note: "",
     },
   },
   rsvp: {
