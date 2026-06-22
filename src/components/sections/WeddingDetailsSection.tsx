@@ -1,6 +1,6 @@
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useRef } from "react";
-import SectionWrapper from "../SectionWrapper";
+import type { MotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import RSVPForm from "../RSVPForm";
 import type { DressCodeConfig, EventBlock, RSVPConfig, WeddingContent } from "../../types/wedding";
 
@@ -9,165 +9,262 @@ interface WeddingDetailsSectionProps {
   rsvp: RSVPConfig;
 }
 
-function PinIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden className="h-[1.15rem] w-[1.15rem]">
-      <path
-        d="M12 21C14.2 18.2 18.2 13.9 18.2 10.1C18.2 6.73 15.46 4 12 4C8.54 4 5.8 6.73 5.8 10.1C5.8 13.9 9.8 18.2 12 21Z"
-        stroke="currentColor"
-        strokeWidth="1.2"
-      />
-      <circle cx="12" cy="10.1" r="2.2" stroke="currentColor" strokeWidth="1.2" />
-    </svg>
-  );
+type MomentAlignment = "left" | "right";
+
+interface WeddingMoment {
+  number: string;
+  title: string;
+  subtitle: string;
+  body: string;
+  details: Array<{
+    label: string;
+    value: string;
+  }>;
+  supportText: string;
+  ctaLabel: string;
+  ctaHref: string;
+  image: string;
+  imagePosition: string;
+  align: MomentAlignment;
 }
 
-function hasConfirmedLocation(block: EventBlock) {
-  return /^https?:\/\//u.test(block.locationCtaHref);
-}
-
-function getEventNarrative(block: EventBlock, index: number) {
-  if (index === 0) {
-    return `El día empieza con la ${block.title.toLowerCase()}. Nos encontraremos para vivir juntos este momento antes de seguir hacia la celebración.`;
-  }
-
-  return "Después de la ceremonia seguimos con la recepción: comida, brindis, música y ese rato largo para abrazarnos, conversar y celebrar sin afán.";
-}
-
-interface EventTimelineItemProps {
-  block: EventBlock;
+interface WeddingBackgroundLayerProps {
+  moment: WeddingMoment;
   index: number;
-  step: number;
+  progress: MotionValue<number>;
   shouldReduceMotion: boolean;
 }
 
-function EventTimelineItem({ block, index, step, shouldReduceMotion }: EventTimelineItemProps) {
-  const articleRef = useRef<HTMLElement | null>(null);
-  const showLocationLink = hasConfirmedLocation(block);
-  const isEven = index % 2 === 0;
-  const { scrollYProgress } = useScroll({
-    target: articleRef,
-    offset: ["start 86%", "end 18%"],
-  });
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 84, damping: 28, mass: 0.55 });
-  const imageY = useTransform(smoothProgress, [0, 1], shouldReduceMotion ? [0, 0] : [22, -16]);
-  const imageScale = useTransform(smoothProgress, [0, 0.55, 1], shouldReduceMotion ? [1, 1, 1] : [1.045, 1.005, 1.02]);
-  const imageOpacity = useTransform(smoothProgress, [0, 0.18, 0.92, 1], [0.44, 1, 1, 0.84]);
-  const copyY = useTransform(smoothProgress, [0, 0.42], shouldReduceMotion ? [0, 0] : [18, 0]);
-  const copyOpacity = useTransform(smoothProgress, [0, 0.28], [0.3, 1]);
+function WeddingBackgroundLayer({ moment, index, progress, shouldReduceMotion }: WeddingBackgroundLayerProps) {
+  const opacity = useTransform(
+    progress,
+    [0, 0.45, 0.6, 1],
+    index === 0 ? [1, 1, 0, 0] : [0, 0, 1, 1],
+  );
+  const scale = useTransform(
+    progress,
+    [0, 1],
+    shouldReduceMotion ? [1, 1] : index === 0 ? [1.05, 1.12] : [1.1, 1.04],
+  );
+  const y = useTransform(
+    progress,
+    [0, 1],
+    shouldReduceMotion ? ["0%", "0%"] : index === 0 ? ["-1.5%", "1.5%"] : ["1.25%", "-1.25%"],
+  );
+  const sideGradient =
+    moment.align === "right"
+      ? "linear-gradient(90deg, rgba(18, 14, 11, 0.04) 0%, rgba(18, 14, 11, 0.18) 42%, rgba(18, 14, 11, 0.8) 82%, rgba(18, 14, 11, 0.94) 100%)"
+      : "linear-gradient(90deg, rgba(18, 14, 11, 0.94) 0%, rgba(18, 14, 11, 0.78) 24%, rgba(18, 14, 11, 0.2) 62%, rgba(18, 14, 11, 0.04) 100%)";
+
+  return (
+    <motion.div className="absolute inset-0 z-0 overflow-hidden" style={{ opacity }} aria-hidden>
+      <motion.img
+        src={moment.image}
+        alt=""
+        className="h-full w-full object-cover"
+        loading={index === 0 ? "eager" : "lazy"}
+        decoding="async"
+        style={{
+          objectPosition: moment.imagePosition,
+          scale,
+          y,
+        }}
+      />
+      <div className="absolute inset-0 bg-[rgba(22,16,12,0.28)]" />
+      <div className="absolute inset-0 hidden md:block" style={{ background: sideGradient }} />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,12,9,0.44)_0%,rgba(16,12,9,0.08)_38%,rgba(16,12,9,0.72)_100%)] md:bg-[radial-gradient(circle_at_50%_45%,rgba(255,247,230,0.08)_0%,rgba(16,12,9,0.28)_48%,rgba(16,12,9,0.68)_100%)]" />
+    </motion.div>
+  );
+}
+
+interface WeddingMomentPanelProps {
+  moment: WeddingMoment;
+  index: number;
+  progress: MotionValue<number>;
+  isActive: boolean;
+  shouldReduceMotion: boolean;
+}
+
+function WeddingMomentPanel({ moment, index, progress, isActive, shouldReduceMotion }: WeddingMomentPanelProps) {
+  const opacity = useTransform(
+    progress,
+    index === 0 ? [0, 0.42, 0.58] : [0.48, 0.63, 1],
+    index === 0 ? [1, 1, 0] : [0, 1, 1],
+  );
+  const y = useTransform(
+    progress,
+    index === 0 ? [0, 0.42, 0.58] : [0.48, 0.63, 1],
+    shouldReduceMotion ? [0, 0, 0] : index === 0 ? [0, 0, -28] : [28, 0, 0],
+  );
+  const isRight = moment.align === "right";
 
   return (
     <motion.article
-      ref={articleRef}
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 35 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.28 }}
-      transition={{ duration: shouldReduceMotion ? 0 : 1.25, ease: [0.16, 1, 0.3, 1] }}
-      className={`relative grid items-center gap-6 pl-12 md:gap-10 md:pl-16 lg:grid-cols-2 lg:gap-16 lg:pl-0 ${
-        isEven ? "" : "lg:[&>*:first-child]:order-2"
-      }`}
+      className={`absolute inset-0 z-20 flex h-full w-full px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-12 sm:px-8 md:items-center md:px-0 md:py-0 ${
+        isRight
+          ? "items-end md:justify-end md:pr-[clamp(3.5rem,8vw,8rem)]"
+          : "items-end md:justify-start md:pl-[clamp(3rem,7vw,7rem)]"
+      } ${isActive ? "pointer-events-auto" : "pointer-events-none"}`}
+      style={{ opacity, y }}
+      aria-hidden={!isActive}
+      aria-label={`${moment.number}. ${moment.title}. ${moment.subtitle}`}
     >
-      <span className="absolute left-0 top-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-ivory)] text-[0.64rem] font-semibold tracking-[0.16em] text-[var(--color-olive)] shadow-[0_8px_18px_rgba(36,41,31,0.08)] lg:left-1/2 lg:-translate-x-1/2">
-        {String(step).padStart(2, "0")}
-      </span>
-
-      <motion.figure
-        className="relative mx-auto aspect-[5/4] w-full max-w-[340px] overflow-hidden rounded-[4px] shadow-[0_22px_50px_rgba(36,41,31,0.12)] md:aspect-[4/5] md:max-w-[430px] lg:w-[82%] lg:max-w-none"
-        style={{ y: imageY, opacity: imageOpacity }}
+      <div
+        className={`w-full max-w-[34rem] text-[var(--color-ivory)] drop-shadow-[0_9px_32px_rgba(0,0,0,0.52)] ${
+          isRight ? "md:text-right" : "md:text-left"
+        }`}
       >
-        <motion.img 
-          src={block.image} 
-          alt={block.imageAlt} 
-          className="h-full w-full object-cover" 
-          loading="lazy" 
-          style={{ scale: imageScale }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(36,41,31,0.01),rgba(36,41,31,0.16))]" />
-      </motion.figure>
-
-      <motion.div className={`flex flex-col justify-center px-1 md:px-4 ${isEven ? "lg:pr-14" : "lg:pl-14"}`} style={{ y: copyY, opacity: copyOpacity }}>
-        <motion.p
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.7 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]"
-        >
-          {block.title}
-        </motion.p>
-        
-        <motion.h3
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.7 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.95, delay: shouldReduceMotion ? 0 : 0.08, ease: [0.16, 1, 0.3, 1] }}
-          className="font-heading mt-4 text-[clamp(1.9rem,4vw,2.75rem)] leading-[1.05] text-[var(--color-forest)] md:mt-6"
-        >
-          {block.venue}
-        </motion.h3>
-
-        <motion.p
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.7 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.85, delay: shouldReduceMotion ? 0 : 0.12, ease: [0.16, 1, 0.3, 1] }}
-          className="font-editorial mt-4 text-[1.12rem] leading-[1.42] text-[var(--color-forest)]/80 md:text-[1.22rem]"
-        >
-          {getEventNarrative(block, index)}
-        </motion.p>
-        
-        <div className="mt-6 grid gap-3 border-y border-[var(--color-olive)]/14 py-4 md:grid-cols-2 md:gap-5">
-          <div>
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">
-              Hora
-            </p>
-            <p className="font-editorial mt-2 text-[1.35rem] leading-[1.15] text-[var(--color-terracotta)]">
-              {block.time}
-            </p>
-          </div>
-          <div>
-            <p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">
-              Dónde
-            </p>
-            <p className="font-editorial mt-2 text-[1.12rem] leading-[1.28] text-[var(--color-forest)]/82">
-              {block.location ?? "Ubicación por confirmar"}
-            </p>
-          </div>
+        <div className={`flex flex-col gap-3 md:gap-4 ${isRight ? "md:items-end" : "md:items-start"}`}>
+          <p className="text-[0.64rem] font-semibold uppercase tracking-[0.36em] text-[var(--color-gold)] md:text-[0.74rem] md:tracking-[0.38em]">
+            {moment.number}
+          </p>
+          <span className="h-px w-20 bg-[color-mix(in_oklab,var(--color-gold)_70%,transparent)]" aria-hidden />
         </div>
 
-        <div className="mt-4 grid gap-3">
-          <motion.p
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.7 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.85, delay: shouldReduceMotion ? 0 : 0.14, ease: [0.16, 1, 0.3, 1] }}
-            className="text-sm leading-[1.55] text-[var(--color-forest)]/66"
-          >
-            {showLocationLink
-              ? "La ubicación exacta ya está lista para abrirla en el mapa."
-              : "La ubicación exacta se compartirá apenas esté confirmada."}
-          </motion.p>
+        <h3 className="font-heading mt-4 text-[clamp(2.45rem,11vw,5.8rem)] font-medium italic leading-[0.94] tracking-normal text-[var(--color-ivory)] md:mt-7 md:text-[clamp(4rem,6vw,6.25rem)] md:leading-[0.92]">
+          {moment.title}
+        </h3>
+
+        <p className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-gold)] md:mt-5 md:text-[0.78rem] md:tracking-[0.34em]">
+          {moment.subtitle}
+        </p>
+
+        <p className="mt-4 max-w-[31rem] font-editorial text-[clamp(1rem,4.4vw,1.25rem)] leading-[1.42] text-[color-mix(in_oklab,var(--color-ivory)_82%,var(--color-gold)_18%)] md:mt-8 md:text-[clamp(1.25rem,1.6vw,1.55rem)] md:leading-[1.55]">
+          {moment.body}
+        </p>
+
+        <div
+          className={`mt-4 grid gap-3 border-y border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] py-3 sm:grid-cols-2 md:mt-8 md:gap-8 md:py-6 ${
+            isRight ? "md:ml-auto" : ""
+          }`}
+        >
+          {moment.details.map((detail) => (
+            <div key={detail.label}>
+              <p className="text-[0.58rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-gold)] md:text-[0.68rem] md:tracking-[0.28em]">
+                {detail.label}
+              </p>
+              <p className="font-heading mt-1.5 text-[clamp(1.16rem,4.5vw,1.65rem)] font-semibold leading-[1.12] tracking-normal text-[var(--color-ivory)] md:mt-2 md:text-[clamp(1.45rem,2vw,2rem)]">
+                {detail.value}
+              </p>
+            </div>
+          ))}
         </div>
 
-        {showLocationLink && (
-          <motion.a
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.7 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.75, delay: shouldReduceMotion ? 0 : 0.26, ease: [0.16, 1, 0.3, 1] }}
-            href={block.locationCtaHref}
+        <p className="mt-3 text-[0.82rem] leading-[1.45] text-[color-mix(in_oklab,var(--color-gold)_74%,var(--color-ivory)_26%)] md:mt-4 md:text-[0.95rem] md:leading-[1.55]">
+          {moment.supportText}
+        </p>
+
+        {moment.ctaHref && (
+          <a
+            href={moment.ctaHref}
             target="_blank"
             rel="noreferrer"
-            className="group mt-7 inline-flex w-fit items-center gap-3 rounded-full border border-[var(--color-olive)]/40 px-5 py-2.5 transition-all hover:bg-[var(--color-olive)]/5 md:mt-10 md:px-6 md:py-3"
+            className={`mt-4 inline-flex min-h-11 items-center justify-center gap-3 border border-[color-mix(in_oklab,var(--color-gold)_48%,transparent)] px-5 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-gold)] transition duration-300 hover:border-[var(--color-gold)] hover:bg-[rgba(246,245,241,0.08)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] md:mt-8 md:min-h-14 md:gap-4 md:px-8 md:py-3 md:text-[0.68rem] md:tracking-[0.28em] ${
+              isRight ? "md:ml-auto" : ""
+            }`}
           >
-            <PinIcon />
-            <span className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-forest)]">
-              {block.locationCtaLabel}
-            </span>
-          </motion.a>
+            <span>{moment.ctaLabel}</span>
+            <span aria-hidden>{isRight ? "←" : "→"}</span>
+          </a>
         )}
-      </motion.div>
+      </div>
     </motion.article>
+  );
+}
+
+function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock): WeddingMoment[] {
+  return [
+    {
+      number: "01",
+      title: ceremony.title,
+      subtitle: ceremony.venue,
+      body: "El día empieza con la ceremonia religiosa. Nos encontraremos para vivir juntos este momento antes de seguir hacia la celebración.",
+      details: [
+        { label: "Hora", value: ceremony.time },
+        { label: "Dónde", value: ceremony.location ?? "Ubicación por confirmar" },
+      ],
+      supportText: "La ubicación exacta ya está lista para abrirla en el mapa.",
+      ctaLabel: ceremony.locationCtaLabel,
+      ctaHref: ceremony.locationCtaHref,
+      image: ceremony.image,
+      imagePosition: "45% 50%",
+      align: "right",
+    },
+    {
+      number: "02",
+      title: reception.title,
+      subtitle: reception.venue,
+      body: "Después de la ceremonia seguimos con la recepción: comida, brindis, música y ese rato largo para abrazarnos, conversar y celebrar sin afán.",
+      details: [
+        { label: "Hora", value: reception.time },
+        { label: "Dónde", value: reception.location ?? "Ubicación por confirmar" },
+      ],
+      supportText: "La ubicación exacta ya está lista para abrirla en el mapa.",
+      ctaLabel: reception.locationCtaLabel,
+      ctaHref: reception.locationCtaHref,
+      image: reception.image,
+      imagePosition: "58% 50%",
+      align: "left",
+    },
+  ];
+}
+
+interface WeddingDetailsStoryProps {
+  ceremony: EventBlock;
+  reception: EventBlock;
+  shouldReduceMotion: boolean;
+}
+
+function WeddingDetailsStory({ ceremony, reception, shouldReduceMotion }: WeddingDetailsStoryProps) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [activeMomentIndex, setActiveMomentIndex] = useState(0);
+  const moments = buildWeddingMoments(ceremony, reception);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"],
+  });
+  const progress = useSpring(scrollYProgress, { stiffness: 76, damping: 30, mass: 0.62 });
+
+  useEffect(() => {
+    return progress.on("change", (latest) => {
+      setActiveMomentIndex(latest >= 0.55 ? 1 : 0);
+    });
+  }, [progress]);
+
+  return (
+    <div ref={containerRef} className="relative h-[240svh] bg-[#15100d]" aria-labelledby="gran-dia-title">
+      <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#15100d] text-[var(--color-ivory)]">
+        <h2 id="gran-dia-title" className="sr-only">
+          El Gran Día
+        </h2>
+
+        {moments.map((moment, index) => (
+          <WeddingBackgroundLayer
+            key={`${moment.number}-background`}
+            moment={moment}
+            index={index}
+            progress={progress}
+            shouldReduceMotion={shouldReduceMotion}
+          />
+        ))}
+
+        <div className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(12,9,7,0.22)_0%,transparent_30%,rgba(12,9,7,0.48)_100%)] md:hidden" />
+        <p className="pointer-events-none absolute left-5 top-5 z-30 text-[0.62rem] font-semibold uppercase tracking-[0.34em] text-[color-mix(in_oklab,var(--color-gold)_76%,var(--color-ivory)_24%)] sm:left-8 md:left-12 md:top-10">
+          El Gran Día
+        </p>
+
+        {moments.map((moment, index) => (
+          <WeddingMomentPanel
+            key={`${moment.number}-copy`}
+            moment={moment}
+            index={index}
+            progress={progress}
+            isActive={activeMomentIndex === index}
+            shouldReduceMotion={shouldReduceMotion}
+          />
+        ))}
+      </div>
+    </div>
   );
 }
 
@@ -177,182 +274,338 @@ interface DressCodeNoteProps {
   shouldReduceMotion: boolean;
 }
 
+function formatDressLead(items: string[]) {
+  return items
+    .map((item) => item.trim())
+    .filter(Boolean)
+    .map((item) => (/[.!?]$/.test(item) ? item : `${item}.`))
+    .join(" ");
+}
+
+function splitDressExamples(items: string[]) {
+  return {
+    lead: formatDressLead(items.slice(0, 1)),
+    bullets: items.slice(1),
+  };
+}
+
+function FormalSuitIllustration() {
+  return (
+    <svg viewBox="0 0 190 270" className="h-full w-full" role="img" aria-label="Traje formal">
+      <circle cx="95" cy="31" r="18" fill="color-mix(in oklab, white 76%, var(--color-gold) 24%)" stroke="var(--color-terracotta)" strokeWidth="2" />
+      <path d="M67 82 52 99v74h29v70h28v-70h5v70h28v-70h29V99l-15-17-37-9-24 31-24-31Z" fill="color-mix(in oklab, white 72%, var(--color-gold) 28%)" stroke="var(--color-terracotta)" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M73 79v94h44V79l-22 27Z" fill="color-mix(in oklab, white 68%, var(--color-ivory) 32%)" stroke="var(--color-terracotta)" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="M67 82c20 3 29 11 28 24M123 82c-20 3-29 11-28 24" fill="none" stroke="var(--color-terracotta)" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M88 77h14l-7 29Z" fill="var(--color-terracotta)" opacity="0.74" />
+      <path d="M81 77 95 106 69 91M109 77 95 106l26-15" fill="color-mix(in oklab, var(--color-gold) 70%, white 30%)" stroke="var(--color-terracotta)" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M52 99c9-4 17-5 25-3M138 96c8-2 16-1 25 3M95 121v39M95 181v57" fill="none" stroke="var(--color-terracotta)" strokeWidth="1.4" strokeLinecap="round" />
+      <circle cx="95" cy="130" r="2.5" fill="var(--color-terracotta)" opacity="0.62" />
+      <circle cx="95" cy="149" r="2.5" fill="var(--color-terracotta)" opacity="0.62" />
+    </svg>
+  );
+}
+
+function LongDressIllustration() {
+  return (
+    <svg viewBox="0 0 190 270" className="h-full w-full" role="img" aria-label="Vestido largo">
+      <circle cx="95" cy="31" r="18" fill="color-mix(in oklab, white 78%, var(--color-gold) 22%)" stroke="var(--color-terracotta)" strokeWidth="2" />
+      <path d="M67 75h56l17 18-2 58h-23l30 93H45l30-93H52l-2-58Z" fill="color-mix(in oklab, white 78%, var(--color-gold) 22%)" stroke="var(--color-terracotta)" strokeWidth="2" strokeLinejoin="round" />
+      <path d="M70 75c6 14 14 21 25 21s19-7 25-21M67 75l28 21 28-21" fill="none" stroke="var(--color-terracotta)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M69 92v55M121 92v55M95 104v122M78 159l-16 67M112 159l16 67" fill="none" stroke="color-mix(in oklab, var(--color-terracotta) 52%, white 48%)" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M54 95c8 3 15 3 21 0M115 95c6 3 13 3 21 0" fill="none" stroke="var(--color-terracotta)" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+interface DressSuggestionProps {
+  label: string;
+  lead: string;
+  bullets: string[];
+  type: "men" | "women";
+  restrictedTones: Array<{
+    label: string;
+    background: string;
+    border?: string;
+  }>;
+  delay: number;
+  shouldReduceMotion: boolean;
+}
+
+function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, shouldReduceMotion }: DressSuggestionProps) {
+  const itemVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.34 }}
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            delayChildren: shouldReduceMotion ? 0 : delay,
+            staggerChildren: shouldReduceMotion ? 0 : 0.08,
+          },
+        },
+      }}
+      className="grid min-w-0 justify-items-center text-center"
+    >
+      <motion.p
+        variants={itemVariants}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.72, ease: [0.16, 1, 0.3, 1] }}
+        className="text-[0.58rem] font-semibold uppercase tracking-[0.3em] text-[color-mix(in_oklab,var(--color-terracotta)_82%,var(--color-forest)_18%)] md:text-[0.68rem] md:tracking-[0.36em]"
+      >
+        {label}
+      </motion.p>
+      <motion.div
+        variants={{
+          hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 22, scale: shouldReduceMotion ? 1 : 0.92 },
+          visible: { opacity: 1, y: 0, scale: 1 },
+        }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <motion.div
+          animate={shouldReduceMotion ? undefined : { y: [0, -5, 0] }}
+          transition={shouldReduceMotion ? undefined : { duration: 5.4, ease: "easeInOut", repeat: Infinity, delay: type === "men" ? 0.2 : 0.7 }}
+          className="mt-3 flex h-[7.6rem] w-[6.6rem] items-center justify-center rounded-full bg-[color-mix(in_oklab,white_88%,var(--color-gold)_12%)] px-4 py-3 md:mt-4 md:h-[11.25rem] md:w-[9.75rem] md:px-6 md:py-5 lg:h-[12.5rem] lg:w-[10.75rem]"
+        >
+          {type === "men" ? <FormalSuitIllustration /> : <LongDressIllustration />}
+        </motion.div>
+      </motion.div>
+      <motion.p
+        variants={itemVariants}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
+        className="font-editorial mt-3 max-w-[12rem] text-[clamp(1.08rem,3.2vw,1.82rem)] italic leading-[1.08] text-[var(--color-forest)] md:mt-5 md:max-w-[18rem]"
+      >
+        {lead}
+      </motion.p>
+      {bullets.length > 0 && (
+        <motion.ul
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: shouldReduceMotion ? 0 : 0.06,
+              },
+            },
+          }}
+          className="mt-3 grid gap-1.5 text-left text-[0.78rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.95rem] md:leading-[1.45]"
+        >
+          {bullets.map((bullet) => (
+            <motion.li
+              key={bullet}
+              variants={itemVariants}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
+              className="flex items-start gap-3"
+            >
+              <span className="mt-[0.62em] h-1.5 w-1.5 flex-none rounded-full bg-[color-mix(in_oklab,var(--color-terracotta)_66%,var(--color-gold)_34%)]" aria-hidden />
+              <span>{bullet}</span>
+            </motion.li>
+          ))}
+        </motion.ul>
+      )}
+      <motion.div
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: shouldReduceMotion ? 0 : 0.05,
+            },
+          },
+        }}
+        className="mt-3 flex flex-wrap justify-center gap-1.5 md:mt-4 md:gap-2"
+        aria-label={`Tonos no permitidos para ${label.toLowerCase()}`}
+      >
+        {restrictedTones.map((tone) => (
+          <motion.span
+            key={tone.label}
+            variants={{
+              hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.86, y: shouldReduceMotion ? 0 : 8 },
+              visible: { opacity: 1, scale: 1, y: 0 },
+            }}
+            whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.03 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-gold)]/55 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[color-mix(in_oklab,var(--color-terracotta)_74%,var(--color-forest)_26%)] md:text-[0.64rem]"
+          >
+            <span
+              className="relative h-4 w-4 overflow-hidden rounded-full"
+              style={{ background: tone.background, border: `1px solid ${tone.border ?? "rgba(36,41,31,0.12)"}` }}
+              aria-hidden
+            >
+              <span className="absolute left-1/2 top-1/2 h-[1.5px] w-6 -translate-x-1/2 -translate-y-1/2 rotate-[-38deg] bg-[color-mix(in_oklab,var(--color-terracotta)_78%,var(--color-forest)_22%)]" />
+            </span>
+            {tone.label}
+          </motion.span>
+        ))}
+      </motion.div>
+    </motion.div>
+  );
+}
+
 function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps) {
   const examples = config.examples ?? [];
   const womenExamples = config.womenExamples ?? [];
+  const menSuggestion = splitDressExamples(examples);
+  const womenSuggestion = splitDressExamples(womenExamples);
+  const introVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
+    visible: { opacity: 1, y: 0 },
+  };
 
   return (
     <motion.aside
-      initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 32, scale: shouldReduceMotion ? 1 : 0.97 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.34 }}
-      transition={{ duration: shouldReduceMotion ? 0 : 1.2, ease: [0.16, 1, 0.3, 1] }}
-      className="relative grid gap-7 pl-12 md:gap-10 md:pl-16 lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)] lg:items-start lg:pl-0"
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: shouldReduceMotion ? 0 : 0.1,
+          },
+        },
+      }}
+      className="relative flex h-full flex-col justify-center text-center"
       aria-labelledby="dress-code-title"
     >
-      <span className="absolute left-0 top-1 z-10 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-ivory)] text-[0.64rem] font-semibold tracking-[0.16em] text-[var(--color-olive)] shadow-[0_8px_18px_rgba(36,41,31,0.08)] lg:left-1/2 lg:-translate-x-1/2">
-        {String(step).padStart(2, "0")}
-      </span>
+      <span className="sr-only">Paso {String(step).padStart(2, "0")}</span>
 
-      <div className="lg:pr-14">
-        <p id="dress-code-title" className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
+      <div className="mx-auto max-w-4xl">
+        <motion.h2
+          id="dress-code-title"
+          variants={{
+            hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 24, scale: shouldReduceMotion ? 1 : 0.97 },
+            visible: { opacity: 1, y: 0, scale: 1 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.95, ease: [0.16, 1, 0.3, 1] }}
+          className="font-heading text-[clamp(2.55rem,8vw,5.45rem)] font-medium italic leading-[0.86] text-[var(--color-forest)]"
+        >
           {config.title}
-        </p>
-        <p className="font-editorial mt-4 text-[clamp(1.8rem,3vw,2.5rem)] leading-[1.1] text-[var(--color-forest)]">
+        </motion.h2>
+        <motion.p
+          variants={introVariants}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.78, ease: [0.16, 1, 0.3, 1] }}
+          className="mt-2 text-[0.64rem] font-semibold uppercase tracking-[0.34em] text-[color-mix(in_oklab,var(--color-terracotta)_82%,var(--color-forest)_18%)] md:text-[0.76rem] md:tracking-[0.52em]"
+        >
           {config.subtitle}
-        </p>
+        </motion.p>
 
-        <div className="mt-6 grid gap-4">
-          {config.guidance.map((item, index) => (
-            <motion.p
-              key={item}
-              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.7 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.8, delay: shouldReduceMotion ? 0 : index * 0.08, ease: [0.16, 1, 0.3, 1] }}
-              className="font-editorial text-[1.12rem] leading-[1.42] text-[var(--color-forest)]/84 md:text-[1.2rem]"
-            >
-              {item}
-            </motion.p>
-          ))}
-        </div>
-
-        <div className="mt-7 flex gap-3" aria-label="Paleta sugerida para el código de vestimenta">
-          {config.palette.map((color, index) => (
-            <motion.span
-              key={color}
-              className="h-10 w-10 rounded-full shadow-md md:h-11 md:w-11"
-              initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 0.82 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.7 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.55, delay: shouldReduceMotion ? 0 : 0.16 + index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-              style={{ backgroundColor: color, border: "1px solid rgba(0,0,0,0.06)" }}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="grid gap-9 lg:pl-16">
-        <div className="grid gap-3 border-l border-[var(--color-olive)]/24 pl-5">
-          <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">
-            Hombres
-          </p>
-          {examples.map((example, index) => (
-            <motion.p
-              key={example}
-              initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.7 }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.72, delay: shouldReduceMotion ? 0 : index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-              className="font-editorial text-[1.05rem] leading-[1.32] text-[var(--color-forest)]/84 md:text-[1.18rem]"
-            >
-              {example}
-            </motion.p>
-          ))}
-        </div>
-
-        {womenExamples.length > 0 && (
-          <div className="grid gap-3 border-l border-[var(--color-olive)]/24 pl-5">
-            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">
-              Mujeres
-            </p>
-            {womenExamples.map((example, index) => (
-              <motion.p
-                key={example}
-                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.7 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.72, delay: shouldReduceMotion ? 0 : 0.12 + index * 0.06, ease: [0.16, 1, 0.3, 1] }}
-                className="font-editorial text-[1.05rem] leading-[1.32] text-[var(--color-forest)]/84 md:text-[1.18rem]"
-              >
-                {example}
-              </motion.p>
+        {config.guidance.length > 0 && (
+          <motion.p
+            variants={introVariants}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+            className="font-editorial mx-auto mt-5 max-w-3xl text-[clamp(1rem,2.25vw,1.5rem)] leading-[1.45] text-[color-mix(in_oklab,var(--color-forest)_78%,var(--color-terracotta)_22%)] md:mt-8"
+          >
+            {config.guidance[0]}{" "}
+            {config.guidance.slice(1).map((item) => (
+              <span key={item} className="italic font-semibold">
+                {item}
+              </span>
             ))}
-          </div>
+          </motion.p>
         )}
-
-        {config.note && <p className="text-sm italic tracking-wide text-[var(--color-terracotta)]">{config.note}</p>}
       </div>
+
+      <motion.div
+        variants={{
+          hidden: { opacity: 0 },
+          visible: { opacity: 1 },
+        }}
+        transition={{ duration: shouldReduceMotion ? 0 : 0.75, ease: [0.16, 1, 0.3, 1] }}
+        className="mx-auto mt-5 flex w-full max-w-5xl items-center gap-5 text-[var(--color-gold)] md:mt-8 md:gap-8"
+        aria-hidden
+      >
+        <motion.span
+          variants={{
+            hidden: { scaleX: 0 },
+            visible: { scaleX: 1 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="h-px flex-1 origin-right bg-current opacity-45"
+        />
+        <motion.span
+          variants={{
+            hidden: { scale: shouldReduceMotion ? 1 : 0.4, rotate: shouldReduceMotion ? 45 : 0 },
+            visible: { scale: 1, rotate: 45 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.72, ease: [0.16, 1, 0.3, 1] }}
+          className="h-2.5 w-2.5 border border-current opacity-70"
+        />
+        <motion.span
+          variants={{
+            hidden: { scaleX: 0 },
+            visible: { scaleX: 1 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+          className="h-px flex-1 origin-left bg-current opacity-45"
+        />
+      </motion.div>
+
+      <div className="mx-auto mt-5 grid w-full max-w-5xl grid-cols-2 gap-3 md:mt-8 md:gap-12 lg:gap-20">
+        {menSuggestion.lead && (
+          <DressSuggestion
+            label="Hombres"
+            lead={menSuggestion.lead}
+            bullets={menSuggestion.bullets}
+            type="men"
+            restrictedTones={[{ label: "Azul", background: "#17264d" }]}
+            delay={0.05}
+            shouldReduceMotion={shouldReduceMotion}
+          />
+        )}
+        {womenSuggestion.lead && (
+          <DressSuggestion
+            label="Mujeres"
+            lead={womenSuggestion.lead}
+            bullets={womenSuggestion.bullets}
+            type="women"
+            restrictedTones={[
+              { label: "Amarillo", background: "#f2d766" },
+              { label: "Blanco", background: "#ffffff", border: "rgba(36,41,31,0.24)" },
+              { label: "Vivos", background: "linear-gradient(135deg, #ef476f, #ffb703, #06d6a0)" },
+            ]}
+            delay={0.15}
+            shouldReduceMotion={shouldReduceMotion}
+          />
+        )}
+      </div>
+
+      {config.note && <p className="mt-14 text-sm italic tracking-wide text-[var(--color-terracotta)]">{config.note}</p>}
     </motion.aside>
   );
 }
 
 export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSectionProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
-  const sectionRef = useRef<HTMLDivElement | null>(null);
   const rsvpRef = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress: sectionProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start 82%", "end 24%"],
-  });
   const { scrollYProgress: rsvpProgress } = useScroll({
     target: rsvpRef,
     offset: ["start 90%", "end 24%"],
   });
-  const smoothSectionProgress = useSpring(sectionProgress, { stiffness: 76, damping: 28, mass: 0.6 });
   const smoothRsvpProgress = useSpring(rsvpProgress, { stiffness: 82, damping: 30, mass: 0.58 });
-  const headerY = useTransform(smoothSectionProgress, [0, 0.26], shouldReduceMotion ? [0, 0] : [34, 0]);
-  const headerOpacity = useTransform(smoothSectionProgress, [0, 0.16], [0.2, 1]);
   const rsvpY = useTransform(smoothRsvpProgress, [0, 0.5], shouldReduceMotion ? [0, 0] : [42, 0]);
   const rsvpScale = useTransform(smoothRsvpProgress, [0, 0.58], shouldReduceMotion ? [1, 1] : [0.97, 1]);
-  const dateParts = event.date.match(/^(.+?) de (\d{4})$/i);
-  const dateText = dateParts?.[1] ?? "5 de septiembre";
-  const yearText = dateParts?.[2] ?? "2026";
 
   return (
-    <SectionWrapper
-      id="el-gran-dia-rsvp"
-      className="bg-[var(--color-ivory)] pb-0 pt-20 md:pt-32"
-      contentClassName="relative max-w-none px-0"
-      hideDivider
-    >
-      <div ref={sectionRef} className="mx-auto max-w-[1120px] px-4 md:px-8">
-        
-        <motion.header
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: shouldReduceMotion ? 0 : 1.15, ease: [0.16, 1, 0.3, 1] }}
-          className="text-center"
-          style={{ y: headerY, opacity: headerOpacity }}
-        >
-          <p className="text-[0.7rem] font-semibold uppercase tracking-[0.25em] text-[var(--color-olive)]">
-            El Gran Día
-          </p>
-          <h2 className="font-heading mt-6 text-[clamp(2.85rem,8vw,5.5rem)] leading-[0.9] text-[var(--color-forest)] md:mt-8">
-            {dateText}
-          </h2>
-          <p className="font-editorial mt-4 text-[clamp(2rem,5vw,3.25rem)] leading-[1.15] italic text-[var(--color-terracotta)]">
-            {yearText}
-          </p>
-          <div className="mx-auto mt-8 max-w-2xl md:mt-12">
-            {event.paragraphs.map((p, i) => (
-              <motion.p
-                key={i}
-                initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.7 }}
-                transition={{ duration: shouldReduceMotion ? 0 : 0.85, delay: shouldReduceMotion ? 0 : 0.14 + i * 0.08, ease: [0.16, 1, 0.3, 1] }}
-                className="mb-4 font-editorial text-[1.12rem] leading-[1.38] text-[var(--color-forest)]/80 md:mb-6 md:text-xl"
-              >
-                {p}
-              </motion.p>
-            ))}
-          </div>
-        </motion.header>
+    <section id="el-gran-dia-rsvp" className="relative bg-[var(--color-ivory)]">
+      <WeddingDetailsStory
+        ceremony={event.ceremony}
+        reception={event.reception}
+        shouldReduceMotion={shouldReduceMotion}
+      />
 
-        <section className="relative mt-16 grid gap-16 md:mt-28 md:gap-28" aria-label="Camino del día de la boda">
-          <div
-            className="pointer-events-none absolute bottom-[-3rem] left-[17px] top-0 w-px bg-[linear-gradient(180deg,var(--color-olive),var(--color-gold),transparent)] opacity-35 lg:left-1/2"
-            aria-hidden
-          />
-          <EventTimelineItem block={event.ceremony} index={0} step={1} shouldReduceMotion={shouldReduceMotion} />
-          <EventTimelineItem block={event.reception} index={1} step={2} shouldReduceMotion={shouldReduceMotion} />
-          <DressCodeNote config={event.dressCode} step={3} shouldReduceMotion={shouldReduceMotion} />
-        </section>
+      <div className="relative h-[100svh] overflow-hidden bg-white">
+        <div className="mx-auto flex h-full max-w-[1180px] items-center px-4 py-5 md:px-8 md:py-8 lg:py-10">
+          <section className="relative h-full w-full" aria-label="Código de vestimenta">
+            <DressCodeNote config={event.dressCode} step={3} shouldReduceMotion={shouldReduceMotion} />
+          </section>
+        </div>
       </div>
 
-      <div ref={rsvpRef} className="relative mt-20 bg-[var(--color-surface)] py-20 md:mt-28 md:py-28">
+      <div ref={rsvpRef} className="relative bg-[var(--color-surface)] py-20 md:py-28">
         <div className="absolute inset-0 pointer-events-none border-t border-[var(--color-olive)]/10 bg-[linear-gradient(180deg,rgba(246,245,241,0.58),rgba(252,251,248,0))]" aria-hidden />
         <div className="relative mx-auto max-w-[820px] px-4 md:px-8">
           <motion.div
@@ -384,6 +637,6 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
           </motion.div>
         </div>
       </div>
-    </SectionWrapper>
+    </section>
   );
 }
