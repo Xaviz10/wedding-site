@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import heroImage from "../../assets/hero.jpg";
 import type { HeroContent } from "../../types/wedding";
 
@@ -9,7 +9,6 @@ interface HeroSectionProps {
 
 const HERO_IMAGE = heroImage;
 
-// Cinematic light dust particles to make the scene feel alive
 const ambientParticles = [
   { size: 4, left: "15%", top: "20%", delay: 0, duration: 12 },
   { size: 6, left: "85%", top: "15%", delay: 2, duration: 15 },
@@ -19,48 +18,119 @@ const ambientParticles = [
   { size: 4, left: "45%", top: "85%", delay: 4, duration: 16 },
 ];
 
+function TopOrnament() {
+  return (
+    <svg
+      viewBox="0 0 250 128"
+      fill="none"
+      aria-hidden
+      className="h-auto w-[8.75rem] text-[var(--color-gold)] opacity-78 md:w-[11.75rem]"
+    >
+      <path d="M125 37V112" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
+      <path d="M125 63C103 44 82 31 61 25" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" />
+      <path d="M125 63C147 44 168 31 189 25" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" />
+      <path d="M125 74C97 66 72 62 49 63" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
+      <path d="M125 74C153 66 178 62 201 63" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
+      <path d="M125 83C103 83 84 86 68 93" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" />
+      <path d="M125 83C147 83 166 86 182 93" stroke="currentColor" strokeWidth="0.9" strokeLinecap="round" />
+      {[125, 61, 189, 49, 201].map((cx, index) => {
+        const cy = [20, 25, 25, 63, 63][index];
+        const scale = index === 0 ? 1.15 : 0.85;
+
+        return (
+          <path
+            key={`${cx}-${cy}`}
+            d={`M ${cx} ${cy - 14 * scale} L ${cx + 3.2 * scale} ${cy - 3.5 * scale} L ${
+              cx + 14 * scale
+            } ${cy - 2.8 * scale} L ${cx + 5.2 * scale} ${cy + 3.4 * scale} L ${
+              cx + 8.6 * scale
+            } ${cy + 13.5 * scale} L ${cx} ${cy + 7.2 * scale} L ${cx - 8.6 * scale} ${
+              cy + 13.5 * scale
+            } L ${cx - 5.2 * scale} ${cy + 3.4 * scale} L ${cx - 14 * scale} ${
+              cy - 2.8 * scale
+            } L ${cx - 3.2 * scale} ${cy - 3.5 * scale} Z`}
+            stroke="currentColor"
+            strokeWidth="1"
+            strokeLinejoin="round"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function DividerOrnament() {
+  return (
+    <div className="flex w-[min(15rem,58vw)] items-center justify-center gap-4 text-[var(--color-gold)] opacity-75 md:w-[24rem] md:gap-7" aria-hidden>
+      <span className="h-px flex-1 bg-current" />
+      <span className="h-2.5 w-2.5 rotate-45 border border-current" />
+      <span className="h-px flex-1 bg-current" />
+    </div>
+  );
+}
+
+function BottomOrnament() {
+  return (
+    <svg
+      viewBox="0 0 240 96"
+      fill="none"
+      aria-hidden
+      className="h-auto w-[9.5rem] text-[var(--color-gold)] opacity-45 md:w-[13rem]"
+    >
+      <path d="M120 14V82" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M120 47C95 38 74 36 55 42" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <path d="M120 47C145 38 166 36 185 42" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
+      <path d="M120 64C91 56 64 57 39 68" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
+      <path d="M120 64C149 56 176 57 201 68" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
+      <circle cx="120" cy="14" r="3.5" fill="currentColor" />
+      <circle cx="55" cy="42" r="3.3" fill="currentColor" />
+      <circle cx="185" cy="42" r="3.3" fill="currentColor" />
+      <circle cx="39" cy="68" r="3.1" fill="currentColor" />
+      <circle cx="201" cy="68" r="3.1" fill="currentColor" />
+    </svg>
+  );
+}
+
 export default function HeroSection({ content }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
+  const titleParts = useMemo(() => content.title.split("&").map((part) => part.trim()), [content.title]);
 
-  // Parallax scroll effects
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
 
-  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
-  const textOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
+  const textOpacity = useTransform(scrollYProgress, [0, 0.76], [1, 0]);
 
   return (
     <section
       ref={sectionRef}
       id="portada"
-      className="relative flex min-h-[100svh] w-full flex-col overflow-hidden bg-[var(--color-forest)] md:bg-[var(--color-ivory)]"
+      className="relative isolate flex min-h-[100svh] w-full overflow-hidden bg-[var(--color-forest)] text-white"
     >
-      {/* Split image on desktop, full-bleed image on mobile */}
-      <motion.div 
-        className="absolute inset-0 z-0 origin-top md:bottom-auto md:right-auto md:h-full md:w-1/2"
+      <motion.div
+        className="absolute inset-x-0 -inset-y-[12%] z-0 origin-top"
         style={{ y: shouldReduceMotion ? 0 : backgroundY }}
       >
         <motion.img
-          initial={{ scale: 1.1 }}
+          initial={{ scale: 1.08 }}
           animate={{ scale: 1 }}
           transition={{ duration: 3, ease: "easeOut" }}
           src={HERO_IMAGE}
-          alt="Ale y Dani"
-          className="h-full w-full object-cover object-center md:object-[52%_center]"
+          alt="Cata y Javier"
+          className="h-full w-full object-cover object-[50%_44%] md:object-[50%_42%]"
           loading="eager"
           decoding="async"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/70 md:bg-black/10" />
       </motion.div>
 
-      <div className="absolute inset-0 z-0 hidden bg-[var(--color-ivory)] md:left-1/2 md:block" aria-hidden />
+      <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(0,0,0,0.74)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.82)_100%)]" aria-hidden />
+      <div className="absolute inset-0 z-[1] bg-[radial-gradient(circle_at_50%_38%,rgba(255,255,255,0.12),transparent_30%),radial-gradient(circle_at_50%_50%,transparent_0,rgba(0,0,0,0.48)_76%)]" aria-hidden />
 
-      {/* Ambient Light Particles */}
       {!shouldReduceMotion && (
-        <div className="pointer-events-none absolute inset-0 z-[1] overflow-hidden mix-blend-screen md:right-1/2" aria-hidden>
+        <div className="pointer-events-none absolute inset-0 z-[2] overflow-hidden mix-blend-screen" aria-hidden>
           {ambientParticles.map((particle, i) => (
             <motion.div
               key={i}
@@ -74,7 +144,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
               animate={{
                 y: ["-20px", "20px", "-20px"],
                 x: ["-10px", "10px", "-10px"],
-                opacity: [0.2, 0.6, 0.2],
+                opacity: [0.15, 0.5, 0.15],
               }}
               transition={{
                 duration: particle.duration,
@@ -87,79 +157,102 @@ export default function HeroSection({ content }: HeroSectionProps) {
         </div>
       )}
 
-      {/* Main Cinematic Typography - Parallax Enabled */}
-      <motion.div 
-        className="relative z-10 flex w-full flex-1 flex-col items-center justify-center px-4 text-center md:ml-auto md:w-1/2 md:items-start md:px-12 md:text-left lg:px-20"
-      >
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-        >
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.4em] text-white/80 md:text-[var(--color-olive)] md:text-[0.85rem]">
-            Bienvenidos a la boda de
-          </p>
-        </motion.div>
-        
-        <motion.h1 
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1], delay: 0.4 }}
-          className="font-heading mt-6 text-[clamp(4.5rem,18vw,12rem)] leading-[0.85] text-white drop-shadow-2xl md:text-[clamp(4.25rem,8vw,8.5rem)] md:text-[var(--color-forest)] md:drop-shadow-none"
-        >
-          {content.title}
-        </motion.h1>
-        
-        <motion.p 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.6 }}
-          className="font-editorial mt-6 text-[clamp(2rem,6vw,4.5rem)] italic text-white/90 drop-shadow-md md:text-[clamp(2rem,4vw,3.5rem)] md:text-[var(--color-terracotta)] md:drop-shadow-none"
-        >
-          {content.subtitle}
-        </motion.p>
-        <motion.p
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.75 }}
-          className="font-editorial mt-7 hidden max-w-[34rem] text-[1.35rem] leading-[1.32] text-[var(--color-forest)]/75 md:block"
-        >
-          {content.text}
-        </motion.p>
-      </motion.div>
-
-      {/* Bottom Information & Dynamic Scroll Indicator */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1.5, delay: 1 }}
         style={{ opacity: textOpacity }}
-        className="relative z-10 mb-8 flex w-full flex-col items-center justify-between gap-10 px-8 md:mb-12 md:ml-auto md:w-1/2 md:flex-row md:px-12 lg:px-20"
+        className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[92rem] flex-col items-center justify-center px-5 py-12 text-center sm:px-8 md:px-12 md:py-8"
       >
-        <div className="flex flex-col items-center text-center md:items-start md:text-left">
-          <span className="text-[0.6rem] font-semibold uppercase tracking-[0.3em] text-white/70 md:text-[var(--color-olive)]">
-            La Fecha
-          </span>
-          <span className="font-editorial mt-2 text-2xl text-white md:text-3xl md:text-[var(--color-forest)]">
-            {content.date}
-          </span>
-        </div>
-
-        <a
-          href="#nuestra-historia"
-          className="group flex flex-col items-center gap-4 text-[0.6rem] font-semibold uppercase tracking-[0.25em] text-white transition-opacity hover:opacity-80 md:items-end md:text-[var(--color-forest)]"
-        >
-          Descubrir más
-          <motion.span 
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-white/30 bg-white/5 backdrop-blur-sm transition-colors group-hover:bg-white/10 md:border-[var(--color-olive)]/30 md:bg-[var(--color-olive)]/10 md:group-hover:bg-[var(--color-olive)]/15"
+        <div className="flex w-full max-w-[68rem] flex-col items-center">
+          <motion.div
+            initial={{ opacity: 0, y: -18, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           >
-            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 text-white md:text-[var(--color-forest)]">
-              <path d="M12 4V20M12 20L6 14M12 20L18 14" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </motion.span>
-        </a>
+            <TopOrnament />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scaleX: 0.72 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.28 }}
+            className="mt-6 origin-center md:mt-[clamp(1rem,2vh,1.5rem)]"
+          >
+            <DividerOrnament />
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.42 }}
+            className="mt-8 text-[0.62rem] font-semibold uppercase tracking-[0.4em] text-[var(--color-gold)] drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] md:mt-[clamp(1.5rem,3vh,2rem)] md:text-[0.78rem]"
+          >
+            Bienvenidos a la boda de
+          </motion.p>
+
+          <motion.h1
+            initial={{ opacity: 0, scale: 0.94 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.45, ease: [0.22, 1, 0.36, 1], delay: 0.58 }}
+            className="font-heading mt-5 whitespace-nowrap text-[clamp(3rem,11vw,5.1rem)] font-medium italic leading-[0.88] tracking-normal text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.42)] md:mt-[clamp(1.5rem,3vh,2.5rem)] md:text-[clamp(4.8rem,6.4vw,7.6rem)]"
+          >
+            {titleParts.length >= 2 ? (
+              <>
+                <span>{titleParts[0]}</span>{" "}
+                <span className="font-semibold text-[var(--color-gold)]">&amp;</span>{" "}
+                <span>{titleParts.slice(1).join(" & ")}</span>
+              </>
+            ) : (
+              content.title
+            )}
+          </motion.h1>
+
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.74 }}
+            className="font-editorial mt-4 text-[clamp(1.45rem,4.4vw,2.1rem)] italic leading-none text-white/88 drop-shadow-[0_4px_16px_rgba(0,0,0,0.42)] md:mt-[clamp(1.1rem,2.2vh,1.7rem)] md:text-[clamp(1.85rem,2.5vw,2.55rem)]"
+          >
+            {content.subtitle}
+          </motion.p>
+
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.88 }}
+            className="mt-12 max-w-[31rem] text-[clamp(0.95rem,2.25vw,1.18rem)] font-light leading-[1.65] text-white/76 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] md:mt-[clamp(2.25rem,4.5vh,3.5rem)] md:max-w-[48rem] md:text-[clamp(1rem,1.18vw,1.16rem)] md:leading-[1.5]"
+          >
+            {content.text}
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 28, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 1.02 }}
+            className="mt-[clamp(2.5rem,5vh,4.25rem)] w-full max-w-[22rem] rounded-[7px] border border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] bg-[rgba(19,20,16,0.52)] px-4 py-4 shadow-[0_12px_38px_rgba(0,0,0,0.26)] backdrop-blur-md sm:max-w-[24rem] sm:px-6 md:mt-[clamp(2rem,4vh,3rem)] md:max-w-[32rem] md:py-5"
+          >
+            <span className="block text-[0.54rem] font-semibold uppercase tracking-[0.34em] text-[var(--color-gold)] md:text-[0.64rem]">
+              La Fecha
+            </span>
+            <span className="font-heading mt-2.5 block text-[clamp(1.55rem,6vw,2.45rem)] font-semibold leading-none tracking-normal text-white md:mt-3 md:text-[clamp(1.95rem,2vw,2.35rem)]">
+              {content.date}
+            </span>
+          </motion.div>
+
+          <motion.a
+            href="#nuestra-historia"
+            aria-label={content.cta}
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 1.18 }}
+            className="mt-9 inline-flex rounded-full p-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] md:mt-[clamp(1.5rem,3vh,2.5rem)]"
+          >
+            <motion.span
+              animate={shouldReduceMotion ? undefined : { y: [0, 7, 0], opacity: [0.5, 0.82, 0.5] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <BottomOrnament />
+            </motion.span>
+          </motion.a>
+        </div>
       </motion.div>
     </section>
   );

@@ -17,7 +17,7 @@ function App() {
         ease: [0.22, 1, 0.36, 1],
       }}
     >
-      <div className="relative min-h-screen overflow-x-hidden bg-[var(--color-ivory)] text-[var(--color-forest)]">
+      <div className="relative min-h-screen overflow-x-clip bg-[var(--color-ivory)] text-[var(--color-forest)]">
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: "left center" }}
           className="fixed left-0 top-0 z-50 h-[2px] w-full bg-[var(--color-gold)]"

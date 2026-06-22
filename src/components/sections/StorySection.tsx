@@ -344,10 +344,10 @@ export default function StorySection({ content }: StorySectionProps) {
           transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
           className="relative z-10 text-center"
         >
-          <h2 className="font-heading text-[clamp(3rem,7vw,4.75rem)] leading-[0.95] text-[var(--color-forest)]">
+          <h2 className="font-heading text-[clamp(2.25rem,4.6vw,3.45rem)] leading-[1] text-[var(--color-forest)]">
             Nuestra historia
           </h2>
-          <p className="font-editorial mt-5 text-[clamp(1.8rem,4vw,2.6rem)] leading-[1.18] italic text-[var(--color-terracotta)]">
+          <p className="font-editorial mx-auto mt-4 max-w-3xl text-[clamp(1.08rem,2vw,1.45rem)] leading-[1.34] italic text-[var(--color-terracotta)]">
             {content.intro}
           </p>
         </motion.header>

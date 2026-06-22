@@ -17,6 +17,8 @@ import milkaCarrusel1Image from "../assets/milka-carrusel-1.jpg";
 import milkaCarrusel2Image from "../assets/milka-carrusel-2.jpg";
 import milkaCarrusel3Image from "../assets/milka-carrusel-3.jpg";
 import milkaConNosotrosImage from "../assets/milka-con-nosotros.jpg";
+import propuestaAnilloManosImage from "../assets/propuesta-anillo-manos.png";
+import propuestaEigergletscherBgImage from "../assets/propuesta-eigergletscher-bg.png";
 import propuestaFamiliaEigerImage from "../assets/propuesta-familia-eiger.jpg";
 
 export const weddingContent: WeddingContent = {
@@ -142,10 +144,9 @@ export const weddingContent: WeddingContent = {
     intro:
       "A veces la vida parece una ruta fija entre metas, trabajo y planes. Hasta que aparecen seres de luz que te recuerdan lo esencial.",
     paragraphs: [
-      "En una jornada de adopción en Sogamoso vimos una bolita negra de apenas dos meses, escondida debajo de otros cachorros.",
+      "En una jornada de adopción en Sogamoso vimos una bolita negra de apenas dos meses escondida entre otros cachorros.",
       "Era Milka.",
-      "La vimos y nos enamoramos. Lo que no sabíamos era todo el amor que traería a nuestras vidas: las risas, la unión, la ternura y esa forma tan suya de hablarnos con esas perlas negras que tiene por ojos.",
-      "Desde entonces va con nosotros a todas partes y se convirtió en una parte enorme de nuestra familia.",
+      "Sin saberlo, ese día llegó a nuestras vidas una compañera que llenó nuestro hogar de amor, alegría y ternura.",
     ],
     quote: "Gracias, Milka, por ser ese ser de luz que nos recuerda lo que verdaderamente importa.",
     note: [
@@ -212,7 +213,7 @@ export const weddingContent: WeddingContent = {
     ],
     photos: [
       {
-        src: "https://picsum.photos/seed/eiger-propuesta-01/1400/980",
+        src: propuestaEigergletscherBgImage,
         alt: "Vista amplia de montañas suizas cubiertas de nieve en Eigergletscher",
         caption: "Eigergletscher, Suiza",
         format: "landscape",
@@ -224,7 +225,7 @@ export const weddingContent: WeddingContent = {
         format: "portrait",
       },
       {
-        src: "https://picsum.photos/seed/eiger-propuesta-03/1200/1200",
+        src: propuestaAnilloManosImage,
         alt: "Manos juntas con anillo y paisaje de fondo",
         caption: "Un recuerdo para siempre",
         format: "square",
@@ -232,7 +233,7 @@ export const weddingContent: WeddingContent = {
     ],
     videoLabel: "Ver video de la propuesta",
     videoUrl: "#video-propuesta",
-    videoPoster: "https://picsum.photos/seed/eiger-propuesta-video/1400/880",
+    videoPoster: propuestaAnilloManosImage,
   },
   gallery: {
     title: "Galería — Nuestro camino",
@@ -384,7 +385,7 @@ export const weddingContent: WeddingContent = {
       image: fincaLaMaraImage,
       imageAlt: "Finca La Mara",
       venue: "Finca La Mara",
-      location: "Vía Tibasosa Km 4 via Duitama- Tibasosa",
+      location: "Vía Tibasosa Km 4 vía Duitama - Tibasosa",
       time: "4:30 pm",
       locationCtaLabel: "Ver ubicación",
       locationCtaHref: "https://maps.app.goo.gl/pKbaD39XnPYG72tg6",
@@ -394,18 +395,16 @@ export const weddingContent: WeddingContent = {
       subtitle: "Elegante formal",
       guidance: [
         "Queremos una celebración elegante, cómoda y natural.",
-        "Te sugerimos trajes, vestidos o conjuntos en tonos neutros, tierra, oliva, champagne o colores suaves.",
+        "Todos los colores son bienvenidos; solo evitamos algunos tonos específicos para mantener la armonía del día.",
       ],
       examples: [
-        "Traje Formal, sin chaleco.",
-        "Se restringe el color azul.",
+        "Traje formal, sin chaleco.",
+        "No usar azul.",
       ],
       womenExamples: [
-        "Vestido largo",
-        "Unicolor.",
-        "Se restringe el color blanco y amarillo.",
+        "Vestido largo. Unicolor.",
+        "No usar amarillo, blanco ni colores vivos.",
       ],
-      palette: ["#24291f", "#788267", "#949080", "#cbc2ad", "#f6f5f1"],
       note: "",
     },
   },
