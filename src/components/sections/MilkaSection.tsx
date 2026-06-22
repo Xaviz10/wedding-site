@@ -9,11 +9,6 @@ interface MilkaSectionProps {
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const STORY_IMAGE_INDEX = 0;
 const MESSAGE_IMAGE_INDEX = 0;
-const STORY_IMAGE_POSITION = {
-  desktop: "right center",
-  mobile: "center top",
-};
-
 function cx(...parts: Array<string | false | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
@@ -72,7 +67,7 @@ function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }:
 
   return (
     <motion.div
-      className="absolute inset-0 z-0 overflow-hidden"
+      className="absolute inset-x-0 top-0 z-0 h-[48svh] overflow-hidden lg:inset-y-0 lg:left-auto lg:right-0 lg:h-full lg:w-[62vw]"
       initial={shouldReduceMotion ? false : { opacity: 0.82 }}
       whileInView={shouldReduceMotion ? undefined : { opacity: 1 }}
       viewport={{ once: true, amount: 0.4 }}
@@ -82,24 +77,13 @@ function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }:
       <motion.img
         src={photo.src}
         alt=""
-        className="milka-story-background-image h-full w-full object-cover"
+        className="h-full w-full object-cover object-[54%_center] lg:object-center"
         loading="lazy"
         decoding="async"
         initial={shouldReduceMotion ? false : { scale: 1.045 }}
         whileInView={shouldReduceMotion ? undefined : { scale: 1 }}
         transition={{ duration: shouldReduceMotion ? 0 : 1.7, ease: EASE }}
       />
-      <style>{`
-        #milka .milka-story-background-image {
-          object-position: ${STORY_IMAGE_POSITION.mobile};
-        }
-
-        @media (min-width: 768px) {
-          #milka .milka-story-background-image {
-            object-position: ${STORY_IMAGE_POSITION.desktop};
-          }
-        }
-      `}</style>
     </motion.div>
   );
 }
@@ -118,9 +102,9 @@ function MilkaPortrait({ photos, selectedIndex = 0, shouldReduceMotion }: MilkaP
   }
 
   return (
-    <motion.figure className="mt-8 md:mt-9" {...fadeUp(shouldReduceMotion, 0.16, 20)}>
+    <motion.figure className="mt-6 md:mt-8" {...fadeUp(shouldReduceMotion, 0.16, 20)}>
       <motion.div
-        className="relative mx-auto aspect-square w-[min(70vw,260px)] overflow-hidden rounded-full bg-[var(--color-ivory)] shadow-[0_18px_48px_rgba(36,41,31,0.12)] ring-1 ring-[color-mix(in_oklab,var(--color-gold)_70%,var(--color-ivory)_30%)] md:w-[280px]"
+        className="relative mx-auto aspect-square w-[min(58vw,200px)] overflow-hidden rounded-full bg-[var(--color-ivory)] shadow-[0_16px_38px_rgba(36,41,31,0.11)] ring-2 ring-[color-mix(in_oklab,var(--color-gold)_78%,var(--color-ivory)_22%)] md:w-[250px]"
         initial={shouldReduceMotion ? false : { scale: 0.96, opacity: 0.6 }}
         whileInView={shouldReduceMotion ? undefined : { scale: 1, opacity: 1 }}
         viewport={{ once: true, amount: 0.42 }}
@@ -190,17 +174,20 @@ function StoryParagraphs({ paragraphs, className, shouldReduceMotion }: StoryPar
   );
 }
 
-function MilkaOrnament() {
+function MilkaOrnament({ className }: { className?: string }) {
   return (
     <div
-      className="mx-auto mb-5 flex w-fit items-center gap-4 text-[color-mix(in_oklab,var(--color-olive)_70%,var(--color-gold)_30%)]"
+      className={cx(
+        "mx-auto flex w-fit items-center gap-3 text-[color-mix(in_oklab,var(--color-olive)_62%,var(--color-gold)_38%)] md:gap-4",
+        className,
+      )}
       aria-hidden
     >
-      <PawIcon className="h-4 w-4 opacity-45" />
-      <span className="h-px w-9 bg-current opacity-25" />
-      <span className="h-1.5 w-1.5 rounded-full border border-current opacity-35" />
-      <span className="h-px w-9 bg-current opacity-25" />
-      <PawIcon className="h-4 w-4 opacity-45" />
+      <PawIcon className="h-4 w-4 opacity-55 md:h-5 md:w-5" />
+      <span className="h-px w-8 bg-current opacity-25 md:w-11" />
+      <span className="h-1.5 w-1.5 rounded-full border border-current opacity-45" />
+      <span className="h-px w-8 bg-current opacity-25 md:w-11" />
+      <PawIcon className="h-4 w-4 opacity-55 md:h-5 md:w-5" />
     </div>
   );
 }
@@ -222,12 +209,15 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
     ...puppyPhotos,
     ...content.photos,
   ]);
+  const messageBody = content.note.slice(0, -2).join(" ");
+  const closingLine = content.note[content.note.length - 2];
+  const signatureLine = content.note[content.note.length - 1];
 
   return (
     <>
       <section
         id="milka"
-        className="relative isolate min-h-[100svh] overflow-hidden bg-[var(--color-ivory)] text-[var(--color-forest)] lg:h-[100vh]"
+        className="relative isolate min-h-[100svh] overflow-hidden bg-[#faf7ef] text-[var(--color-forest)] lg:h-[100vh] lg:min-h-0"
       >
         <MilkaStoryBackground
           photos={storyImageOptions}
@@ -236,20 +226,16 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
         />
 
         <div
-          className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(90deg,rgba(252,251,248,1)_0%,rgba(252,251,248,0.98)_28%,rgba(252,251,248,0.78)_52%,rgba(252,251,248,0.34)_74%,rgba(252,251,248,0.08)_100%)] md:bg-[linear-gradient(90deg,rgba(252,251,248,1)_0%,rgba(252,251,248,0.98)_32%,rgba(252,251,248,0.68)_54%,rgba(252,251,248,0.2)_76%,rgba(252,251,248,0.03)_100%)]"
+          className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-[62vw] bg-[linear-gradient(to_right,rgba(250,247,239,1)_0%,rgba(250,247,239,0.92)_28%,rgba(250,247,239,0.55)_48%,rgba(250,247,239,0.12)_68%,rgba(250,247,239,0)_100%)] lg:block"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(180deg,rgba(252,251,248,0.28)_0%,rgba(252,251,248,0.7)_42%,rgba(252,251,248,0.98)_100%)] md:hidden"
-          aria-hidden
-        />
-        <div
-          className="pointer-events-none absolute inset-0 z-10 bg-[radial-gradient(circle_at_78%_22%,rgba(255,255,255,0.22),transparent_34%)]"
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[48svh] bg-[linear-gradient(to_bottom,rgba(250,247,239,0)_0%,rgba(250,247,239,0.65)_55%,rgba(250,247,239,1)_100%)] lg:hidden"
           aria-hidden
         />
 
-        <div className="relative z-20 mx-auto flex min-h-[100svh] w-full max-w-[94rem] items-end px-5 pb-14 pt-20 sm:px-8 md:items-center md:px-[8vw] md:py-16 lg:h-[100vh] lg:px-[9vw]">
-          <motion.div className="max-w-[35rem]" {...fadeUp(shouldReduceMotion)}>
+        <div className="relative z-20 mx-auto flex min-h-[100svh] w-full max-w-[94rem] items-start px-5 pb-16 pt-[calc(48svh+2.5rem)] sm:px-8 lg:h-full lg:min-h-0 lg:items-center lg:px-[9vw] lg:py-16">
+          <motion.div className="max-w-[34rem] lg:w-[44vw]" {...fadeUp(shouldReduceMotion)}>
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-[var(--color-olive)] md:text-[0.74rem]">
               Un miembro especial de la familia
             </p>
@@ -271,8 +257,8 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
 
       <SectionWrapper
         id="mensaje-milka"
-        className="bg-[linear-gradient(180deg,var(--color-ivory)_0%,rgba(252,251,248,0.96)_52%,var(--color-surface)_100%)] pb-24 pt-[4.5rem] md:pb-[8.5rem] md:pt-28"
-        contentClassName="max-w-[860px]"
+        className="min-h-[100svh] bg-white pb-10 pt-10 md:pb-12 md:pt-12"
+        contentClassName="max-w-[72rem]"
         hideDivider
         animateContent={false}
       >
@@ -280,14 +266,14 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
           <MilkaOrnament />
 
           <motion.p
-            className="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-[var(--color-olive)] md:text-[0.74rem]"
+            className="relative z-10 mt-9 text-[0.62rem] font-medium uppercase tracking-[0.26em] text-[var(--color-olive)] md:mt-12 md:text-[0.74rem] md:tracking-[0.3em]"
             {...fadeUp(shouldReduceMotion, 0)}
           >
             Un mensaje de Milka
           </motion.p>
 
           <motion.h2
-            className="font-heading mt-4 text-[clamp(3.1rem,9vw,5.1rem)] font-medium italic leading-[0.95] text-[var(--color-forest)]"
+            className="font-script mt-5 text-[clamp(3.25rem,7vw,5.2rem)] font-normal leading-none text-[var(--color-forest)] md:mt-6"
             {...fadeUp(shouldReduceMotion, 0.06, 18)}
           >
             Milka
@@ -300,7 +286,7 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
           />
 
           <motion.div
-            className="mx-auto mt-9 max-w-[680px] text-center md:mt-11"
+            className="mx-auto mt-9 max-w-[62rem] text-center md:mt-12"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, amount: 0.35 }}
@@ -313,31 +299,47 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
               },
             }}
           >
-            {content.note.map((line, index) => {
-              const isClosing = line === "Con amor,";
-              const isSignature = index === content.note.length - 1;
+            <motion.p
+              className="mx-auto font-editorial text-[1.05rem] italic leading-[1.58] text-[var(--color-forest)]/72 md:text-[1.35rem] md:leading-[1.55]"
+              variants={{
+                hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 14 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.82, ease: EASE }}
+            >
+              “{messageBody}”
+            </motion.p>
 
-              return (
-                <motion.p
-                  key={`milka-message-${index}`}
-                  className={cx(
-                    "mx-auto max-w-[40rem] font-editorial text-[1.08rem] leading-[1.72] text-[var(--color-forest)]/78 md:text-[1.18rem] md:leading-[1.78]",
-                    index > 0 && "mt-3",
-                    isClosing && "mt-8",
-                    isSignature &&
-                      "mt-2 font-heading text-[1.55rem] italic leading-[1.18] text-[var(--color-terracotta)] md:text-[1.85rem]",
-                  )}
-                  variants={{
-                    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 14 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
-                  transition={{ duration: shouldReduceMotion ? 0 : 0.76, ease: EASE }}
-                >
-                  {line}
-                </motion.p>
-              );
-            })}
+            {closingLine && (
+              <motion.p
+                className="mt-5 font-editorial text-[0.9rem] italic text-[var(--color-forest)]/64 md:mt-6 md:text-[1.02rem]"
+                variants={{
+                  hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.76, ease: EASE }}
+              >
+                {closingLine}
+              </motion.p>
+            )}
+
+            {signatureLine && (
+              <motion.p
+                className="mt-1.5 flex items-center justify-center gap-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-terracotta)] md:text-[0.76rem]"
+                variants={{
+                  hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
+                  visible: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.76, ease: EASE }}
+              >
+                <span aria-hidden>—</span>
+                <span>{signatureLine}</span>
+                <PawIcon className="h-3.5 w-3.5 rotate-12 text-[var(--color-forest)]/72" />
+              </motion.p>
+            )}
           </motion.div>
+
+          <MilkaOrnament className="mt-10 md:mt-14" />
         </div>
       </SectionWrapper>
     </>
