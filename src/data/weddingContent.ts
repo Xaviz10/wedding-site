@@ -27,8 +27,9 @@ export const weddingContent: WeddingContent = {
   hero: {
     title: "Cata & Javier",
     subtitle: "Nos casamos",
-    text: "Una historia que empezó con una confusión, siguió con un beso inolvidable y hoy nos trae hasta este día.",
+    text: "Una fiesta, un mensaje, un beso, 7.715 kilómetros, incontables reencuentros y muchos viajes nos han traído hasta este día.",
     date: "5 de septiembre de 2026",
+    countdownTarget: "2026-09-05T14:30:00-05:00",
     cta: "Ver nuestra historia",
   },
   story: {
@@ -415,6 +416,11 @@ export const weddingContent: WeddingContent = {
     loadingLabel: "Enviando confirmación...",
     successMessage: "Gracias por ser parte de nuestra historia.\n\nCon amor,\n\nCata, Javier & Milka",
     errorMessage: "No pudimos registrar tu confirmación. Intenta de nuevo en unos minutos.",
+  },
+  footer: {
+    eyebrow: "Gracias por acompañarnos",
+    message: "Nuestra historia continúa, y nos hace felices poder celebrar este nuevo capítulo contigo.",
+    backToTopLabel: "Volver al inicio",
   },
 };
 

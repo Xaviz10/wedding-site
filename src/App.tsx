@@ -5,6 +5,7 @@ import StorySection from "./components/sections/StorySection";
 import MilkaSection from "./components/sections/MilkaSection";
 import ProposalSection from "./components/sections/ProposalSection";
 import WeddingDetailsSection from "./components/sections/WeddingDetailsSection";
+import FooterSection from "./components/sections/FooterSection";
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -31,6 +32,11 @@ function App() {
           <ProposalSection content={weddingContent.proposal} />
           <WeddingDetailsSection event={weddingContent.event} rsvp={weddingContent.rsvp} />
         </main>
+        <FooterSection
+          couple={weddingContent.couple}
+          date={weddingContent.weddingDate}
+          content={weddingContent.footer}
+        />
       </div>
     </MotionConfig>
   );

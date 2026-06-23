@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import heroImage from "../../assets/hero.jpg";
 import type { HeroContent } from "../../types/wedding";
 
@@ -18,13 +18,80 @@ const ambientParticles = [
   { size: 4, left: "45%", top: "85%", delay: 4, duration: 16 },
 ];
 
+const SECOND_IN_MS = 1000;
+const MINUTE_IN_MS = 60 * SECOND_IN_MS;
+const HOUR_IN_MS = 60 * MINUTE_IN_MS;
+const DAY_IN_MS = 24 * HOUR_IN_MS;
+
+interface CountdownFieldProps {
+  label: string;
+  value: number;
+}
+
+function CountdownField({ label, value }: CountdownFieldProps) {
+  return (
+    <span className="flex min-w-0 flex-col items-center px-1 sm:px-2">
+      <span className="font-heading tabular-nums text-[clamp(1.15rem,4.8vw,1.8rem)] font-semibold leading-none text-white">
+        {String(value).padStart(2, "0")}
+      </span>
+      <span className="mt-1.5 text-[0.42rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-gold)]/88 sm:text-[0.48rem] md:text-[0.52rem]">
+        {label}
+      </span>
+    </span>
+  );
+}
+
+function WeddingCountdown({ target }: { target: string }) {
+  const targetTime = useMemo(() => new Date(target).getTime(), [target]);
+  const [now, setNow] = useState(() => Date.now());
+
+  useEffect(() => {
+    const updateNow = () => setNow(Date.now());
+    updateNow();
+
+    const intervalId = window.setInterval(updateNow, SECOND_IN_MS);
+    return () => window.clearInterval(intervalId);
+  }, [targetTime]);
+
+  const remaining = Number.isFinite(targetTime) ? Math.max(0, targetTime - now) : 0;
+
+  if (remaining === 0) {
+    return (
+      <p className="font-editorial mt-2 text-[clamp(1.15rem,4vw,1.7rem)] italic leading-tight text-white">
+        Gracias por tu compañía
+      </p>
+    );
+  }
+
+  const days = Math.floor(remaining / DAY_IN_MS);
+  const hours = Math.floor((remaining % DAY_IN_MS) / HOUR_IN_MS);
+  const minutes = Math.floor((remaining % HOUR_IN_MS) / MINUTE_IN_MS);
+  const seconds = Math.floor((remaining % MINUTE_IN_MS) / SECOND_IN_MS);
+  const showDays = remaining >= DAY_IN_MS;
+
+  return (
+    <div
+      className={`mt-2.5 grid divide-x divide-[color-mix(in_oklab,var(--color-gold)_24%,transparent)] ${
+        showDays ? "grid-cols-4" : "grid-cols-3"
+      }`}
+      role="timer"
+      aria-label={`${showDays ? `${days} días, ` : ""}${hours} horas, ${minutes} minutos y ${seconds} segundos`}
+    >
+      {showDays && <CountdownField label="Días" value={days} />}
+      <CountdownField label="Horas" value={hours} />
+      <CountdownField label="Min" value={minutes} />
+      <CountdownField label="Seg" value={seconds} />
+    </div>
+  );
+}
+
 function TopOrnament() {
   return (
     <svg
       viewBox="0 0 250 128"
       fill="none"
       aria-hidden
-      className="h-auto w-[8.75rem] text-[var(--color-gold)] opacity-78 md:w-[11.75rem]"
+      className="h-auto w-[6.25rem] text-[var(--color-gold)] opacity-78 md:w-[8rem]"
     >
       <path d="M125 37V112" stroke="currentColor" strokeWidth="1.15" strokeLinecap="round" />
       <path d="M125 63C103 44 82 31 61 25" stroke="currentColor" strokeWidth="1.05" strokeLinecap="round" />
@@ -61,9 +128,9 @@ function TopOrnament() {
 
 function DividerOrnament() {
   return (
-    <div className="flex w-[min(15rem,58vw)] items-center justify-center gap-4 text-[var(--color-gold)] opacity-75 md:w-[24rem] md:gap-7" aria-hidden>
+    <div className="flex w-[min(11rem,48vw)] items-center justify-center gap-3 text-[var(--color-gold)] opacity-75 md:w-[16rem] md:gap-5" aria-hidden>
       <span className="h-px flex-1 bg-current" />
-      <span className="h-2.5 w-2.5 rotate-45 border border-current" />
+      <span className="h-2 w-2 rotate-45 border border-current" />
       <span className="h-px flex-1 bg-current" />
     </div>
   );
@@ -75,7 +142,7 @@ function BottomOrnament() {
       viewBox="0 0 240 96"
       fill="none"
       aria-hidden
-      className="h-auto w-[9.5rem] text-[var(--color-gold)] opacity-45 md:w-[13rem]"
+      className="h-auto w-[6.25rem] text-[var(--color-gold)] opacity-45 md:w-[8.5rem]"
     >
       <path d="M120 14V82" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
       <path d="M120 47C95 38 74 36 55 42" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
@@ -159,9 +226,10 @@ export default function HeroSection({ content }: HeroSectionProps) {
 
       <motion.div
         style={{ opacity: textOpacity }}
-        className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[92rem] flex-col items-center justify-center px-5 py-12 text-center sm:px-8 md:px-12 md:py-8"
+        className="relative z-10 mx-auto flex min-h-[100svh] w-full max-w-[92rem] flex-col items-center px-5 py-5 text-center sm:px-8 md:px-12 md:py-6"
       >
-        <div className="flex w-full max-w-[68rem] flex-col items-center">
+        <div className="flex min-h-[calc(100svh-2.5rem)] w-full max-w-[68rem] flex-col items-center justify-between md:min-h-[calc(100svh-3rem)]">
+          <div className="flex w-full flex-col items-center">
           <motion.div
             initial={{ opacity: 0, y: -18, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -174,7 +242,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
             initial={{ opacity: 0, scaleX: 0.72 }}
             animate={{ opacity: 1, scaleX: 1 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.28 }}
-            className="mt-6 origin-center md:mt-[clamp(1rem,2vh,1.5rem)]"
+            className="mt-2 origin-center md:mt-3"
           >
             <DividerOrnament />
           </motion.div>
@@ -183,7 +251,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
             initial={{ opacity: 0, y: 22 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.42 }}
-            className="mt-8 text-[0.62rem] font-semibold uppercase tracking-[0.4em] text-[var(--color-gold)] drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] md:mt-[clamp(1.5rem,3vh,2rem)] md:text-[0.78rem]"
+            className="mt-3 text-[0.58rem] font-semibold uppercase tracking-[0.38em] text-[var(--color-gold)] drop-shadow-[0_2px_10px_rgba(0,0,0,0.35)] md:mt-4 md:text-[0.7rem]"
           >
             Bienvenidos a la boda de
           </motion.p>
@@ -192,7 +260,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
             initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1.45, ease: [0.22, 1, 0.36, 1], delay: 0.58 }}
-            className="font-heading mt-5 whitespace-nowrap text-[clamp(3rem,11vw,5.1rem)] font-medium italic leading-[0.88] tracking-normal text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.42)] md:mt-[clamp(1.5rem,3vh,2.5rem)] md:text-[clamp(4.8rem,6.4vw,7.6rem)]"
+            className="font-heading mt-3 whitespace-nowrap text-[clamp(2.8rem,10vw,4.8rem)] font-medium italic leading-[0.88] tracking-normal text-white drop-shadow-[0_8px_30px_rgba(0,0,0,0.42)] md:mt-4 md:text-[clamp(4.4rem,6vw,6.8rem)]"
           >
             {titleParts.length >= 2 ? (
               <>
@@ -209,16 +277,18 @@ export default function HeroSection({ content }: HeroSectionProps) {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.74 }}
-            className="font-editorial mt-4 text-[clamp(1.45rem,4.4vw,2.1rem)] italic leading-none text-white/88 drop-shadow-[0_4px_16px_rgba(0,0,0,0.42)] md:mt-[clamp(1.1rem,2.2vh,1.7rem)] md:text-[clamp(1.85rem,2.5vw,2.55rem)]"
+            className="font-editorial mt-2 text-[clamp(1.3rem,4vw,1.8rem)] italic leading-none text-white/88 drop-shadow-[0_4px_16px_rgba(0,0,0,0.42)] md:mt-3 md:text-[clamp(1.7rem,2.25vw,2.25rem)]"
           >
             {content.subtitle}
           </motion.p>
+          </div>
 
+          <div className="flex w-full flex-col items-center">
           <motion.p
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.88 }}
-            className="mt-12 max-w-[31rem] text-[clamp(0.95rem,2.25vw,1.18rem)] font-light leading-[1.65] text-white/76 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] md:mt-[clamp(2.25rem,4.5vh,3.5rem)] md:max-w-[48rem] md:text-[clamp(1rem,1.18vw,1.16rem)] md:leading-[1.5]"
+            className="max-w-[29rem] text-[clamp(0.86rem,2vw,1rem)] font-light leading-[1.5] text-white/76 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)] md:max-w-[44rem] md:text-[clamp(0.92rem,1vw,1.02rem)] md:leading-[1.45]"
           >
             {content.text}
           </motion.p>
@@ -227,14 +297,12 @@ export default function HeroSection({ content }: HeroSectionProps) {
             initial={{ opacity: 0, y: 28, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 1.02 }}
-            className="mt-[clamp(2.5rem,5vh,4.25rem)] w-full max-w-[22rem] rounded-[7px] border border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] bg-[rgba(19,20,16,0.52)] px-4 py-4 shadow-[0_12px_38px_rgba(0,0,0,0.26)] backdrop-blur-md sm:max-w-[24rem] sm:px-6 md:mt-[clamp(2rem,4vh,3rem)] md:max-w-[32rem] md:py-5"
+            className="mt-4 w-full max-w-[18rem] rounded-[7px] border border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] bg-[rgba(19,20,16,0.52)] px-3 py-3 shadow-[0_12px_38px_rgba(0,0,0,0.26)] backdrop-blur-md sm:max-w-[20rem] sm:px-4 md:mt-5 md:max-w-[26rem] md:py-3.5"
           >
-            <span className="block text-[0.54rem] font-semibold uppercase tracking-[0.34em] text-[var(--color-gold)] md:text-[0.64rem]">
-              La Fecha
+            <span className="block text-[0.48rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-gold)] md:text-[0.56rem]">
+              Cuenta regresiva
             </span>
-            <span className="font-heading mt-2.5 block text-[clamp(1.55rem,6vw,2.45rem)] font-semibold leading-none tracking-normal text-white md:mt-3 md:text-[clamp(1.95rem,2vw,2.35rem)]">
-              {content.date}
-            </span>
+            <WeddingCountdown target={content.countdownTarget} />
           </motion.div>
 
           <motion.a
@@ -243,7 +311,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 1.18 }}
-            className="mt-9 inline-flex rounded-full p-2 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] md:mt-[clamp(1.5rem,3vh,2.5rem)]"
+            className="mt-2 inline-flex rounded-full p-1.5 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] md:mt-3"
           >
             <motion.span
               animate={shouldReduceMotion ? undefined : { y: [0, 7, 0], opacity: [0.5, 0.82, 0.5] }}
@@ -252,6 +320,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
               <BottomOrnament />
             </motion.span>
           </motion.a>
+          </div>
         </div>
       </motion.div>
     </section>

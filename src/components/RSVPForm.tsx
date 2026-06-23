@@ -10,11 +10,8 @@ type RSVPFormErrors = Partial<Record<keyof RSVPInput, string>>;
 const initialData: RSVPInput = {
   fullName: "",
   attending: "si",
-  companions: 0,
-  companionNames: "",
   dietaryRestrictions: "",
-  travelSupport: "",
-  message: "",
+  travelSupport: "no",
 };
 
 function validate(data: RSVPInput): RSVPFormErrors {
@@ -24,28 +21,8 @@ function validate(data: RSVPInput): RSVPFormErrors {
     errors.fullName = "Escribe nombre y apellido.";
   }
 
-  if (!Number.isInteger(data.companions) || data.companions < 0 || data.companions > 6) {
-    errors.companions = "Número de acompañantes entre 0 y 6.";
-  }
-
-  if (data.attending === "si" && data.companions > 0 && data.companionNames.trim().length < 3) {
-    errors.companionNames = "Escribe el nombre de tu acompañante.";
-  }
-
-  if (data.companionNames.length > 240) {
-    errors.companionNames = "Máximo 240 caracteres.";
-  }
-
   if (data.dietaryRestrictions.length > 280) {
     errors.dietaryRestrictions = "Máximo 280 caracteres.";
-  }
-
-  if (data.travelSupport.length > 280) {
-    errors.travelSupport = "Máximo 280 caracteres.";
-  }
-
-  if (data.message.length > 400) {
-    errors.message = "Máximo 400 caracteres.";
   }
 
   return errors;
@@ -64,7 +41,6 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   const isSubmitting = status === "loading";
   const isSuccess = status === "success";
   const isError = status === "error";
-  const attendingYes = formData.attending === "si";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -87,18 +63,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   }
 
   function updateField<K extends keyof RSVPInput>(key: K, value: RSVPInput[K]) {
-    setFormData((current) => {
-      if (key === "attending" && value === "no") {
-        return {
-          ...current,
-          attending: "no",
-          companions: 0,
-          companionNames: "",
-        };
-      }
-
-      return { ...current, [key]: value };
-    });
+    setFormData((current) => ({ ...current, [key]: value }));
     setStatus("idle");
   }
 
@@ -164,37 +129,6 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           </div>
         </fieldset>
 
-        <div className="grid gap-5">
-          <label className="grid gap-2">
-            <span className="form-label">Número de acompañantes</span>
-            <input
-              type="number"
-              min={0}
-              max={6}
-              value={formData.companions}
-              onChange={(event) => updateField("companions", Number(event.target.value))}
-              className="form-control"
-              required
-            />
-            {errors.companions && <span className="form-error">{errors.companions}</span>}
-          </label>
-
-          {attendingYes ? (
-            <label className="grid gap-2">
-              <span className="form-label">Nombre de acompañante(s)</span>
-              <input
-                value={formData.companionNames}
-                onChange={(event) => updateField("companionNames", event.target.value)}
-                className="form-control"
-                placeholder="Si aplica"
-              />
-              {errors.companionNames && <span className="form-error">{errors.companionNames}</span>}
-            </label>
-          ) : (
-            <div className="form-note">Nos alegramos de recibir tu mensaje, gracias por avisarnos con cariño.</div>
-          )}
-        </div>
-
         <label className="grid gap-2">
           <span className="form-label">Restricciones alimentarias</span>
           <textarea
@@ -207,29 +141,31 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           {errors.dietaryRestrictions && <span className="form-error">{errors.dietaryRestrictions}</span>}
         </label>
 
-        <label className="grid gap-2">
-          <span className="form-label">¿Necesitas información de hospedaje o transporte?</span>
-          <textarea
-            value={formData.travelSupport}
-            onChange={(event) => updateField("travelSupport", event.target.value)}
-            rows={3}
-            className="form-control resize-none"
-            placeholder="Cuéntanos si necesitas ayuda"
-          />
-          {errors.travelSupport && <span className="form-error">{errors.travelSupport}</span>}
-        </label>
-
-        <label className="grid gap-2">
-          <span className="form-label">Mensaje para los novios</span>
-          <textarea
-            value={formData.message}
-            onChange={(event) => updateField("message", event.target.value)}
-            rows={4}
-            className="form-control resize-none"
-            placeholder="Comparte un abrazo y buenos deseos"
-          />
-          {errors.message && <span className="form-error">{errors.message}</span>}
-        </label>
+        <fieldset className="grid gap-3">
+          <legend className="form-label">¿Necesitas información de hospedaje o transporte?</legend>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="rsvp-chip">
+              <input
+                type="radio"
+                name="travelSupport"
+                value="si"
+                checked={formData.travelSupport === "si"}
+                onChange={() => updateField("travelSupport", "si")}
+              />
+              <span>Sí, necesito información</span>
+            </label>
+            <label className="rsvp-chip">
+              <input
+                type="radio"
+                name="travelSupport"
+                value="no"
+                checked={formData.travelSupport === "no"}
+                onChange={() => updateField("travelSupport", "no")}
+              />
+              <span>No, gracias</span>
+            </label>
+          </div>
+        </fieldset>
 
         <button
           type="submit"
