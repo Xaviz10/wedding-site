@@ -61,6 +61,61 @@ function buildConnectorPath(totalChapters: number) {
   return { d, height: tailEndY + 100 };
 }
 
+function BirdIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 48 24" fill="none" className={className} aria-hidden>
+      <path
+        d="M2 18C8 8 16 7 24 16C32 7 40 8 46 18"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
+function StoryTitleBirds({ shouldReduceMotion }: { shouldReduceMotion: boolean }) {
+  return (
+    <div className="pointer-events-none absolute inset-0 z-20" aria-hidden>
+      <motion.span
+        className="absolute -left-7 -top-7 block h-5 w-10 text-[var(--color-olive)]/72 md:-left-14 md:-top-9 md:h-7 md:w-14"
+        animate={shouldReduceMotion ? undefined : { x: [0, 5, 0], y: [0, -4, 0], rotate: [-4, 1, -4] }}
+        transition={{ duration: 4.4, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <BirdIcon className="h-full w-full" />
+      </motion.span>
+      <motion.span
+        className="absolute -right-5 -top-11 block h-4 w-8 text-[var(--color-terracotta)]/65 md:-right-12 md:-top-16 md:h-5 md:w-10"
+        animate={shouldReduceMotion ? undefined : { x: [0, -6, 0], y: [0, -5, 0], rotate: [5, -1, 5] }}
+        transition={{ duration: 5.1, delay: 0.45, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <BirdIcon className="h-full w-full" />
+      </motion.span>
+      <motion.span
+        className="absolute -right-9 top-5 block h-3 w-6 text-[var(--color-gold)] md:-right-20 md:top-8 md:h-4 md:w-8"
+        animate={shouldReduceMotion ? undefined : { x: [0, 4, 0], y: [0, -3, 0], rotate: [-2, 4, -2] }}
+        transition={{ duration: 3.8, delay: 0.8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <BirdIcon className="h-full w-full" />
+      </motion.span>
+      <motion.span
+        className="absolute -left-10 top-7 block h-3 w-6 text-[var(--color-terracotta)]/55 md:-left-24 md:top-10 md:h-4 md:w-8"
+        animate={shouldReduceMotion ? undefined : { x: [0, 4, 0], y: [0, -3, 0], rotate: [3, -2, 3] }}
+        transition={{ duration: 4.7, delay: 1.05, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <BirdIcon className="h-full w-full" />
+      </motion.span>
+      <motion.span
+        className="absolute right-5 -top-5 block h-2.5 w-5 text-[var(--color-olive)]/48 md:right-8 md:-top-8 md:h-3 md:w-6"
+        animate={shouldReduceMotion ? undefined : { x: [0, -3, 0], y: [0, -2, 0], rotate: [-3, 2, -3] }}
+        transition={{ duration: 3.9, delay: 1.3, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <BirdIcon className="h-full w-full" />
+      </motion.span>
+    </div>
+  );
+}
+
 function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowProps) {
   const articleRef = useRef<HTMLElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
@@ -344,25 +399,18 @@ export default function StorySection({ content }: StorySectionProps) {
           transition={{ duration: shouldReduceMotion ? 0 : 0.5 }}
           className="relative z-10 text-center"
         >
-          <h2 className="font-heading text-[clamp(2.25rem,4.6vw,3.45rem)] leading-[1] text-[var(--color-forest)]">
-            Nuestra historia
-          </h2>
+          <div className="relative mx-auto w-fit px-5 py-4 md:px-12 md:py-5">
+            <StoryTitleBirds shouldReduceMotion={shouldReduceMotion} />
+            <h2 className="font-heading relative z-10 text-[clamp(3.2rem,7vw,6.2rem)] font-medium italic leading-[0.88] tracking-normal text-[var(--color-forest)] drop-shadow-[0_16px_38px_rgba(36,41,31,0.16)]">
+              Nuestra historia
+            </h2>
+          </div>
           <p className="font-editorial mx-auto mt-4 max-w-3xl text-[clamp(1.08rem,2vw,1.45rem)] leading-[1.34] italic text-[var(--color-terracotta)]">
             {content.intro}
           </p>
         </motion.header>
 
         <div ref={chaptersRef} className="relative mt-12 md:mt-16">
-          <motion.div
-            className="pointer-events-none sticky top-24 z-20 ml-auto hidden w-fit pr-8 text-right lg:block"
-            style={{ opacity: connectorOpacity }}
-            aria-hidden
-          >
-            <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.34em] text-[var(--color-olive)]/75">
-              Recuerdos
-            </span>
-          </motion.div>
-          
           <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden>
             <svg
               viewBox={`0 0 1000 ${connector.height}`}

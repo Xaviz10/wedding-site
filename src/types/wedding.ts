@@ -11,6 +11,7 @@ export interface HeroContent {
   subtitle: string;
   text: string;
   date: string;
+  countdownTarget: string;
   cta: string;
 }
 
@@ -131,4 +132,9 @@ export interface WeddingContent {
     dressCode: DressCodeConfig;
   };
   rsvp: RSVPConfig;
+  footer: {
+    eyebrow: string;
+    message: string;
+    backToTopLabel: string;
+  };
 }

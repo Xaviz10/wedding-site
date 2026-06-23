@@ -67,7 +67,7 @@ function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }:
 
   return (
     <motion.div
-      className="absolute inset-x-0 top-0 z-0 h-[48svh] overflow-hidden lg:inset-y-0 lg:left-auto lg:right-0 lg:h-full lg:w-[62vw]"
+      className="absolute inset-x-0 -inset-y-[8%] z-0 overflow-hidden"
       initial={shouldReduceMotion ? false : { opacity: 0.82 }}
       whileInView={shouldReduceMotion ? undefined : { opacity: 1 }}
       viewport={{ once: true, amount: 0.4 }}
@@ -77,7 +77,7 @@ function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }:
       <motion.img
         src={photo.src}
         alt=""
-        className="h-full w-full object-cover object-[54%_center] lg:object-center"
+        className="h-full w-full object-cover object-[54%_center] lg:object-left"
         loading="lazy"
         decoding="async"
         initial={shouldReduceMotion ? false : { scale: 1.045 }}
@@ -156,9 +156,9 @@ function StoryParagraphs({ paragraphs, className, shouldReduceMotion }: StoryPar
           <motion.p
             key={`milka-story-${index}`}
             className={cx(
-              "max-w-xl text-[1rem] leading-[1.78] md:text-[1.08rem]",
+              "max-w-xl text-[clamp(1.02rem,1.45vw,1.38rem)] leading-[1.42]",
               isMilkaLine &&
-                "font-editorial text-[1.35rem] italic leading-[1.32] text-[var(--color-terracotta)] md:text-[1.55rem]",
+                "font-editorial italic text-[var(--color-terracotta)]",
             )}
             variants={{
               hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 16 },
@@ -209,7 +209,7 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
     ...puppyPhotos,
     ...content.photos,
   ]);
-  const messageBody = content.note.slice(0, -2).join(" ");
+  const messageParagraphs = content.note.slice(0, -2);
   const closingLine = content.note[content.note.length - 2];
   const signatureLine = content.note[content.note.length - 1];
 
@@ -217,7 +217,8 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
     <>
       <section
         id="milka"
-        className="relative isolate min-h-[100svh] overflow-hidden bg-[#faf7ef] text-[var(--color-forest)] lg:h-[100vh] lg:min-h-0"
+        className="relative isolate min-h-[100svh] overflow-hidden bg-[var(--color-forest)] text-[#f8f0df] lg:h-[100vh] lg:min-h-0"
+        aria-labelledby="milka-title"
       >
         <MilkaStoryBackground
           photos={storyImageOptions}
@@ -226,43 +227,113 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
         />
 
         <div
-          className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-[62vw] bg-[linear-gradient(to_right,rgba(250,247,239,1)_0%,rgba(250,247,239,0.92)_28%,rgba(250,247,239,0.55)_48%,rgba(250,247,239,0.12)_68%,rgba(250,247,239,0)_100%)] lg:block"
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(7,11,13,0.56)_0%,rgba(7,11,13,0.28)_42%,rgba(7,11,13,0.64)_100%)]"
           aria-hidden
         />
         <div
-          className="pointer-events-none absolute inset-x-0 top-0 z-10 h-[48svh] bg-[linear-gradient(to_bottom,rgba(250,247,239,0)_0%,rgba(250,247,239,0.65)_55%,rgba(250,247,239,1)_100%)] lg:hidden"
+          className="pointer-events-none absolute inset-0 z-[2] bg-[radial-gradient(circle_at_84%_78%,rgba(5,7,6,0.84)_0%,rgba(5,7,6,0.62)_27%,rgba(5,7,6,0.08)_58%,transparent_72%)]"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 z-[3] bg-[linear-gradient(90deg,rgba(5,8,7,0.5)_0%,transparent_35%,rgba(5,8,7,0.16)_100%)]"
           aria-hidden
         />
 
-        <div className="relative z-20 mx-auto flex min-h-[100svh] w-full max-w-[94rem] items-start px-5 pb-16 pt-[calc(48svh+2.5rem)] sm:px-8 lg:h-full lg:min-h-0 lg:items-center lg:px-[9vw] lg:py-16">
-          <motion.div className="max-w-[34rem] lg:w-[44vw]" {...fadeUp(shouldReduceMotion)}>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.28em] text-[var(--color-olive)] md:text-[0.74rem]">
-              Un miembro especial de la familia
-            </p>
-            <div className="relative mt-4 inline-block">
-              <h2 className="font-heading text-[clamp(3rem,9vw,5rem)] font-medium italic leading-[0.94] text-[var(--color-forest)]">
-                Milka
-              </h2>
-              <PawIcon className="absolute -right-8 bottom-2 h-5 w-5 rotate-12 text-[var(--color-gold)]/70 md:-right-10 md:h-6 md:w-6" />
+        <div className="relative z-20 mx-auto flex min-h-[100svh] w-full max-w-[94rem] flex-col px-5 py-8 sm:px-8 md:px-14 md:py-12 lg:h-full lg:min-h-0 lg:px-20">
+          <motion.div className="ml-auto max-w-xl text-right" {...fadeUp(shouldReduceMotion)}>
+            <div className="mt-[clamp(3rem,10svh,7.5rem)]">
+              <div className="relative inline-block">
+                <h2
+                  id="milka-title"
+                  className="font-heading text-[clamp(3.2rem,7vw,6.2rem)] font-medium italic leading-[0.88] tracking-normal text-[#fff8e8] drop-shadow-[0_16px_38px_rgba(0,0,0,0.36)]"
+                >
+                  Milka
+                </h2>
+                <motion.span
+                  className="absolute -left-7 top-0 block h-4 w-4 text-[var(--color-gold)]/55 md:-left-10 md:h-5 md:w-5"
+                  animate={shouldReduceMotion ? undefined : { y: [0, -5, 0], rotate: [-12, -6, -12] }}
+                  transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+                  aria-hidden
+                >
+                  <PawIcon className="h-full w-full" />
+                </motion.span>
+                <motion.span
+                  className="absolute -right-8 bottom-2 block h-5 w-5 text-[var(--color-gold)]/75 md:-right-10 md:h-6 md:w-6"
+                  animate={shouldReduceMotion ? undefined : { y: [0, -7, 0], rotate: [12, 18, 12] }}
+                  transition={{ duration: 3.6, delay: 0.35, repeat: Infinity, ease: "easeInOut" }}
+                  aria-hidden
+                >
+                  <PawIcon className="h-full w-full" />
+                </motion.span>
+                <motion.span
+                  className="absolute -right-3 -top-7 block h-3.5 w-3.5 text-[var(--color-gold)]/50 md:-right-5 md:-top-9 md:h-4 md:w-4"
+                  animate={shouldReduceMotion ? undefined : { y: [0, -4, 0], rotate: [28, 35, 28] }}
+                  transition={{ duration: 2.9, delay: 0.7, repeat: Infinity, ease: "easeInOut" }}
+                  aria-hidden
+                >
+                  <PawIcon className="h-full w-full" />
+                </motion.span>
+              </div>
+              <p className="font-editorial mt-4 text-[clamp(1.16rem,2vw,1.75rem)] italic leading-[1.05] text-[#f0dcc0]/92 drop-shadow-[0_8px_24px_rgba(0,0,0,0.48)]">
+                Un miembro especial de la familia
+              </p>
             </div>
-
-            <StoryParagraphs
-              paragraphs={content.paragraphs}
-              shouldReduceMotion={shouldReduceMotion}
-              className="mt-7 md:mt-8"
-            />
           </motion.div>
+
+          <StoryParagraphs
+            paragraphs={content.paragraphs}
+            shouldReduceMotion={shouldReduceMotion}
+            className="mr-auto mt-auto max-w-[47rem] pb-[clamp(1rem,4svh,3.5rem)] pt-14 text-left font-editorial !text-[#fff7e8] drop-shadow-[0_8px_24px_rgba(0,0,0,0.62)]"
+          />
         </div>
       </section>
 
       <SectionWrapper
         id="mensaje-milka"
-        className="min-h-[100svh] bg-white pb-10 pt-10 md:pb-12 md:pt-12"
+        className="bg-white pb-10 pt-10 md:min-h-[100svh] md:pb-12 md:pt-12"
         contentClassName="max-w-[72rem]"
         hideDivider
         animateContent={false}
       >
-        <div className="relative mx-auto text-center">
+        <div className="relative isolate mx-auto text-center">
+          <motion.div
+            className="pointer-events-none absolute inset-0 -z-10 overflow-hidden text-[var(--color-gold)]"
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 1.2, ease: EASE }}
+            aria-hidden
+          >
+            <motion.span
+              className="absolute left-[3%] top-[8%] block h-7 w-7 opacity-15 md:h-10 md:w-10"
+              animate={shouldReduceMotion ? undefined : { y: [0, -8, 0], rotate: [-18, -10, -18] }}
+              transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <PawIcon className="h-full w-full" />
+            </motion.span>
+            <motion.span
+              className="absolute right-[5%] top-[25%] block h-5 w-5 opacity-20 md:h-8 md:w-8"
+              animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], rotate: [20, 28, 20] }}
+              transition={{ duration: 3.6, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <PawIcon className="h-full w-full" />
+            </motion.span>
+            <motion.span
+              className="absolute bottom-[28%] left-[8%] block h-5 w-5 opacity-15 md:h-7 md:w-7"
+              animate={shouldReduceMotion ? undefined : { y: [0, -7, 0], rotate: [14, 7, 14] }}
+              transition={{ duration: 3.9, delay: 0.9, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <PawIcon className="h-full w-full" />
+            </motion.span>
+            <motion.span
+              className="absolute bottom-[10%] right-[3%] block h-8 w-8 opacity-10 md:h-12 md:w-12"
+              animate={shouldReduceMotion ? undefined : { y: [0, -9, 0], rotate: [-24, -16, -24] }}
+              transition={{ duration: 4.6, delay: 0.25, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <PawIcon className="h-full w-full" />
+            </motion.span>
+          </motion.div>
+
           <MilkaOrnament />
 
           <motion.p
@@ -272,12 +343,30 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
             Un mensaje de Milka
           </motion.p>
 
-          <motion.h2
-            className="font-script mt-5 text-[clamp(3.25rem,7vw,5.2rem)] font-normal leading-none text-[var(--color-forest)] md:mt-6"
+          <motion.div
+            className="relative mx-auto mt-5 w-fit md:mt-6"
             {...fadeUp(shouldReduceMotion, 0.06, 18)}
           >
-            Milka
-          </motion.h2>
+            <h2 className="font-script text-[clamp(3.25rem,7vw,5.2rem)] font-normal leading-none text-[var(--color-forest)]">
+              Milka
+            </h2>
+            <motion.span
+              className="absolute -left-8 top-0 block h-4 w-4 text-[var(--color-gold)]/65 md:-left-11 md:h-5 md:w-5"
+              animate={shouldReduceMotion ? undefined : { y: [0, -5, 0], rotate: [-16, -8, -16] }}
+              transition={{ duration: 3.1, repeat: Infinity, ease: "easeInOut" }}
+              aria-hidden
+            >
+              <PawIcon className="h-full w-full" />
+            </motion.span>
+            <motion.span
+              className="absolute -right-8 bottom-1 block h-5 w-5 text-[var(--color-terracotta)]/55 md:-right-11 md:h-6 md:w-6"
+              animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], rotate: [14, 22, 14] }}
+              transition={{ duration: 3.5, delay: 0.4, repeat: Infinity, ease: "easeInOut" }}
+              aria-hidden
+            >
+              <PawIcon className="h-full w-full" />
+            </motion.span>
+          </motion.div>
 
           <MilkaPortrait
             photos={portraitOptions}
@@ -287,36 +376,31 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
 
           <motion.div
             className="mx-auto mt-9 max-w-[62rem] text-center md:mt-12"
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.35 }}
-            variants={{
-              hidden: {},
-              visible: {
-                transition: {
-                  staggerChildren: shouldReduceMotion ? 0 : 0.08,
-                },
-              },
-            }}
           >
-            <motion.p
-              className="mx-auto font-editorial text-[1.05rem] italic leading-[1.58] text-[var(--color-forest)]/72 md:text-[1.35rem] md:leading-[1.55]"
-              variants={{
-                hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 14 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.82, ease: EASE }}
-            >
-              “{messageBody}”
-            </motion.p>
+            {messageParagraphs.map((paragraph, index) => (
+              <motion.p
+                key={`milka-message-${index}`}
+                className={cx(
+                  "mx-auto max-w-[32ch] font-editorial text-[1.05rem] italic leading-[1.52] text-[var(--color-forest)]/72 md:max-w-[46rem] md:text-[1.35rem] md:leading-[1.55]",
+                  index > 0 && "mt-3 md:mt-4",
+                )}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 14 }}
+                whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
+                transition={{ duration: shouldReduceMotion ? 0 : 0.82, delay: index * 0.08, ease: EASE }}
+              >
+                {index === 0 && "“"}
+                {paragraph}
+                {index === messageParagraphs.length - 1 && "”"}
+              </motion.p>
+            ))}
 
             {closingLine && (
               <motion.p
                 className="mt-5 font-editorial text-[0.9rem] italic text-[var(--color-forest)]/64 md:mt-6 md:text-[1.02rem]"
-                variants={{
-                  hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
-                  visible: { opacity: 1, y: 0 },
-                }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.76, ease: EASE }}
               >
                 {closingLine}
@@ -326,15 +410,20 @@ export default function MilkaSection({ content }: MilkaSectionProps) {
             {signatureLine && (
               <motion.p
                 className="mt-1.5 flex items-center justify-center gap-1.5 text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-terracotta)] md:text-[0.76rem]"
-                variants={{
-                  hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 12 },
-                  visible: { opacity: 1, y: 0 },
-                }}
+                initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+                whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.1 }}
                 transition={{ duration: shouldReduceMotion ? 0 : 0.76, ease: EASE }}
               >
                 <span aria-hidden>—</span>
                 <span>{signatureLine}</span>
-                <PawIcon className="h-3.5 w-3.5 rotate-12 text-[var(--color-forest)]/72" />
+                <motion.span
+                  animate={shouldReduceMotion ? undefined : { y: [0, -2, 0], rotate: [12, 20, 12] }}
+                  transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                  aria-hidden
+                >
+                  <PawIcon className="h-3.5 w-3.5 text-[var(--color-forest)]/72" />
+                </motion.span>
               </motion.p>
             )}
           </motion.div>

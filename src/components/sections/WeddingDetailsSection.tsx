@@ -317,6 +317,34 @@ function LongDressIllustration() {
   );
 }
 
+function ChampagneToastIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 76 72" fill="none" className={className} aria-hidden>
+      <g transform="rotate(-13 24 34)">
+        <path
+          d="M13 7H35L32.5 27C31.7 34 16.3 34 15.5 27L13 7ZM24 33V59M15 63H33"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M15 19H33L32 27C31.2 32 16.8 32 16 27L15 19Z" fill="var(--color-gold)" opacity="0.55" />
+      </g>
+      <g transform="rotate(13 52 34)">
+        <path
+          d="M41 7H63L60.5 27C59.7 34 44.3 34 43.5 27L41 7ZM52 33V59M43 63H61"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path d="M43 19H61L60 27C59.2 32 44.8 32 44 27L43 19Z" fill="var(--color-gold)" opacity="0.55" />
+      </g>
+      <path d="M38 4V0M33 6L30 2M43 6L46 2" stroke="var(--color-gold)" strokeWidth="1.8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 interface DressSuggestionProps {
   label: string;
   lead: string;
@@ -356,7 +384,7 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
       <motion.p
         variants={itemVariants}
         transition={{ duration: shouldReduceMotion ? 0 : 0.72, ease: [0.16, 1, 0.3, 1] }}
-        className="text-[0.58rem] font-semibold uppercase tracking-[0.3em] text-[color-mix(in_oklab,var(--color-terracotta)_82%,var(--color-forest)_18%)] md:text-[0.68rem] md:tracking-[0.36em]"
+        className="text-[0.58rem] font-semibold uppercase tracking-[0.3em] text-[color-mix(in_oklab,var(--color-terracotta)_82%,var(--color-forest)_18%)] md:text-[0.62rem] md:tracking-[0.34em]"
       >
         {label}
       </motion.p>
@@ -378,7 +406,7 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
       <motion.p
         variants={itemVariants}
         transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="font-editorial mt-3 max-w-[12rem] text-[clamp(1.08rem,3.2vw,1.82rem)] italic leading-[1.08] text-[var(--color-forest)] md:mt-5 md:max-w-[18rem]"
+        className="font-editorial mt-3 max-w-[12rem] text-[clamp(1.08rem,3.2vw,1.82rem)] italic leading-[1.08] text-[var(--color-forest)] md:mt-5 md:max-w-[18rem] md:text-[clamp(1.1rem,1.7vw,1.5rem)]"
       >
         {lead}
       </motion.p>
@@ -392,7 +420,7 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
               },
             },
           }}
-          className="mt-3 grid gap-1.5 text-left text-[0.78rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.95rem] md:leading-[1.45]"
+          className="mt-3 grid gap-1.5 text-left text-[0.78rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.85rem] md:leading-[1.4]"
         >
           {bullets.map((bullet) => (
             <motion.li
@@ -468,27 +496,57 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
           },
         },
       }}
-      className="relative flex h-full flex-col justify-center text-center"
+      className="relative flex flex-col text-center md:h-full md:justify-center"
       aria-labelledby="dress-code-title"
     >
       <span className="sr-only">Paso {String(step).padStart(2, "0")}</span>
 
       <div className="mx-auto max-w-4xl">
-        <motion.h2
-          id="dress-code-title"
-          variants={{
-            hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 24, scale: shouldReduceMotion ? 1 : 0.97 },
-            visible: { opacity: 1, y: 0, scale: 1 },
-          }}
-          transition={{ duration: shouldReduceMotion ? 0 : 0.95, ease: [0.16, 1, 0.3, 1] }}
-          className="font-heading text-[clamp(2.55rem,8vw,5.45rem)] font-medium italic leading-[0.86] text-[var(--color-forest)]"
-        >
-          {config.title}
-        </motion.h2>
+        <div className="relative mx-auto w-fit px-8 md:px-14">
+          <motion.h2
+            id="dress-code-title"
+            variants={{
+              hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 24, scale: shouldReduceMotion ? 1 : 0.97 },
+              visible: { opacity: 1, y: 0, scale: 1 },
+            }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.95, ease: [0.16, 1, 0.3, 1] }}
+            className="font-heading text-[clamp(2.55rem,8vw,5.45rem)] font-medium italic leading-[0.86] text-[var(--color-forest)] md:text-[clamp(3rem,5vw,4.5rem)]"
+          >
+            {config.title}
+          </motion.h2>
+          <motion.span
+            className="absolute -left-6 -top-7 block h-12 w-12 text-[var(--color-terracotta)]/68 md:-left-10 md:-top-9 md:h-16 md:w-16"
+            animate={shouldReduceMotion ? undefined : { y: [0, -5, 0], rotate: [-5, 2, -5] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: "easeInOut" }}
+            aria-hidden
+          >
+            <ChampagneToastIcon className="h-full w-full" />
+          </motion.span>
+          <motion.span
+            className="absolute -right-5 bottom-0 block h-10 w-10 text-[var(--color-olive)]/55 md:-right-9 md:h-14 md:w-14"
+            animate={shouldReduceMotion ? undefined : { y: [0, -6, 0], rotate: [6, -2, 6] }}
+            transition={{ duration: 4.8, delay: 0.5, repeat: Infinity, ease: "easeInOut" }}
+            aria-hidden
+          >
+            <ChampagneToastIcon className="h-full w-full" />
+          </motion.span>
+          <motion.span
+            className="absolute right-5 -top-5 h-2 w-2 rotate-45 bg-[var(--color-gold)]/75 md:right-8 md:-top-7 md:h-2.5 md:w-2.5"
+            animate={shouldReduceMotion ? undefined : { scale: [0.75, 1.25, 0.75], opacity: [0.4, 0.9, 0.4] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
+            aria-hidden
+          />
+          <motion.span
+            className="absolute -left-1 top-1 h-1.5 w-1.5 rotate-45 bg-[var(--color-terracotta)]/55 md:-left-2 md:h-2 md:w-2"
+            animate={shouldReduceMotion ? undefined : { scale: [1, 1.4, 1], opacity: [0.35, 0.75, 0.35] }}
+            transition={{ duration: 3.2, delay: 0.7, repeat: Infinity, ease: "easeInOut" }}
+            aria-hidden
+          />
+        </div>
         <motion.p
           variants={introVariants}
           transition={{ duration: shouldReduceMotion ? 0 : 0.78, ease: [0.16, 1, 0.3, 1] }}
-          className="mt-2 text-[0.64rem] font-semibold uppercase tracking-[0.34em] text-[color-mix(in_oklab,var(--color-terracotta)_82%,var(--color-forest)_18%)] md:text-[0.76rem] md:tracking-[0.52em]"
+          className="mt-2 text-[0.64rem] font-semibold uppercase tracking-[0.34em] text-[color-mix(in_oklab,var(--color-terracotta)_82%,var(--color-forest)_18%)] md:text-[0.68rem] md:tracking-[0.44em]"
         >
           {config.subtitle}
         </motion.p>
@@ -497,7 +555,7 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
           <motion.p
             variants={introVariants}
             transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="font-editorial mx-auto mt-5 max-w-3xl text-[clamp(1rem,2.25vw,1.5rem)] leading-[1.45] text-[color-mix(in_oklab,var(--color-forest)_78%,var(--color-terracotta)_22%)] md:mt-8"
+            className="font-editorial mx-auto mt-5 max-w-3xl text-[clamp(1rem,2.25vw,1.5rem)] leading-[1.45] text-[color-mix(in_oklab,var(--color-forest)_78%,var(--color-terracotta)_22%)] md:mt-8 md:text-[clamp(1rem,1.6vw,1.25rem)]"
           >
             {config.guidance[0]}{" "}
             {config.guidance.slice(1).map((item) => (
@@ -597,35 +655,28 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
         shouldReduceMotion={shouldReduceMotion}
       />
 
-      <div className="relative h-[100svh] overflow-hidden bg-white">
-        <div className="mx-auto flex h-full max-w-[1180px] items-center px-4 py-5 md:px-8 md:py-8 lg:py-10">
-          <section className="relative h-full w-full" aria-label="Código de vestimenta">
+      <div className="relative overflow-hidden bg-white md:h-[100svh]">
+        <div className="mx-auto max-w-[1180px] px-4 py-24 md:flex md:h-full md:items-center md:px-8 md:py-8 lg:py-10">
+          <section className="relative w-full md:h-full" aria-label="Código de vestimenta">
             <DressCodeNote config={event.dressCode} step={3} shouldReduceMotion={shouldReduceMotion} />
           </section>
         </div>
       </div>
 
-      <div ref={rsvpRef} className="relative bg-[var(--color-surface)] py-20 md:py-28">
-        <div className="absolute inset-0 pointer-events-none border-t border-[var(--color-olive)]/10 bg-[linear-gradient(180deg,rgba(246,245,241,0.58),rgba(252,251,248,0))]" aria-hidden />
+      <div ref={rsvpRef} className="relative isolate overflow-hidden bg-[var(--color-surface)] py-20 md:py-28">
+        <img
+          src={event.reception.image}
+          alt=""
+          className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-center"
+          loading="lazy"
+          decoding="async"
+          aria-hidden
+        />
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 border-t border-[var(--color-olive)]/10 bg-[linear-gradient(180deg,rgba(252,251,248,0.9),rgba(246,245,241,0.84))]"
+          aria-hidden
+        />
         <div className="relative mx-auto max-w-[820px] px-4 md:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto mb-10 max-w-2xl text-center"
-          >
-            <span className="mx-auto flex h-9 w-9 items-center justify-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-surface)] text-[0.64rem] font-semibold tracking-[0.16em] text-[var(--color-olive)] shadow-[0_8px_18px_rgba(36,41,31,0.08)]">
-              04
-            </span>
-            <h3 className="font-heading mt-5 text-[clamp(2rem,5vw,3.4rem)] leading-[0.98] text-[var(--color-forest)]">
-              Último paso
-            </h3>
-            <p className="font-editorial mx-auto mt-4 max-w-xl text-[1.18rem] leading-[1.34] text-[var(--color-forest)]/78 md:text-[1.3rem]">
-              Para cerrar el camino del día, cuéntanos si podremos celebrar contigo.
-            </p>
-          </motion.div>
-
           <motion.div
             initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 40 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -1,11 +1,8 @@
 export interface RSVPInput {
   fullName: string;
   attending: "si" | "no";
-  companions: number;
-  companionNames: string;
   dietaryRestrictions: string;
-  travelSupport: string;
-  message: string;
+  travelSupport: "si" | "no";
 }
 
 export interface RSVPResult {
