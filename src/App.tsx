@@ -19,13 +19,16 @@ function App() {
       }}
     >
       <div className="relative min-h-screen overflow-x-clip bg-[var(--color-ivory)] text-[var(--color-forest)]">
+        <a href="#main-content" className="skip-link">
+          Saltar al contenido
+        </a>
         <motion.div
           style={{ scaleX: scrollYProgress, transformOrigin: "left center" }}
           className="fixed left-0 top-0 z-50 h-[2px] w-full bg-[var(--color-gold)]"
         />
         <div className="paper-grain" aria-hidden />
 
-        <main className="relative z-10">
+        <main id="main-content" className="relative z-10" tabIndex={-1}>
           <HeroSection content={weddingContent.hero} />
           <StorySection content={weddingContent.story} />
           <MilkaSection content={weddingContent.milka} />

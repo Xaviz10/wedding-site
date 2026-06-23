@@ -189,6 +189,7 @@ export default function HeroSection({ content }: HeroSectionProps) {
           alt="Cata y Javier"
           className="h-full w-full object-cover object-[50%_44%] md:object-[50%_42%]"
           loading="eager"
+          fetchPriority="high"
           decoding="async"
         />
       </motion.div>

@@ -36,6 +36,32 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  transform: translateY(-160%);
+  border-radius: 999px;
+  background: var(--color-ivory);
+  color: var(--color-forest);
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(36, 41, 31, 0.2);
+  transition: transform 160ms ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+  outline: 2px solid var(--color-forest);
+  outline-offset: 3px;
+}
+
+#main-content:focus {
+  outline: none;
+}
+
 .font-heading {
   font-family: "Cormorant Garamond", "Playfair Display", serif;
 }
@@ -931,9 +957,13 @@ body {
 }
 
 .form-control:focus {
-  outline: none;
+  outline: 2px solid color-mix(in oklab, var(--color-olive) 78%, var(--color-forest) 22%);
+  outline-offset: 4px;
   border-color: var(--rsvp-petrol);
-  box-shadow: none;
+}
+
+.form-control[aria-invalid="true"] {
+  border-color: #8f4813;
 }
 
 .form-control::placeholder {
@@ -957,7 +987,7 @@ textarea.form-control:focus {
 }
 
 .form-error {
-  color: #bc6c25;
+  color: #8f4813;
   font-size: 0.88rem;
   line-height: 1.45;
 }
@@ -994,6 +1024,11 @@ textarea.form-control:focus {
 .rsvp-chip input {
   margin-top: 0.25rem;
   accent-color: var(--rsvp-petrol);
+}
+
+.rsvp-chip:has(input:focus-visible) {
+  outline: 2px solid color-mix(in oklab, var(--color-olive) 78%, var(--color-forest) 22%);
+  outline-offset: 4px;
 }
 
 .rsvp-chip:hover {
@@ -1053,12 +1088,18 @@ textarea.form-control:focus {
   cursor: wait;
 }
 
+.rsvp-submit-button:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-olive) 78%, var(--color-forest) 22%);
+  outline-offset: 4px;
+}
+
 .form-feedback {
   width: 100%;
   border-radius: 0;
   padding: 1.25rem;
   font-size: 0.96rem;
   line-height: 1.6;
+  white-space: pre-line;
 }
 
 .form-feedback--success {

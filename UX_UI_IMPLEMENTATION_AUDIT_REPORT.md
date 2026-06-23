@@ -1,11 +1,13 @@
 # UX/UI Implementation Audit Report
 
-Audit date: June 21, 2026  
-Scope: static source review, dependency/documentation review, asset inspection, and production build analysis. No application code was changed. The production build completed successfully with TypeScript and Vite. Viewport findings below are based on the implemented CSS and component structure; they should be confirmed in a later browser/device QA pass.
+Audit date: June 22, 2026
+Scope: refreshed static source review, dependency/documentation review through Context7, live reference review, asset inspection, and production build analysis. The production build completed successfully with TypeScript 5.9 and Vite 7.3. Viewport findings below are based on the implemented CSS and component structure; they should still be confirmed in a browser/device QA pass.
+
+Implementation follow-up: after updating this audit, a first conservative refinement pass was completed and visually checked at 1440×900 and 390×844. It corrected the Milka composition, carousel semantics/targets, keyboard focus, RSVP error associations, skip navigation, hero image priority, and multiline RSVP feedback. Larger product/content blockers remain explicitly listed.
 
 ## 1. Executive Summary
 
-The implementation has a credible, custom editorial foundation. It does not read as a basic landing-page template: the full-bleed hero, alternating photographic story, restrained ivory/forest/gold palette, serif-led type, paper grain, and cinematic event sequence create a deliberate narrative. The current Milka composition is especially close to its brief.
+The implementation has a credible, custom editorial foundation. It does not read as a basic landing-page template: the full-bleed hero, alternating photographic story, restrained ivory/forest/gold palette, serif-led type, paper grain, and cinematic event sequence create a deliberate narrative. The current visual direction is worth preserving, but the Milka first scene has moved away from its specific light editorial brief and now repeats the site's dark cinematic treatment.
 
 What is working well:
 
@@ -29,7 +31,7 @@ What is weak:
 - Hacienda architecture, natural wood, orchids, candles, and botanical craft are not strongly represented in the mounted UI. Some botanical components exist but are unused.
 - The codebase contains unmounted sections, unused content, and substantial legacy CSS, which makes the design system harder to reason about.
 
-Overall UX/UI rating: **6.4/10**.
+Overall UX/UI rating: **6.8/10** after the first refinement pass.
 
 The concept is stronger than the production readiness. The site already has the right emotional skeleton, but accessibility, task flow, real RSVP behavior, responsive robustness, image delivery, and visual-system cleanup prevent a higher score.
 
@@ -92,7 +94,7 @@ The concept is stronger than the production readiness. The site already has the 
 
 ### Soft, romantic, premium feeling
 
-**Moderate-to-strong alignment.** The light story and Milka scenes are soft and romantic. The hero, proposal, and 240svh wedding-details experience use substantial dark overlays. Each is individually defensible, but together they shift too much of the experience toward cinematic darkness. The ideal balance is one or two intentional dark peaks separated by warmer tactile scenes.
+**Moderate-to-strong alignment.** The story and both Milka scenes are now soft and romantic. The light Milka first scene restores a useful editorial pause between darker cinematic moments. The hero, proposal, and 240svh wedding-details experience still use substantial dark overlays, so future work should avoid adding more dark sections.
 
 ## 4. Section-by-Section Review
 
@@ -126,17 +128,17 @@ The concept is stronger than the production readiness. The site already has the 
 
 ### Milka — `src/components/sections/MilkaSection.tsx`
 
-**Current state:** A light story composition with the image at the top on mobile and right on desktop, followed by a separate white message section with circular portrait and script signature.
+**Current state:** A light editorial composition with the image above the copy on mobile and on the right on desktop, followed by a separate white message section with circular portrait and script signature.
 
-**What works:** This section closely matches its intended brief. The first scene is not card-based, the background is light, the image moves responsively, and the white/ivory gradient integrates text without a heavy overlay. The second scene creates an emotionally distinctive pause. Motion is restrained and reduced-motion aware.
+**What works:** The first scene now matches the intended brief without becoming card-based. The large authentic image, restrained type, soft ivory transition, and subtle paw details create an emotional pause. The second white scene creates a distinctive voice. Motion is reduced-motion aware.
 
-**What does not work:** Two near-full-viewport Milka scenes give the pet more narrative time than either ceremony or reception. The script-font signature and circular portrait risk becoming sentimental rather than editorial if decorative density increases. Image selection depends on exact caption strings and constant array indexes, which is fragile.
+**What does not work:** Two substantial Milka scenes still give the pet more narrative time than either ceremony or reception. Image selection depends on exact caption strings and constant array indexes, which is fragile.
 
-**Responsive issues:** Mobile reserves 48svh for the top image and then starts copy. This is robust for normal content but can make the section very long. On desktop, fixed `lg:h-[100vh]` plus `overflow-hidden` can clip enlarged text or content on a short viewport.
+**Responsive issues:** The first scene is now content-driven with a 48svh mobile media region and a 62%-wide right-side desktop image, removing its previous fixed desktop height. The second message scene remains long but is content-driven.
 
-**Accessibility issues:** The background-style image correctly uses `alt=""` and `aria-hidden` because the adjacent text carries the meaning. The circular portrait has meaningful alt text and a screen-reader-only caption. Several olive/terracotta micro-labels remain below normal-text contrast targets.
+**Accessibility issues:** The background-style image correctly uses `alt=""` and `aria-hidden` because it is atmospheric and adjacent text carries the narrative. The circular portrait has meaningful alt text and a screen-reader-only caption. Several olive/terracotta micro-labels elsewhere remain below normal-text contrast targets.
 
-**Recommended improvements:** Keep the primary composition; reduce the second scene's height or combine it as an editorial closing panel; replace caption-based image selection with explicit content roles; add responsive image sources and focal-point data.
+**Recommended improvements:** Keep the new first-scene composition. Replace caption-based image selection with explicit content roles, add responsive image sources/focal-point data, and consider shortening the second scene only after testing the full narrative with guests.
 
 ### Proposal — `src/components/sections/ProposalSection.tsx`
 
@@ -275,12 +277,12 @@ No source-proven issue was classified as a complete accessibility blocker. This 
 ### Important
 
 - **Contrast:** olive and terracotta microcopy fails 4.5:1 on ivory in several contexts. Examples include hero/story/Milka/dress-code eyebrows and `styles.css` form error colors.
-- **Focus visibility:** the proposal video card removes its outline without a replacement (`ProposalSection.tsx:241`); form controls use only a subtle border change (`styles.css:927-931`); RSVP submit lacks explicit focus-visible styling.
-- **Form errors:** errors are not tied to controls with `aria-describedby`, controls do not expose `aria-invalid`, and focus does not move to an error summary/first invalid field (`RSVPForm.tsx:127-231`).
-- **Target size:** story carousel dots are much smaller than WCAG 2.2's 24×24 minimum (`StorySection.tsx:171-182`).
+- **Focus visibility:** addressed in the first pass for the proposal video card, RSVP controls, radio groups, submit button, and carousel controls. A full keyboard sweep is still required.
+- **Form errors:** addressed in the first pass with stable IDs, `aria-describedby`, `aria-invalid`, and focus movement to the first invalid field.
+- **Target size:** addressed in the first pass for story and proposal carousel dots with 24×24 CSS-pixel hit areas.
 - **Reflow/clipping:** fixed viewport heights and hidden overflow in wedding details, dress code, desktop Milka, and desktop proposal are unsafe under zoom/reflow.
-- **Carousel semantics:** the story carousel lacks a labelled region, selected-state semantics, and visible directional controls.
-- **Keyboard action:** the proposal's most prominent interactive element lacks focus visibility and has a nonfunctional destination.
+- **Carousel semantics:** labelled regions, grouped slide positions, selected-state semantics, and keyboard arrow behavior are now present. Visible directional arrows remain a nice-to-have usability enhancement.
+- **Keyboard action:** focus visibility is fixed; the proposal video destination remains nonfunctional until a real URL/player is provided.
 - **Motion alternative:** transforms are mostly disabled correctly, but reduced motion still leaves a 240svh scroll requirement and state-switched wedding content. The alternative should reduce interaction burden, not just animation.
 
 ### Nice to Have
@@ -296,7 +298,7 @@ No source-proven issue was classified as a complete accessibility blocker. This 
 
 ### Build baseline
 
-The production build succeeds. Output is approximately 25 MB total. The main JavaScript is 392.71 KB raw / 123.06 KB gzip; CSS is 79.66 KB raw / 15.53 KB gzip. This is not catastrophic for a narrative site, but it is high for a static invitation and should be tested on mid-range mobile hardware.
+The refreshed production build succeeds. Output is approximately 25 MB total. The main JavaScript is 408.34 KB raw / 125.98 KB gzip; CSS is 90.01 KB raw / 16.74 KB gzip. This is not catastrophic for a narrative site, but it is high for a static invitation and should be tested on mid-range mobile hardware.
 
 ### Image optimization
 
@@ -353,30 +355,30 @@ The 123 KB gzipped JS bundle includes a substantial animation runtime for an inv
 
 ### Comparison with the desired layout
 
-- **Light background:** Met. The section uses `#faf7ef`, white, and ivory gradients (`MilkaSection.tsx:218-235`).
-- **Right-side desktop image:** Met. `MilkaStoryBackground` becomes a right-aligned 62vw layer at `lg` (`MilkaSection.tsx:69-87`).
-- **Top image on mobile:** Met. The image occupies the top 48svh and copy begins beneath it (`MilkaSection.tsx:70`, `237`).
-- **Soft white integration:** Met. Desktop uses an ivory-to-transparent horizontal gradient; mobile uses a transparent-to-ivory vertical gradient (`MilkaSection.tsx:228-235`). The effect is light, not dark.
-- **Elegant emotional feeling:** Largely met. Restrained copy, large heading, subtle paw ornament, and generous space are appropriate. The second full scene is slightly overextended.
-- **Replaceable image system:** Partially met. Images come from typed content and the layout uses `object-cover`, so source replacement is easy mechanically. It is still fragile because role selection depends on exact captions and object position is hardcoded. A replacement with a different subject location can crop badly.
+- **Light background:** Met. The first scene uses the shared ivory surface.
+- **Right-side desktop image:** Met. At `lg`, `MilkaStoryBackground` occupies the right 62% of the section.
+- **Top image on mobile:** Met. The image occupies the top 48svh and the copy follows in normal flow.
+- **Soft white integration:** Met. Mobile uses a transparent-to-ivory vertical fade; desktop uses an ivory-to-transparent horizontal fade.
+- **Elegant emotional feeling:** Met. The typography, photo, paw details, and generous light space now read as soft editorial content rather than another cinematic dark scene.
+- **Replaceable image system:** Partially met. Images come from typed content and use `object-cover`, but role selection depends on exact captions/indexes and focal position is hardcoded. A replacement with a different subject location can crop badly.
 - **No dark overlay:** Met.
 
 ### Technical assessment
 
-Using an absolutely positioned `<img>` as a background visual is preferable to CSS `background-image` here. It allows native lazy loading, responsive-image markup, decoding control, and a deliberate empty alt when decorative. The implementation currently uses only one source and lacks intrinsic dimensions, `srcset`, and `sizes`, so it does not yet realize those benefits fully.
+Using an `<img>` rather than CSS `background-image` remains preferable here because it allows native lazy loading, responsive-image markup, decoding control, and a deliberate empty alt when decorative. It now sits in a responsive media region rather than covering the entire section. The implementation still uses one source and lacks intrinsic dimensions, `srcset`, and `sizes`.
 
-The desktop gradient begins opaque at the image layer's left edge, protecting text contrast while allowing the right side to show. This is compositionally sound. Mobile likewise dissolves the image into the copy background instead of placing text over a darkened photograph.
+The new gradient direction protects the image-to-copy transition without darkening the photograph. Forest text remains on the light content surface and does not depend on the image for contrast.
 
 ### Exact changes recommended later
 
-1. Keep the primary first-scene structure.
+1. Keep the implemented light split composition and its current content/decorative language.
 2. Replace caption/index inference with explicit image roles and per-breakpoint focal points.
 3. Generate responsive AVIF/WebP sources and add dimensions, `srcset`, and `sizes`.
-4. Change `lg:h-[100vh] overflow-hidden` to a robust min-height/content-driven model for short viewports and zoom.
+4. Keep the new content-driven first-scene height and verify it at 200% zoom.
 5. Shorten or merge the second “mensaje de Milka” scene so the overall narrative remains balanced.
 6. Darken olive/terracotta microcopy to pass contrast without losing softness.
 
-Verdict: **The current Milka layout is fundamentally correct and should be refined, not rebuilt.**
+Verdict: **The Milka section now matches its specific composition brief and should be kept, with only image-pipeline and content-model refinements later.**
 
 ## 11. Priority Fixes
 
@@ -384,11 +386,12 @@ Verdict: **The current Milka layout is fundamentally correct and should be refin
 
 1. Replace the mock RSVP transport with real durable submission, retry/error handling, and an auditable confirmation state.
 2. Fix the proposal video destination and give the primary video link a visible keyboard focus state.
-3. Build a responsive image pipeline; compress/re-encode large assets, generate width variants, add dimensions/`srcset`/`sizes`, and prioritize the hero correctly.
-4. Remove fixed-height clipping risk from wedding details, dress code, desktop Milka, and desktop proposal; provide normal-flow reduced-motion layouts.
-5. Fix WCAG issues: small-text contrast, form error associations, focus visibility, carousel semantics, and 24×24 minimum targets.
-6. Put a scannable date/venue/map/RSVP summary or quick navigation near the top so guest tasks do not depend on traversing the full story.
-7. Replace stock/placeholder imagery with authentic approved photography and confirm final ceremony data.
+3. **Completed in the first pass:** restore the requested light Milka composition without changing its copy or emotional character.
+4. Build a responsive image pipeline; compress/re-encode large assets, generate width variants, add dimensions/`srcset`/`sizes`, and prioritize the hero correctly.
+5. Remove fixed-height clipping risk from wedding details, dress code, desktop Milka, and desktop proposal; provide normal-flow reduced-motion layouts.
+6. Fix WCAG issues: small-text contrast, form error associations, focus visibility, carousel semantics, and 24×24 minimum targets.
+7. Put a scannable date/venue/map/RSVP summary or quick navigation near the top so guest tasks do not depend on traversing the full story.
+8. Replace stock/placeholder imagery with authentic approved photography and confirm final ceremony data.
 
 ### Medium Priority
 
@@ -438,8 +441,8 @@ Verdict: **The current Milka layout is fundamentally correct and should be refin
 
 ## 14. Final Recommendation
 
-**Partially rebuilt.**
+**Refined.**
 
-Keep the core visual direction, hero concept, alternating story language, proposal emotional peak, and primary Milka composition. They already establish a personal, editorial identity. Rebuild the guest-task architecture around event details and RSVP, replace the mock/broken behaviors, make full-viewport sections resilient, and introduce a real responsive-image pipeline. Then refine the shared design system and motion language.
+Keep the core visual direction, hero concept, alternating story language, proposal emotional peak, Milka content, and overall pacing. Apply targeted structural fixes to guest tasks, RSVP behavior, full-viewport resilience, accessibility, image delivery, and the Milka first-scene composition.
 
-A heavy rework would discard good bespoke work. A light refinement would understate serious functional, accessibility, responsive, and performance risks. A targeted partial rebuild is the correct level of intervention.
+The visual system does not need a rebuild. The most effective path is a sequence of small, verified changes, with the mock RSVP and missing final content treated as release blockers rather than reasons to redesign the site.

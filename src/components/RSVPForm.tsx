@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useId, useRef, useState, type FormEvent } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { submitRSVP, type RSVPInput } from "../lib/submitRSVP";
 import type { RSVPConfig } from "../types/wedding";
@@ -37,6 +37,13 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   const [errors, setErrors] = useState<RSVPFormErrors>({});
   const [status, setStatus] = useState<RSVPState>("idle");
   const shouldReduceMotion = useReducedMotion();
+  const fieldId = useId();
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const dietaryRef = useRef<HTMLTextAreaElement>(null);
+  const fullNameId = `${fieldId}-full-name`;
+  const fullNameErrorId = `${fullNameId}-error`;
+  const dietaryId = `${fieldId}-dietary`;
+  const dietaryErrorId = `${dietaryId}-error`;
 
   const isSubmitting = status === "loading";
   const isSuccess = status === "success";
@@ -48,6 +55,11 @@ export default function RSVPForm({ config }: RSVPFormProps) {
     setErrors(validation);
 
     if (Object.keys(validation).length > 0) {
+      setStatus("idle");
+      requestAnimationFrame(() => {
+        if (validation.fullName) fullNameRef.current?.focus();
+        else if (validation.dietaryRestrictions) dietaryRef.current?.focus();
+      });
       return;
     }
 
@@ -76,6 +88,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       transition={{ duration: shouldReduceMotion ? 0 : 1 }}
       className="rsvp-form-shell p-6 md:p-12"
       noValidate
+      aria-busy={isSubmitting}
     >
       <div className="rsvp-form-header">
         <div className="grid gap-3">
@@ -90,17 +103,21 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       </div>
 
       <div className="rsvp-form-fields">
-        <label className="grid gap-2">
+        <label className="grid gap-2" htmlFor={fullNameId}>
           <span className="form-label">Nombre completo</span>
           <input
+            ref={fullNameRef}
+            id={fullNameId}
             value={formData.fullName}
             onChange={(event) => updateField("fullName", event.target.value)}
             className="form-control"
             autoComplete="name"
             placeholder="Ej. Ana García"
             required
+            aria-invalid={Boolean(errors.fullName)}
+            aria-describedby={errors.fullName ? fullNameErrorId : undefined}
           />
-          {errors.fullName && <span className="form-error">{errors.fullName}</span>}
+          {errors.fullName && <span id={fullNameErrorId} className="form-error">{errors.fullName}</span>}
         </label>
 
         <fieldset className="grid gap-3">
@@ -129,16 +146,22 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           </div>
         </fieldset>
 
-        <label className="grid gap-2">
+        <label className="grid gap-2" htmlFor={dietaryId}>
           <span className="form-label">Restricciones alimentarias</span>
           <textarea
+            ref={dietaryRef}
+            id={dietaryId}
             value={formData.dietaryRestrictions}
             onChange={(event) => updateField("dietaryRestrictions", event.target.value)}
             rows={3}
             className="form-control resize-none"
             placeholder="Ej. Sin frutos secos, vegetarian@"
+            aria-invalid={Boolean(errors.dietaryRestrictions)}
+            aria-describedby={errors.dietaryRestrictions ? dietaryErrorId : undefined}
           />
-          {errors.dietaryRestrictions && <span className="form-error">{errors.dietaryRestrictions}</span>}
+          {errors.dietaryRestrictions && (
+            <span id={dietaryErrorId} className="form-error">{errors.dietaryRestrictions}</span>
+          )}
         </label>
 
         <fieldset className="grid gap-3">

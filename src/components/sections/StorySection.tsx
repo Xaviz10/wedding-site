@@ -207,10 +207,18 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
             onScroll={handleCarouselScroll}
             onKeyDown={handleCarouselKeyDown}
             tabIndex={hasMultipleSlides ? 0 : -1}
+            role={hasMultipleSlides ? "region" : undefined}
+            aria-roledescription={hasMultipleSlides ? "carrusel" : undefined}
+            aria-label={hasMultipleSlides ? `Fotos de ${beat.title}` : undefined}
             style={{ scale: imageScale }}
           >
             {slides.map((slide, slideIndex) => (
-              <div key={`${beat.title}-slide-${slideIndex}`} className="h-full w-full shrink-0 snap-center">
+              <div
+                key={`${beat.title}-slide-${slideIndex}`}
+                className="h-full w-full shrink-0 snap-center"
+                role={hasMultipleSlides ? "group" : undefined}
+                aria-label={hasMultipleSlides ? `${slideIndex + 1} de ${slides.length}` : undefined}
+              >
                 <img
                   src={slide.src}
                   alt={slide.alt}
@@ -224,15 +232,23 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
         </motion.div>
         
         {hasMultipleSlides && (
-          <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-3 rounded-full bg-white/40 px-4 py-2 backdrop-blur-md">
+          <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-1 rounded-full bg-white/50 px-2 py-1.5 shadow-sm backdrop-blur-md">
             {slides.map((_, slideIndex) => (
               <button
                 key={`${beat.title}-dot-${slideIndex}`}
                 type="button"
-                className={`h-1.5 rounded-full transition-all ${slideIndex === activeSlide ? "bg-white w-5" : "bg-white/70 w-1.5"}`}
+                className="group/dot inline-flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-[var(--color-forest)]"
                 onClick={() => scrollToSlide(slideIndex)}
                 aria-label={`Ir a la foto ${slideIndex + 1}`}
-              />
+                aria-current={slideIndex === activeSlide ? "true" : undefined}
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-all ${
+                    slideIndex === activeSlide ? "w-5 bg-white" : "w-1.5 bg-white/75 group-hover/dot:bg-white"
+                  }`}
+                  aria-hidden
+                />
+              </button>
             ))}
           </div>
         )}
