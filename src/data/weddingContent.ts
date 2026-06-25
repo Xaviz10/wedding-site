@@ -1,9 +1,10 @@
 import type { WeddingContent } from "../types/wedding";
-import distancia1Image from "../assets/distancia-1.jpg";
-import distancia2Image from "../assets/distancia-2.jpg";
-import distancia3Image from "../assets/distancia-3.jpg";
-import distancia4Image from "../assets/distancia-4.jpg";
-import distancia5Image from "../assets/distancia-5.jpg";
+import distanciaAmsterdamImage from "../assets/distancia-amsterdam.gif";
+import distanciaBogotaImage from "../assets/distancia-bogota.jpg";
+import distanciaBusImage from "../assets/distancia-bus.jpg";
+import distanciaMadridImage from "../assets/distancia-madrid.jpg";
+import distanciaVueloNubes1Image from "../assets/distancia-vuelo-nubes-1.jpg";
+import distanciaVueloNubes2Image from "../assets/distancia-vuelo-nubes-2.jpg";
 import fincaLaMaraImage from "../assets/finca-la-mara.avif";
 import hogar1Image from "../assets/hogar-1.jpg";
 import hogar2Image from "../assets/hogar-2.jpg";
@@ -17,6 +18,12 @@ import milkaCarrusel1Image from "../assets/milka-carrusel-1.jpg";
 import milkaCarrusel2Image from "../assets/milka-carrusel-2.jpg";
 import milkaCarrusel3Image from "../assets/milka-carrusel-3.jpg";
 import milkaConNosotrosImage from "../assets/milka-con-nosotros.jpg";
+import milkaPortadaNavidadImage from "../assets/milka-portada-navidad.jpg";
+import milkaPortadaPanueletaImage from "../assets/milka-portada-panueleta.jpg";
+import milkaPortadaParqueImage from "../assets/milka-portada-parque.jpg";
+import milkaPortadaPuertaAzulImage from "../assets/milka-portada-puerta-azul.jpg";
+import milkaPortadaRioImage from "../assets/milka-portada-rio.jpg";
+import milkaRetratoCircularImage from "../assets/milka-retrato-circular.jpg";
 import propuestaAnilloManosImage from "../assets/propuesta-anillo-manos.png";
 import propuestaEigergletscherBgImage from "../assets/propuesta-eigergletscher-bg.png";
 import propuestaFamiliaEigerImage from "../assets/propuesta-familia-eiger.jpg";
@@ -62,28 +69,32 @@ export const weddingContent: WeddingContent = {
         title: "La distancia",
         moment: "Colombia ↔ Portugal",
         text: "Con Javier en Portugal y Cata en Colombia, aprendimos a querernos entre mensajes y llamadas.\nLa distancia no fue fácil, pero nos enseñó a elegirnos todos los días. Después vinieron los viajes, los reencuentros, nuevos países y la primera vez de Cata en avión.",
-        image: distancia1Image,
-        alt: "Vista aérea de Portugal desde el avión",
+        image: distanciaVueloNubes1Image,
+        alt: "Vista del ala de un avión sobre las nubes",
         images: [
           {
-            src: distancia1Image,
-            alt: "Vista aérea de Portugal desde el avión",
+            src: distanciaVueloNubes1Image,
+            alt: "Vista del ala de un avión sobre las nubes",
           },
           {
-            src: distancia2Image,
-            alt: "Cata y Javier durante un viaje por Europa",
+            src: distanciaBusImage,
+            alt: "Cata y Javier viajando juntos en bus",
           },
           {
-            src: distancia3Image,
-            alt: "Cata y Javier tomados de la mano durante un viaje",
+            src: distanciaVueloNubes2Image,
+            alt: "Vista de un avión sobre el cielo y las nubes",
           },
           {
-            src: distancia4Image,
-            alt: "Cata y Javier frente a la Torre Eiffel",
+            src: distanciaBogotaImage,
+            alt: "Cata y Javier en Bogotá durante un reencuentro",
           },
           {
-            src: distancia5Image,
-            alt: "Vuelo en parapente durante uno de sus viajes",
+            src: distanciaAmsterdamImage,
+            alt: "Cata y Javier junto a un canal con flores en Amsterdam",
+          },
+          {
+            src: distanciaMadridImage,
+            alt: "Cata besando a Javier frente al Palacio Real de Madrid",
           },
         ],
         frame: "postcard",
@@ -159,6 +170,36 @@ export const weddingContent: WeddingContent = {
       "Milka.",
     ],
     photos: [
+      {
+        src: milkaPortadaPuertaAzulImage,
+        alt: "Milka cachorra sentada frente a una puerta azul",
+        caption: "Milka portada",
+      },
+      {
+        src: milkaPortadaNavidadImage,
+        alt: "Cata y Javier con Milka usando sacos navideños",
+        caption: "Milka portada",
+      },
+      {
+        src: milkaPortadaRioImage,
+        alt: "Milka parada en un río rodeada de vegetación",
+        caption: "Milka portada",
+      },
+      {
+        src: milkaPortadaPanueletaImage,
+        alt: "Milka usando una pañoleta verde en el pasto",
+        caption: "Milka portada",
+      },
+      {
+        src: milkaPortadaParqueImage,
+        alt: "Milka corriendo en un parque",
+        caption: "Milka portada",
+      },
+      {
+        src: milkaRetratoCircularImage,
+        alt: "Retrato de Milka sonriendo sobre fondo oscuro",
+        caption: "Milka retrato",
+      },
       {
         src: milkaCachorra1Image,
         alt: "Milka cachorra sentada frente a una puerta azul",

@@ -1,13 +1,14 @@
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import heroImage from "../../assets/hero.jpg";
+import heroImage0892 from "../../assets/hero-img-0892.jpg";
+import heroImage20190828 from "../../assets/hero-img-20190828.jpg";
+import heroImageJkm0396 from "../../assets/hero-img-jkm-0396.jpg";
 import type { HeroContent } from "../../types/wedding";
 
 interface HeroSectionProps {
   content: HeroContent;
 }
-
-const HERO_IMAGE = heroImage;
 
 const ambientParticles = [
   { size: 4, left: "15%", top: "20%", delay: 0, duration: 12 },
@@ -22,6 +23,34 @@ const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = 60 * SECOND_IN_MS;
 const HOUR_IN_MS = 60 * MINUTE_IN_MS;
 const DAY_IN_MS = 24 * HOUR_IN_MS;
+const HERO_IMAGE_INTERVAL_MS = 30 * SECOND_IN_MS;
+
+const heroSlides = [
+  {
+    src: heroImage,
+    alt: "Cata y Javier",
+    mobilePosition: "50% 44%",
+    desktopPosition: "50% 42%",
+  },
+  {
+    src: heroImage0892,
+    alt: "Cata y Javier en una montaña nevada",
+    mobilePosition: "55% 54%",
+    desktopPosition: "55% 55%",
+  },
+  {
+    src: heroImage20190828,
+    alt: "Cata y Javier en una estructura de piedra",
+    mobilePosition: "60% 100%",
+    desktopPosition: "51% 57%",
+  },
+  {
+    src: heroImageJkm0396,
+    alt: "Cata y Javier en una celebración",
+    mobilePosition: "54% 50%",
+    desktopPosition: "54% 50%",
+  },
+] as const;
 
 interface CountdownFieldProps {
   label: string;
@@ -161,7 +190,9 @@ function BottomOrnament() {
 export default function HeroSection({ content }: HeroSectionProps) {
   const shouldReduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
+  const [activeHeroIndex, setActiveHeroIndex] = useState(0);
   const titleParts = useMemo(() => content.title.split("&").map((part) => part.trim()), [content.title]);
+  const activeHeroSlide = heroSlides[activeHeroIndex];
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -170,6 +201,22 @@ export default function HeroSection({ content }: HeroSectionProps) {
 
   const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
   const textOpacity = useTransform(scrollYProgress, [0, 0.76], [1, 0]);
+
+  useEffect(() => {
+    if (heroSlides.length <= 1) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setActiveHeroIndex((index) => (index + 1) % heroSlides.length);
+    }, HERO_IMAGE_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    const nextSlide = heroSlides[(activeHeroIndex + 1) % heroSlides.length];
+    const image = new window.Image();
+    image.src = nextSlide.src;
+  }, [activeHeroIndex]);
 
   return (
     <section
@@ -181,17 +228,30 @@ export default function HeroSection({ content }: HeroSectionProps) {
         className="absolute inset-x-0 -inset-y-[12%] z-0 origin-top"
         style={{ y: shouldReduceMotion ? 0 : backgroundY }}
       >
-        <motion.img
-          initial={{ scale: 1.08 }}
-          animate={{ scale: 1 }}
-          transition={{ duration: 3, ease: "easeOut" }}
-          src={HERO_IMAGE}
-          alt="Cata y Javier"
-          className="h-full w-full object-cover object-[50%_44%] md:object-[50%_42%]"
-          loading="eager"
-          fetchPriority="high"
-          decoding="async"
-        />
+        <AnimatePresence initial={false}>
+          <motion.img
+            key={activeHeroSlide.src}
+            initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 1.08 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: shouldReduceMotion ? 1 : 1.03 }}
+            transition={{
+              opacity: { duration: shouldReduceMotion ? 0 : 1.4, ease: "easeInOut" },
+              scale: { duration: shouldReduceMotion ? 0 : 3, ease: "easeOut" },
+            }}
+            src={activeHeroSlide.src}
+            alt={activeHeroSlide.alt}
+            className="absolute inset-0 h-full w-full object-cover [object-position:var(--hero-mobile-position)] md:[object-position:var(--hero-desktop-position)]"
+            style={
+              {
+                "--hero-mobile-position": activeHeroSlide.mobilePosition,
+                "--hero-desktop-position": activeHeroSlide.desktopPosition,
+              } as CSSProperties
+            }
+            loading={activeHeroIndex === 0 ? "eager" : "lazy"}
+            fetchPriority={activeHeroIndex === 0 ? "high" : "auto"}
+            decoding="async"
+          />
+        </AnimatePresence>
       </motion.div>
 
       <div className="absolute inset-0 z-[1] bg-[linear-gradient(180deg,rgba(0,0,0,0.74)_0%,rgba(0,0,0,0.46)_42%,rgba(0,0,0,0.82)_100%)]" aria-hidden />

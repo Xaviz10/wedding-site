@@ -12,6 +12,7 @@ const initialData: RSVPInput = {
   attending: "si",
   dietaryRestrictions: "",
   travelSupport: "no",
+  messageToCouple: "",
 };
 
 function validate(data: RSVPInput): RSVPFormErrors {
@@ -23,6 +24,10 @@ function validate(data: RSVPInput): RSVPFormErrors {
 
   if (data.dietaryRestrictions.length > 280) {
     errors.dietaryRestrictions = "Máximo 280 caracteres.";
+  }
+
+  if (data.messageToCouple.length > 500) {
+    errors.messageToCouple = "Máximo 500 caracteres.";
   }
 
   return errors;
@@ -40,10 +45,13 @@ export default function RSVPForm({ config }: RSVPFormProps) {
   const fieldId = useId();
   const fullNameRef = useRef<HTMLInputElement>(null);
   const dietaryRef = useRef<HTMLTextAreaElement>(null);
+  const messageToCoupleRef = useRef<HTMLTextAreaElement>(null);
   const fullNameId = `${fieldId}-full-name`;
   const fullNameErrorId = `${fullNameId}-error`;
   const dietaryId = `${fieldId}-dietary`;
   const dietaryErrorId = `${dietaryId}-error`;
+  const messageToCoupleId = `${fieldId}-message-to-couple`;
+  const messageToCoupleErrorId = `${messageToCoupleId}-error`;
 
   const isSubmitting = status === "loading";
   const isSuccess = status === "success";
@@ -59,6 +67,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
       requestAnimationFrame(() => {
         if (validation.fullName) fullNameRef.current?.focus();
         else if (validation.dietaryRestrictions) dietaryRef.current?.focus();
+        else if (validation.messageToCouple) messageToCoupleRef.current?.focus();
       });
       return;
     }
@@ -189,6 +198,25 @@ export default function RSVPForm({ config }: RSVPFormProps) {
             </label>
           </div>
         </fieldset>
+
+        <label className="grid gap-2" htmlFor={messageToCoupleId}>
+          <span className="form-label">Mensaje para los novios</span>
+          <textarea
+            ref={messageToCoupleRef}
+            id={messageToCoupleId}
+            value={formData.messageToCouple}
+            onChange={(event) => updateField("messageToCouple", event.target.value)}
+            rows={4}
+            maxLength={500}
+            className="form-control resize-none"
+            placeholder="Escríbenos unas palabras..."
+            aria-invalid={Boolean(errors.messageToCouple)}
+            aria-describedby={errors.messageToCouple ? messageToCoupleErrorId : undefined}
+          />
+          {errors.messageToCouple && (
+            <span id={messageToCoupleErrorId} className="form-error">{errors.messageToCouple}</span>
+          )}
+        </label>
 
         <button
           type="submit"

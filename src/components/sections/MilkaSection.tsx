@@ -1,4 +1,5 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useEffect, useState, type CSSProperties } from "react";
 import SectionWrapper from "../SectionWrapper";
 import type { MilkaPhoto, WeddingContent } from "../../types/wedding";
 
@@ -9,6 +10,7 @@ interface MilkaSectionProps {
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const STORY_IMAGE_INDEX = 0;
 const MESSAGE_IMAGE_INDEX = 0;
+const MILKA_BACKGROUND_INTERVAL_MS = 30 * 1000;
 function cx(...parts: Array<string | false | undefined>) {
   return parts.filter(Boolean).join(" ");
 }
@@ -58,8 +60,56 @@ interface MilkaStoryBackgroundProps {
   shouldReduceMotion: boolean;
 }
 
+function getMilkaBackgroundPosition(photo: MilkaPhoto, index: number) {
+  if (photo.alt.includes("sacos navideños")) {
+    return { mobile: "56% 50%", desktop: "50% 50%" };
+  }
+
+  if (photo.alt.includes("puerta azul")) {
+    return { mobile: "50% 64%", desktop: "48% 57%" };
+  }
+
+  if (photo.alt.includes("río")) {
+    return { mobile: "50% 22%", desktop: "50% 22%" };
+  }
+
+  if (photo.alt.includes("pañoleta")) {
+    return { mobile: "18% 50%", desktop: "42% 50%" };
+  }
+
+  if (photo.alt.includes("corriendo")) {
+    return { mobile: "88% 55%", desktop: "72% 55%" };
+  }
+
+  return index === 0 ? { mobile: "54% 50%", desktop: "54% 50%" } : { mobile: "50% 50%", desktop: "50% 50%" };
+}
+
 function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }: MilkaStoryBackgroundProps) {
-  const photo = photos[selectedIndex] ?? photos[0];
+  const [activePhotoIndex, setActivePhotoIndex] = useState(selectedIndex);
+  const photo = photos[activePhotoIndex] ?? photos[0];
+  const position = photo ? getMilkaBackgroundPosition(photo, activePhotoIndex) : undefined;
+
+  useEffect(() => {
+    setActivePhotoIndex(Math.min(selectedIndex, Math.max(photos.length - 1, 0)));
+  }, [photos.length, selectedIndex]);
+
+  useEffect(() => {
+    if (photos.length <= 1) return undefined;
+
+    const intervalId = window.setInterval(() => {
+      setActivePhotoIndex((index) => (index + 1) % photos.length);
+    }, MILKA_BACKGROUND_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [photos.length]);
+
+  useEffect(() => {
+    if (photos.length <= 1) return;
+
+    const nextPhoto = photos[(activePhotoIndex + 1) % photos.length];
+    const image = new window.Image();
+    image.src = nextPhoto.src;
+  }, [activePhotoIndex, photos]);
 
   if (!photo) {
     return null;
@@ -74,16 +124,29 @@ function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }:
       transition={{ duration: shouldReduceMotion ? 0 : 1.2, ease: EASE }}
       aria-hidden
     >
-      <motion.img
-        src={photo.src}
-        alt=""
-        className="h-full w-full object-cover object-[54%_center] lg:object-left"
-        loading="lazy"
-        decoding="async"
-        initial={shouldReduceMotion ? false : { scale: 1.045 }}
-        whileInView={shouldReduceMotion ? undefined : { scale: 1 }}
-        transition={{ duration: shouldReduceMotion ? 0 : 1.7, ease: EASE }}
-      />
+      <AnimatePresence initial={false}>
+        <motion.img
+          key={photo.src}
+          src={photo.src}
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover [object-position:var(--milka-mobile-position)] lg:[object-position:var(--milka-desktop-position)]"
+          style={
+            {
+              "--milka-mobile-position": position?.mobile ?? "50% 50%",
+              "--milka-desktop-position": position?.desktop ?? "50% 50%",
+            } as CSSProperties
+          }
+          loading={activePhotoIndex === 0 ? "eager" : "lazy"}
+          decoding="async"
+          initial={{ opacity: 0, scale: shouldReduceMotion ? 1 : 1.055 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: shouldReduceMotion ? 1 : 1.025 }}
+          transition={{
+            opacity: { duration: shouldReduceMotion ? 0 : 1.4, ease: "easeInOut" },
+            scale: { duration: shouldReduceMotion ? 0 : 2.7, ease: EASE },
+          }}
+        />
+      </AnimatePresence>
     </motion.div>
   );
 }
@@ -116,7 +179,7 @@ function MilkaPortrait({ photos, selectedIndex = 0, shouldReduceMotion }: MilkaP
           className="h-full w-full object-cover"
           loading="lazy"
           decoding="async"
-          style={{ objectPosition: "50% 42%" }}
+          style={{ objectPosition: "50% 24%" }}
           initial={shouldReduceMotion ? false : { scale: 1.05 }}
           whileInView={shouldReduceMotion ? undefined : { scale: 1 }}
           transition={{ duration: shouldReduceMotion ? 0 : 1.4, ease: EASE }}
@@ -195,20 +258,26 @@ function MilkaOrnament({ className }: { className?: string }) {
 export default function MilkaSection({ content }: MilkaSectionProps) {
   const shouldReduceMotion = useReducedMotion() === true;
   const familyPhoto = getPhotoByCaption(content.photos, "Milka");
+  const coverPhotos = content.photos.filter((photo) => photo.caption === "Milka portada");
+  const portraitPhotos = content.photos.filter((photo) => photo.caption === "Milka retrato");
   const puppyPhotos = content.photos.filter((photo) => photo.caption === "Milka cachorra");
   const messagePhotos = content.photos.filter((photo) => photo.caption === "Milka carrusel");
-  const storyImageOptions = uniquePhotos([
-    ...(familyPhoto ? [familyPhoto] : []),
-    ...puppyPhotos,
-    ...messagePhotos,
-    ...content.photos,
-  ]);
-  const portraitOptions = uniquePhotos([
-    ...messagePhotos,
-    ...(familyPhoto ? [familyPhoto] : []),
-    ...puppyPhotos,
-    ...content.photos,
-  ]);
+  const storyImageOptions = coverPhotos.length > 0
+    ? uniquePhotos(coverPhotos)
+    : uniquePhotos([
+        ...(familyPhoto ? [familyPhoto] : []),
+        ...puppyPhotos,
+        ...messagePhotos,
+        ...content.photos,
+      ]);
+  const portraitOptions = portraitPhotos.length > 0
+    ? uniquePhotos(portraitPhotos)
+    : uniquePhotos([
+        ...messagePhotos,
+        ...(familyPhoto ? [familyPhoto] : []),
+        ...puppyPhotos,
+        ...content.photos,
+      ]);
   const messageParagraphs = content.note.slice(0, -2);
   const closingLine = content.note[content.note.length - 2];
   const signatureLine = content.note[content.note.length - 1];
