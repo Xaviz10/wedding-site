@@ -1,17 +1,19 @@
 import type { WeddingContent } from "../types/wedding";
+import capillaInmaculadaImage from "../assets/capilla-inmaculada.jpg";
 import distanciaAmsterdamImage from "../assets/distancia-amsterdam.gif";
-import distanciaBogotaImage from "../assets/distancia-bogota.jpg";
-import distanciaBusImage from "../assets/distancia-bus.jpg";
+import distanciaCataJavier2018Image from "../assets/distancia-cata-javier-2018.jpg";
 import distanciaMadridImage from "../assets/distancia-madrid.jpg";
+import distanciaReencuentro2018Image from "../assets/distancia-reencuentro-2018.jpg";
 import distanciaVueloNubes1Image from "../assets/distancia-vuelo-nubes-1.jpg";
 import distanciaVueloNubes2Image from "../assets/distancia-vuelo-nubes-2.jpg";
 import fincaLaMaraImage from "../assets/finca-la-mara.avif";
 import hogar1Image from "../assets/hogar-1.jpg";
 import hogar2Image from "../assets/hogar-2.jpg";
-import hogar3Image from "../assets/hogar-3.jpg";
+import hogarPlaya2023Image from "../assets/hogar-playa-2023.jpg";
 import hogar4Image from "../assets/hogar-4.jpg";
 import hogar5Image from "../assets/hogar-5.jpg";
-import inicio2016Image from "../assets/inicio-2016.jpg";
+import inicioAmigos2016Image from "../assets/inicio-amigos-2016.png";
+import inicioFotoHistoriaImage from "../assets/inicio-foto-historia.png";
 import milkaCachorra1Image from "../assets/milka-cachorra-1.jpg";
 import milkaCachorra2Image from "../assets/milka-cachorra-2.jpg";
 import milkaCarrusel1Image from "../assets/milka-carrusel-1.jpg";
@@ -24,9 +26,12 @@ import milkaPortadaParqueImage from "../assets/milka-portada-parque.jpg";
 import milkaPortadaPuertaAzulImage from "../assets/milka-portada-puerta-azul.jpg";
 import milkaPortadaRioImage from "../assets/milka-portada-rio.jpg";
 import milkaRetratoCircularImage from "../assets/milka-retrato-circular.jpg";
-import propuestaAnilloManosImage from "../assets/propuesta-anillo-manos.png";
+import propuestaAnilloNieve2025Image from "../assets/propuesta-anillo-nieve-2025.jpg";
+import propuestaCataAnilloNieve2025Image from "../assets/propuesta-cata-anillo-nieve-2025.jpg";
+import propuestaCataDijoSi2025Image from "../assets/propuesta-cata-dijo-si-2025.jpg";
 import propuestaEigergletscherBgImage from "../assets/propuesta-eigergletscher-bg.png";
-import propuestaFamiliaEigerImage from "../assets/propuesta-familia-eiger.jpg";
+import propuestaFamiliaNieve2025Image from "../assets/propuesta-familia-nieve-2025.jpg";
+import propuestaGrindelwaldFamilia2025Image from "../assets/propuesta-grindelwald-familia-2025.jpg";
 
 export const weddingContent: WeddingContent = {
   couple: "Cata & Javier",
@@ -47,20 +52,17 @@ export const weddingContent: WeddingContent = {
         title: "El inicio",
         moment: "Septiembre de 2016",
         text: "Javier estaba de vacaciones en Colombia y Cata estaba en la fiesta de graduación de nuestro mejor amigo. Allí nos vimos por primera vez, sin imaginar que, después de esa noche, algo comenzaría a cambiar entre nosotros.\nEntre fiesta, risas y una conversación casual, comenzó nuestra historia. Tras una salida, una mirada y un beso que lo cambió todo, Javier volvió a Portugal.",
-        image: inicio2016Image,
-        alt: "Javier con amigos en la fiesta de graduación en Colombia",
+        image: inicioFotoHistoriaImage,
+        alt: "Javier con un amigo en la fiesta de graduación en Colombia",
         images: [
           {
-            src: inicio2016Image,
-            alt: "Javier con amigos en la fiesta de graduación en Colombia",
+            src: inicioFotoHistoriaImage,
+            alt: "Javier con un amigo en la fiesta de graduación en Colombia",
           },
           {
-            src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?auto=format&fit=crop&w=1200&q=80",
-            alt: "Personas celebrando en una fiesta con luces de colores",
-          },
-          {
-            src: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?auto=format&fit=crop&w=1200&q=80",
-            alt: "Brindis en una fiesta con ambiente íntimo",
+            src: inicioAmigos2016Image,
+            alt: "Javier, Cata y amigos en una celebración de 2016",
+            objectPosition: "82% 50%",
           },
         ],
         frame: "polaroid",
@@ -77,16 +79,16 @@ export const weddingContent: WeddingContent = {
             alt: "Vista del ala de un avión sobre las nubes",
           },
           {
-            src: distanciaBusImage,
-            alt: "Cata y Javier viajando juntos en bus",
+            src: distanciaCataJavier2018Image,
+            alt: "Cata y Javier sonriendo juntos durante un reencuentro",
           },
           {
             src: distanciaVueloNubes2Image,
             alt: "Vista de un avión sobre el cielo y las nubes",
           },
           {
-            src: distanciaBogotaImage,
-            alt: "Cata y Javier en Bogotá durante un reencuentro",
+            src: distanciaReencuentro2018Image,
+            alt: "Cata y Javier abrazados durante un reencuentro",
           },
           {
             src: distanciaAmsterdamImage,
@@ -115,16 +117,20 @@ export const weddingContent: WeddingContent = {
             alt: "Cata y Javier con familia durante un viaje en Colombia",
           },
           {
-            src: hogar3Image,
-            alt: "Cata y Javier compartiendo con familia en un restaurante",
+            src: hogarPlaya2023Image,
+            alt: "Cata y Javier abrazados en la playa al atardecer",
           },
           {
             src: hogar4Image,
             alt: "Celebración familiar de año nuevo",
+            objectPosition: "75% 50%",
           },
           {
             src: hogar5Image,
             alt: "Cata y Javier con sus familias en el campo",
+            blurBackground: true,
+            objectFit: "contain",
+            objectPosition: "50% 50%",
           },
         ],
         frame: "polaroid",
@@ -255,27 +261,47 @@ export const weddingContent: WeddingContent = {
     ],
     photos: [
       {
+        src: propuestaCataDijoSi2025Image,
+        alt: "Cata y Javier mostrando el anillo en la nieve después de la propuesta",
+        caption: "Cata dijo que sí",
+        format: "portrait",
+        objectPosition: "50% 28%",
+      },
+      {
         src: propuestaEigergletscherBgImage,
         alt: "Vista amplia de montañas suizas cubiertas de nieve en Eigergletscher",
+        backgroundOnly: true,
         caption: "Eigergletscher, Suiza",
         format: "landscape",
       },
       {
-        src: propuestaFamiliaEigerImage,
-        alt: "Familia reunida en Grindelwald durante el viaje de la propuesta",
+        src: propuestaFamiliaNieve2025Image,
+        alt: "Cata y Javier con sus familias en la nieve durante el viaje de la propuesta",
         caption: "",
         format: "portrait",
+        objectPosition: "50% 36%",
       },
       {
-        src: propuestaAnilloManosImage,
-        alt: "Manos juntas con anillo y paisaje de fondo",
+        src: propuestaGrindelwaldFamilia2025Image,
+        alt: "Cata y Javier con sus familias en Grindelwald",
+        blurBackground: true,
+        caption: "",
+        format: "portrait",
+        objectFit: "cover",
+        objectPosition: "50% 50%",
+      },
+      {
+        src: propuestaCataAnilloNieve2025Image,
+        alt: "Cata sonriendo y mostrando el anillo de compromiso en la nieve",
         caption: "Un recuerdo para siempre",
         format: "square",
+        secondaryAlt: "Mano de Cata mostrando el anillo de compromiso frente a la nieve",
+        secondarySrc: propuestaAnilloNieve2025Image,
       },
     ],
     videoLabel: "Ver video de la propuesta",
     videoUrl: "#video-propuesta",
-    videoPoster: propuestaAnilloManosImage,
+    videoPoster: propuestaAnilloNieve2025Image,
   },
   gallery: {
     title: "Galería — Nuestro camino",
@@ -413,14 +439,13 @@ export const weddingContent: WeddingContent = {
     ],
     ceremony: {
       title: "Ceremonia religiosa",
-      image:
-        "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1800&q=80",
-      imageAlt: "Arco floral en ceremonia al aire libre",
-      venue: "Lugar por confirmar",
-      location: "Tibasosa / Nobsa / Sogamoso",
+      image: capillaInmaculadaImage,
+      imageAlt: "Capilla De La Inmaculada en Tibasosa",
+      venue: "Capilla De La Inmaculada",
+      location: "Dg. 3 #121, Tibasosa, Boyacá",
       time: "2:30 pm",
       locationCtaLabel: "Ver ubicación",
-      locationCtaHref: "https://www.google.com/maps/search/?api=1&query=Tibasosa%20Nobsa%20Sogamoso",
+      locationCtaHref: "https://maps.app.goo.gl/VosoWe88QpCFpbXP7",
     },
     reception: {
       title: "Recepción",

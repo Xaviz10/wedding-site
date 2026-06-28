@@ -178,7 +178,7 @@ function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock): Weddi
       number: "01",
       title: ceremony.title,
       subtitle: ceremony.venue,
-      body: "El día empieza con la ceremonia religiosa. Nos encontraremos para vivir juntos este momento antes de seguir hacia la celebración.",
+      body: "Comenzaremos el día con la ceremonia religiosa, el momento en que recibiremos el sacramento del matrimonio y celebraremos nuestra unión ante Dios.",
       details: [
         { label: "Hora", value: ceremony.time },
         { label: "Dónde", value: ceremony.location ?? "Ubicación por confirmar" },

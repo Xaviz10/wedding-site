@@ -215,14 +215,28 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
             {slides.map((slide, slideIndex) => (
               <div
                 key={`${beat.title}-slide-${slideIndex}`}
-                className="h-full w-full shrink-0 snap-center"
+                className="relative h-full w-full shrink-0 snap-center overflow-hidden bg-[var(--color-forest)]"
                 role={hasMultipleSlides ? "group" : undefined}
                 aria-label={hasMultipleSlides ? `${slideIndex + 1} de ${slides.length}` : undefined}
               >
+                {slide.blurBackground && (
+                  <img
+                    src={slide.src}
+                    alt=""
+                    aria-hidden
+                    className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
+                    loading="lazy"
+                  />
+                )}
                 <img
                   src={slide.src}
                   alt={slide.alt}
-                  className="h-full w-full object-cover"
+                  className="relative z-10 h-full w-full object-cover"
+                  style={
+                    slide.objectFit || slide.objectPosition
+                      ? { objectFit: slide.objectFit, objectPosition: slide.objectPosition }
+                      : undefined
+                  }
                   loading="lazy"
                 />
               </div>

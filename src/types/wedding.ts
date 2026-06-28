@@ -4,6 +4,9 @@ export type StoryFrame = "instant" | "polaroid" | "postcard";
 export interface StoryBeatImage {
   src: string;
   alt: string;
+  blurBackground?: boolean;
+  objectFit?: "cover" | "contain";
+  objectPosition?: string;
 }
 
 export interface HeroContent {
@@ -45,8 +48,14 @@ export interface ProposalBeat {
 export interface ProposalPhoto {
   src: string;
   alt: string;
+  backgroundOnly?: boolean;
+  blurBackground?: boolean;
   caption: string;
   format: PhotoFormat;
+  objectFit?: "cover" | "contain";
+  objectPosition?: string;
+  secondaryAlt?: string;
+  secondarySrc?: string;
 }
 
 export interface GalleryPhoto {

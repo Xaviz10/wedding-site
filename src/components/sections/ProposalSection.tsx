@@ -51,7 +51,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
   const proposalCarouselRef = useRef<HTMLDivElement | null>(null);
   const backgroundPhoto = content.photos.find((photo) => photo.format === "landscape") ?? content.photos[0];
   const ringPhoto = content.photos.find((photo) => photo.format === "square") ?? content.photos[2] ?? content.photos[0];
-  const proposalSlides = [ringPhoto, ...content.photos.filter((photo) => photo.src !== ringPhoto.src)];
+  const proposalSlides = [ringPhoto, ...content.photos.filter((photo) => photo.src !== ringPhoto.src && !photo.backgroundOnly)];
   const [activeProposalSlide, setActiveProposalSlide] = useState(0);
   const proposalParagraphs = content.beats.filter((beat) => !beat.emphasis).slice(0, 2);
   const plainBeats = content.beats.filter((beat) => !beat.emphasis);
@@ -399,17 +399,53 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
                   {proposalSlides.map((photo, slideIndex) => (
                     <div
                       key={photo.src}
-                      className="h-full w-full shrink-0 snap-center"
+                      className="relative h-full w-full shrink-0 snap-center overflow-hidden bg-[var(--color-forest)]"
                       role="group"
                       aria-label={`${slideIndex + 1} de ${proposalSlides.length}`}
                     >
+                      {photo.secondarySrc ? (
+                        <div className="relative z-10 grid h-full w-full grid-cols-2">
+                          <img
+                            src={photo.src}
+                            alt={photo.alt}
+                            className="h-full w-full object-cover object-center"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          <img
+                            src={photo.secondarySrc}
+                            alt={photo.secondaryAlt ?? ""}
+                            className="h-full w-full object-cover object-center"
+                            loading="lazy"
+                            decoding="async"
+                          />
+                        </div>
+                      ) : (
+                        <>
+                      {photo.blurBackground && (
+                        <img
+                          src={photo.src}
+                          alt=""
+                          aria-hidden
+                          className="absolute inset-0 h-full w-full scale-110 object-cover opacity-62 blur-2xl"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
                       <img
                         src={photo.src}
                         alt={photo.alt}
-                        className="h-full w-full object-cover"
+                        className="relative z-10 h-full w-full object-cover"
+                        style={
+                          photo.objectFit || photo.objectPosition
+                            ? { objectFit: photo.objectFit, objectPosition: photo.objectPosition }
+                            : undefined
+                        }
                         loading="lazy"
                         decoding="async"
                       />
+                        </>
+                      )}
                     </div>
                   ))}
                 </motion.div>
