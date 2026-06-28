@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useCallback, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { WeddingContent } from "../../types/wedding";
 
 interface ProposalSectionProps {
@@ -53,6 +53,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
   const ringPhoto = content.photos.find((photo) => photo.format === "square") ?? content.photos[2] ?? content.photos[0];
   const proposalSlides = [ringPhoto, ...content.photos.filter((photo) => photo.src !== ringPhoto.src && !photo.backgroundOnly)];
   const [activeProposalSlide, setActiveProposalSlide] = useState(0);
+  const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const proposalParagraphs = content.beats.filter((beat) => !beat.emphasis).slice(0, 2);
   const plainBeats = content.beats.filter((beat) => !beat.emphasis);
   const yesBeat = content.beats.find((beat) => beat.emphasis === "highlight");
@@ -71,6 +72,25 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
     duration: shouldReduceMotion ? 0 : 1.15,
     ease: [0.16, 1, 0.3, 1] as const,
   };
+
+  useEffect(() => {
+    if (!isVideoModalOpen) return;
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsVideoModalOpen(false);
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isVideoModalOpen]);
 
   const syncProposalSlide = useCallback(
     (target: HTMLDivElement) => {
@@ -482,15 +502,16 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
               )}
             </motion.figure>
 
-            <motion.a
+            <motion.button
               id="video-propuesta"
-              href={content.videoUrl}
+              type="button"
+              onClick={() => setIsVideoModalOpen(true)}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, amount: 0.4 }}
               variants={fadeUp}
               transition={{ ...motionTransition, delay: shouldReduceMotion ? 0 : 0.08 }}
-              className="group relative block overflow-hidden rounded-[6px] shadow-[0_24px_52px_rgba(36,41,31,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-olive)] lg:col-span-3"
+              className="group relative block overflow-hidden rounded-[6px] text-left shadow-[0_24px_52px_rgba(36,41,31,0.14)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-olive)] lg:col-span-3"
               aria-label={content.videoLabel}
             >
               <div className="aspect-video w-full bg-[var(--color-forest)]">
@@ -528,7 +549,7 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
                   Video de la propuesta
                 </p>
               </div>
-            </motion.a>
+            </motion.button>
 
             <motion.div
               initial="hidden"
@@ -543,17 +564,66 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
                   “{videoBeat.text}”
                 </p>
               )}
-              <a
-                href={content.videoUrl}
-                className="inline-flex w-fit items-center gap-3 border-b border-[var(--color-forest)]/40 pb-2 text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-forest)] transition duration-300 hover:border-[var(--color-forest)] hover:text-[var(--color-forest)]/72 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-olive)]"
+              <button
+                type="button"
+                onClick={() => setIsVideoModalOpen(true)}
+                className="inline-flex w-fit items-center gap-3 border-b border-[var(--color-forest)]/40 pb-2 text-left text-[0.72rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-forest)] transition duration-300 hover:border-[var(--color-forest)] hover:text-[var(--color-forest)]/72 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-olive)]"
               >
                 {content.videoLabel}
                 <span aria-hidden>→</span>
-              </a>
+              </button>
             </motion.div>
           </div>
         </div>
       </section>
+
+      {isVideoModalOpen && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-[rgba(10,12,8,0.78)] px-5 py-6 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Video de la propuesta"
+          onClick={() => setIsVideoModalOpen(false)}
+        >
+          <motion.div
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 24, scale: 0.96 }}
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.38, ease: [0.16, 1, 0.3, 1] }}
+            className="relative max-h-[92svh] w-full max-w-[28rem]"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsVideoModalOpen(false)}
+              className="absolute -right-2 -top-12 inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/12 text-2xl leading-none text-white backdrop-blur-md transition hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:-right-12 md:top-0"
+              aria-label="Cerrar video"
+            >
+              ×
+            </button>
+
+            <div className="relative aspect-[9/16] max-h-[92svh] overflow-hidden rounded-[10px] bg-[var(--color-forest)] shadow-[0_34px_90px_rgba(0,0,0,0.42)]">
+              {content.videoUrl ? (
+                <iframe
+                  src={content.videoUrl}
+                  title="Video de la propuesta"
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center text-[#fff8e8]">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#fff8e8]/94 text-[var(--color-forest)] shadow-[0_14px_32px_rgba(0,0,0,0.24)]" aria-hidden>
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="ml-1 h-7 w-7">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </span>
+                  <p className="font-editorial text-xl italic leading-tight">Aquí irá el video de la propuesta.</p>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      )}
     </section>
   );
 }
