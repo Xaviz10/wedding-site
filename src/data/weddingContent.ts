@@ -29,7 +29,7 @@ import milkaRetratoCircularImage from "../assets/milka-retrato-circular.jpg";
 import propuestaAnilloNieve2025Image from "../assets/propuesta-anillo-nieve-2025.jpg";
 import propuestaCataAnilloNieve2025Image from "../assets/propuesta-cata-anillo-nieve-2025.jpg";
 import propuestaCataDijoSi2025Image from "../assets/propuesta-cata-dijo-si-2025.jpg";
-import propuestaEigergletscherBgImage from "../assets/propuesta-eigergletscher-bg.png";
+import propuestaEigergletscherBgImage from "../assets/Frame-27-06-2026-09-17-07.jpeg";
 import propuestaFamiliaNieve2025Image from "../assets/propuesta-familia-nieve-2025.jpg";
 import propuestaGrindelwaldFamilia2025Image from "../assets/propuesta-grindelwald-familia-2025.jpg";
 

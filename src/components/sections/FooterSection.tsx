@@ -1,5 +1,5 @@
 import { motion, useReducedMotion } from "framer-motion";
-import fincaLaMaraImage from "../../assets/finca-la-mara.avif";
+import footerBackgroundImage from "../../assets/hero-img-1531.jpg";
 import type { WeddingContent } from "../../types/wedding";
 
 interface FooterSectionProps {
@@ -27,8 +27,8 @@ export default function FooterSection({ couple, date, content }: FooterSectionPr
         transition={{ duration: shouldReduceMotion ? 0 : 2.2, ease: EASE }}
       >
         <img
-          src={fincaLaMaraImage}
-          alt="Finca La Mara, lugar de celebración"
+          src={footerBackgroundImage}
+          alt="Foto de fondo del footer"
           className="h-full w-full object-cover object-center"
           loading="lazy"
           decoding="async"
