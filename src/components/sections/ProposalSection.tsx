@@ -607,8 +607,10 @@ export default function ProposalSection({ content }: ProposalSectionProps) {
                   src={content.videoUrl}
                   title="Video de la propuesta"
                   className="h-full w-full"
+                  loading="lazy"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               ) : (
                 <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-8 text-center text-[#fff8e8]">

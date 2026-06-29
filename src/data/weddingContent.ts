@@ -300,7 +300,7 @@ export const weddingContent: WeddingContent = {
       },
     ],
     videoLabel: "Ver video de la propuesta",
-    videoUrl: "#video-propuesta",
+    videoUrl: "https://www.youtube-nocookie.com/embed/QQmBa2mqOMU?autoplay=1&playsinline=1&rel=0",
     videoPoster: propuestaAnilloNieve2025Image,
   },
   gallery: {

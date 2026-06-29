@@ -20,7 +20,7 @@ interface WeddingMoment {
     label: string;
     value: string;
   }>;
-  supportText: string;
+  supportText?: string;
   ctaLabel: string;
   ctaHref: string;
   image: string;
@@ -150,9 +150,11 @@ function WeddingMomentPanel({ moment, index, progress, isActive, shouldReduceMot
           ))}
         </div>
 
-        <p className="mt-3 text-[0.82rem] leading-[1.45] text-[color-mix(in_oklab,var(--color-gold)_74%,var(--color-ivory)_26%)] md:mt-4 md:text-[0.95rem] md:leading-[1.55]">
-          {moment.supportText}
-        </p>
+        {moment.supportText && (
+          <p className="mt-3 text-[0.82rem] leading-[1.45] text-[color-mix(in_oklab,var(--color-gold)_74%,var(--color-ivory)_26%)] md:mt-4 md:text-[0.95rem] md:leading-[1.55]">
+            {moment.supportText}
+          </p>
+        )}
 
         {moment.ctaHref && (
           <a
@@ -183,7 +185,6 @@ function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock): Weddi
         { label: "Hora", value: ceremony.time },
         { label: "Dónde", value: ceremony.location ?? "Ubicación por confirmar" },
       ],
-      supportText: "La ubicación exacta ya está lista para abrirla en el mapa.",
       ctaLabel: ceremony.locationCtaLabel,
       ctaHref: ceremony.locationCtaHref,
       image: ceremony.image,
@@ -199,7 +200,6 @@ function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock): Weddi
         { label: "Hora", value: reception.time },
         { label: "Dónde", value: reception.location ?? "Ubicación por confirmar" },
       ],
-      supportText: "La ubicación exacta ya está lista para abrirla en el mapa.",
       ctaLabel: reception.locationCtaLabel,
       ctaHref: reception.locationCtaHref,
       image: reception.image,

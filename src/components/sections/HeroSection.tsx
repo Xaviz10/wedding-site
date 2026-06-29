@@ -36,7 +36,7 @@ const heroSlides = [
     src: heroImage0892,
     alt: "Cata y Javier en una montaña nevada",
     mobilePosition: "55% 54%",
-    desktopPosition: "55% 55%",
+    desktopPosition: "55% 36%",
   },
   {
     src: heroImage20190828,
