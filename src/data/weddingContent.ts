@@ -466,7 +466,7 @@ export const weddingContent: WeddingContent = {
       ],
       examples: [
         "Traje formal, sin chaleco.",
-        "No usar azul.",
+        "Evitar únicamente el azul de referencia.",
       ],
       womenExamples: [
         "Vestido largo. Unicolor.",

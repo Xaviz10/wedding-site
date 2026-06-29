@@ -360,6 +360,7 @@ interface DressSuggestionProps {
 }
 
 function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, shouldReduceMotion }: DressSuggestionProps) {
+  const restrictionCaption = restrictedTones.length === 1 ? "Evitar este tono" : "Evitar estos tonos";
   const itemVariants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
     visible: { opacity: 1, y: 0 },
@@ -379,7 +380,7 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
           },
         },
       }}
-      className="grid min-w-0 justify-items-center text-center"
+      className="flex h-full min-w-0 flex-col items-center text-center"
     >
       <motion.p
         variants={itemVariants}
@@ -406,7 +407,7 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
       <motion.p
         variants={itemVariants}
         transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="font-editorial mt-3 max-w-[12rem] text-[clamp(1.08rem,3.2vw,1.82rem)] italic leading-[1.08] text-[var(--color-forest)] md:mt-5 md:max-w-[18rem] md:text-[clamp(1.1rem,1.7vw,1.5rem)]"
+        className="font-editorial mt-3 flex min-h-[3.25rem] max-w-[12rem] items-start justify-center text-[clamp(1.08rem,3.2vw,1.82rem)] italic leading-[1.08] text-[var(--color-forest)] md:mt-5 md:min-h-[2rem] md:max-w-[18rem] md:text-[clamp(1.1rem,1.7vw,1.5rem)]"
       >
         {lead}
       </motion.p>
@@ -444,30 +445,39 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
             },
           },
         }}
-        className="mt-3 flex flex-wrap justify-center gap-1.5 md:mt-4 md:gap-2"
+        className="mt-4 grid justify-items-center gap-2.5 md:mt-5"
         aria-label={`Tonos no permitidos para ${label.toLowerCase()}`}
       >
-        {restrictedTones.map((tone) => (
-          <motion.span
-            key={tone.label}
-            variants={{
-              hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.86, y: shouldReduceMotion ? 0 : 8 },
-              visible: { opacity: 1, scale: 1, y: 0 },
-            }}
-            whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.03 }}
-            transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-[var(--color-gold)]/55 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[color-mix(in_oklab,var(--color-terracotta)_74%,var(--color-forest)_26%)] md:text-[0.64rem]"
-          >
-            <span
-              className="relative h-4 w-4 overflow-hidden rounded-full"
-              style={{ background: tone.background, border: `1px solid ${tone.border ?? "rgba(36,41,31,0.12)"}` }}
-              aria-hidden
+        <motion.p
+          variants={itemVariants}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
+          className="text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-[color-mix(in_oklab,var(--color-terracotta)_88%,var(--color-forest)_12%)] md:text-[0.64rem] md:tracking-[0.22em]"
+        >
+          {restrictionCaption}
+        </motion.p>
+        <div className="flex flex-wrap justify-center gap-2 md:gap-2.5">
+          {restrictedTones.map((tone) => (
+            <motion.span
+              key={tone.label}
+              variants={{
+                hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.86, y: shouldReduceMotion ? 0 : 8 },
+                visible: { opacity: 1, scale: 1, y: 0 },
+              }}
+              whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.03 }}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: [0.16, 1, 0.3, 1] }}
+              className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--color-terracotta)_42%,var(--color-gold)_58%)] bg-[color-mix(in_oklab,white_66%,var(--color-ivory)_34%)] px-2.5 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[color-mix(in_oklab,var(--color-terracotta)_78%,var(--color-forest)_22%)] shadow-[0_8px_18px_rgba(36,41,31,0.06)] md:px-3 md:text-[0.64rem]"
             >
-              <span className="absolute left-1/2 top-1/2 h-[1.5px] w-6 -translate-x-1/2 -translate-y-1/2 rotate-[-38deg] bg-[color-mix(in_oklab,var(--color-terracotta)_78%,var(--color-forest)_22%)]" />
-            </span>
-            {tone.label}
-          </motion.span>
-        ))}
+              <span
+                className="relative h-5 w-5 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgba(36,41,31,0.16)]"
+                style={{ background: tone.background, border: `1px solid ${tone.border ?? "rgba(36,41,31,0.12)"}` }}
+                aria-hidden
+              >
+                <span className="absolute left-1/2 top-1/2 h-[2px] w-8 -translate-x-1/2 -translate-y-1/2 rotate-[-38deg] bg-[color-mix(in_oklab,#8f4813_82%,var(--color-forest)_18%)] shadow-[0_0_0_1px_rgba(246,245,241,0.62)]" />
+              </span>
+              No usar {tone.label.toLowerCase()}
+            </motion.span>
+          ))}
+        </div>
       </motion.div>
     </motion.div>
   );
@@ -609,7 +619,7 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
             lead={menSuggestion.lead}
             bullets={menSuggestion.bullets}
             type="men"
-            restrictedTones={[{ label: "Azul", background: "#17264d" }]}
+            restrictedTones={[{ label: "Este azul", background: "#17264d" }]}
             delay={0.05}
             shouldReduceMotion={shouldReduceMotion}
           />
