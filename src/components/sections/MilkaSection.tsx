@@ -10,7 +10,7 @@ interface MilkaSectionProps {
 const EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
 const STORY_IMAGE_INDEX = 0;
 const MESSAGE_IMAGE_INDEX = 0;
-const MILKA_BACKGROUND_INTERVAL_MS = 30 * 1000;
+const MILKA_BACKGROUND_INTERVAL_MS = 8 * 1000;
 function cx(...parts: Array<string | false | undefined>) {
   return parts.filter(Boolean).join(" ");
 }

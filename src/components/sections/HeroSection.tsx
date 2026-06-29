@@ -23,7 +23,7 @@ const SECOND_IN_MS = 1000;
 const MINUTE_IN_MS = 60 * SECOND_IN_MS;
 const HOUR_IN_MS = 60 * MINUTE_IN_MS;
 const DAY_IN_MS = 24 * HOUR_IN_MS;
-const HERO_IMAGE_INTERVAL_MS = 30 * SECOND_IN_MS;
+const HERO_IMAGE_INTERVAL_MS = 8 * SECOND_IN_MS;
 
 const heroSlides = [
   {
@@ -31,24 +31,28 @@ const heroSlides = [
     alt: "Cata y Javier",
     mobilePosition: "50% 44%",
     desktopPosition: "50% 42%",
-  },
-  {
-    src: heroImage0892,
-    alt: "Cata y Javier en una montaña nevada",
-    mobilePosition: "55% 54%",
-    desktopPosition: "55% 36%",
+    desktopImageClassName: "md:left-[-16%] md:w-[116%]",
   },
   {
     src: heroImage20190828,
     alt: "Cata y Javier en una estructura de piedra",
     mobilePosition: "60% 100%",
-    desktopPosition: "51% 57%",
+    desktopPosition: "68% 72%",
+    desktopImageClassName: "md:w-[108%]",
+  },
+  {
+    src: heroImage0892,
+    alt: "Cata y Javier en una montaña nevada",
+    mobilePosition: "55% 54%",
+    desktopPosition: "58% 24%",
+    desktopImageClassName: "md:w-[108%]",
   },
   {
     src: heroImageJkm0396,
     alt: "Cata y Javier en una celebración",
-    mobilePosition: "54% 50%",
+    mobilePosition: "50% 50%",
     desktopPosition: "54% 50%",
+    desktopImageClassName: "translate-y-[7%] md:translate-y-0",
   },
 ] as const;
 
@@ -240,7 +244,12 @@ export default function HeroSection({ content }: HeroSectionProps) {
             }}
             src={activeHeroSlide.src}
             alt={activeHeroSlide.alt}
-            className="absolute inset-0 h-full w-full object-cover [object-position:var(--hero-mobile-position)] md:[object-position:var(--hero-desktop-position)]"
+            className={[
+              "absolute inset-0 h-full w-full max-w-none object-cover [object-position:var(--hero-mobile-position)] md:[object-position:var(--hero-desktop-position)]",
+              "desktopImageClassName" in activeHeroSlide ? activeHeroSlide.desktopImageClassName : undefined,
+            ]
+              .filter(Boolean)
+              .join(" ")}
             style={
               {
                 "--hero-mobile-position": activeHeroSlide.mobilePosition,
