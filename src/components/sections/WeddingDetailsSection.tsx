@@ -232,8 +232,8 @@ function WeddingDetailsStory({ ceremony, reception, shouldReduceMotion }: Weddin
   }, [progress]);
 
   return (
-    <div ref={containerRef} className="relative h-[240svh] bg-[#15100d]" aria-labelledby="gran-dia-title">
-      <div className="sticky top-0 h-[100svh] overflow-hidden bg-[#15100d] text-[var(--color-ivory)]">
+    <div ref={containerRef} className="relative h-[240dvh] min-h-[240svh] bg-[#15100d]" aria-labelledby="gran-dia-title">
+      <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-[#15100d] text-[var(--color-ivory)]">
         <h2 id="gran-dia-title" className="sr-only">
           El Gran Día
         </h2>
