@@ -360,7 +360,8 @@ interface DressSuggestionProps {
 }
 
 function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, shouldReduceMotion }: DressSuggestionProps) {
-  const restrictionCaption = restrictedTones.length === 1 ? "Evitar este tono" : "Evitar estos tonos";
+  const restrictionCaption = restrictedTones.length === 1 ? "Tono a evitar" : "Paleta a evitar";
+  const paletteGridClass = restrictedTones.length === 1 ? "grid-cols-1" : "grid-cols-3";
   const itemVariants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
     visible: { opacity: 1, y: 0 },
@@ -412,7 +413,7 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
         {lead}
       </motion.p>
       {bullets.length > 0 && (
-        <motion.ul
+        <motion.div
           variants={{
             hidden: {},
             visible: {
@@ -421,20 +422,19 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
               },
             },
           }}
-          className="mt-3 grid gap-1.5 text-left text-[0.78rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.85rem] md:leading-[1.4]"
+          className="mt-3 grid gap-1.5 text-left text-[0.76rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.84rem] md:leading-[1.4]"
         >
           {bullets.map((bullet) => (
-            <motion.li
+            <motion.p
               key={bullet}
               variants={itemVariants}
               transition={{ duration: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
-              className="flex items-start gap-3"
+              className="m-0 border-l border-[color-mix(in_oklab,var(--color-terracotta)_38%,var(--color-gold)_62%)] pl-3"
             >
-              <span className="mt-[0.62em] h-1.5 w-1.5 flex-none rounded-full bg-[color-mix(in_oklab,var(--color-terracotta)_66%,var(--color-gold)_34%)]" aria-hidden />
-              <span>{bullet}</span>
-            </motion.li>
+              {bullet}
+            </motion.p>
           ))}
-        </motion.ul>
+        </motion.div>
       )}
       <motion.div
         variants={{
@@ -455,9 +455,9 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
         >
           {restrictionCaption}
         </motion.p>
-        <div className="flex flex-wrap justify-center gap-2 md:gap-2.5">
+        <div className={`grid ${paletteGridClass} justify-center gap-1.5 md:gap-2.5`}>
           {restrictedTones.map((tone) => (
-            <motion.span
+            <motion.figure
               key={tone.label}
               variants={{
                 hidden: { opacity: 0, scale: shouldReduceMotion ? 1 : 0.86, y: shouldReduceMotion ? 0 : 8 },
@@ -465,17 +465,19 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
               }}
               whileHover={shouldReduceMotion ? undefined : { y: -2, scale: 1.03 }}
               transition={{ duration: shouldReduceMotion ? 0 : 0.55, ease: [0.16, 1, 0.3, 1] }}
-              className="inline-flex min-h-9 items-center gap-2 rounded-full border border-[color-mix(in_oklab,var(--color-terracotta)_42%,var(--color-gold)_58%)] bg-[color-mix(in_oklab,white_66%,var(--color-ivory)_34%)] px-2.5 py-1.5 text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[color-mix(in_oklab,var(--color-terracotta)_78%,var(--color-forest)_22%)] shadow-[0_8px_18px_rgba(36,41,31,0.06)] md:px-3 md:text-[0.64rem]"
+              className="m-0 grid justify-items-center gap-1.5"
             >
               <span
-                className="relative h-5 w-5 overflow-hidden rounded-full shadow-[inset_0_0_0_1px_rgba(36,41,31,0.16)]"
+                className="relative h-11 w-11 overflow-hidden rounded-[6px] border bg-white shadow-[inset_0_0_0_1px_rgba(36,41,31,0.14),0_8px_18px_rgba(36,41,31,0.08)] md:h-14 md:w-14"
                 style={{ background: tone.background, border: `1px solid ${tone.border ?? "rgba(36,41,31,0.12)"}` }}
                 aria-hidden
               >
-                <span className="absolute left-1/2 top-1/2 h-[2px] w-8 -translate-x-1/2 -translate-y-1/2 rotate-[-38deg] bg-[color-mix(in_oklab,#8f4813_82%,var(--color-forest)_18%)] shadow-[0_0_0_1px_rgba(246,245,241,0.62)]" />
+                <span className="absolute left-1/2 top-1/2 h-[2.5px] w-16 -translate-x-1/2 -translate-y-1/2 rotate-[-38deg] bg-[color-mix(in_oklab,#8f4813_86%,var(--color-forest)_14%)] shadow-[0_0_0_1px_rgba(246,245,241,0.7)]" />
               </span>
-              No usar {tone.label.toLowerCase()}
-            </motion.span>
+              <figcaption className="max-w-[4.4rem] text-center text-[0.48rem] font-semibold uppercase leading-[1.1] tracking-[0.08em] text-[color-mix(in_oklab,var(--color-terracotta)_78%,var(--color-forest)_22%)] md:max-w-[5.4rem] md:text-[0.58rem]">
+                {tone.label}
+              </figcaption>
+            </motion.figure>
           ))}
         </div>
       </motion.div>
@@ -619,7 +621,7 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
             lead={menSuggestion.lead}
             bullets={menSuggestion.bullets}
             type="men"
-            restrictedTones={[{ label: "Este azul", background: "#17264d" }]}
+            restrictedTones={[{ label: "Azul oscuro", background: "#17264d" }]}
             delay={0.05}
             shouldReduceMotion={shouldReduceMotion}
           />
