@@ -29,7 +29,7 @@ export default function FooterSection({ couple, date, content }: FooterSectionPr
         <img
           src={footerBackgroundImage}
           alt="Foto de fondo del footer"
-          className="h-full w-full object-cover object-center"
+          className="h-full w-[132%] max-w-none -translate-x-[22%] object-cover object-[54%_76%]"
           loading="lazy"
           decoding="async"
         />
