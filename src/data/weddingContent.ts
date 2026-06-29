@@ -10,7 +10,6 @@ import fincaLaMaraImage from "../assets/finca-la-mara.avif";
 import hogar1Image from "../assets/hogar-1.jpg";
 import hogar2Image from "../assets/hogar-2.jpg";
 import hogarPlaya2023Image from "../assets/hogar-playa-2023.jpg";
-import hogar4Image from "../assets/hogar-4.jpg";
 import hogar5Image from "../assets/hogar-5.jpg";
 import inicioAmigos2016Image from "../assets/inicio-amigos-2016.png";
 import inicioFotoHistoriaImage from "../assets/inicio-foto-historia.png";
@@ -119,11 +118,6 @@ export const weddingContent: WeddingContent = {
           {
             src: hogarPlaya2023Image,
             alt: "Cata y Javier abrazados en la playa al atardecer",
-          },
-          {
-            src: hogar4Image,
-            alt: "Celebración familiar de año nuevo",
-            objectPosition: "75% 50%",
           },
           {
             src: hogar5Image,

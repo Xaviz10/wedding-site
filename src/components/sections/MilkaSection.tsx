@@ -66,7 +66,7 @@ function getMilkaBackgroundPosition(photo: MilkaPhoto, index: number) {
   }
 
   if (photo.alt.includes("puerta azul")) {
-    return { mobile: "50% 64%", desktop: "48% 57%" };
+    return { mobile: "50% 88%", desktop: "48% 86%" };
   }
 
   if (photo.alt.includes("río")) {
