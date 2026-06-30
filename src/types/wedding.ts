@@ -93,6 +93,16 @@ export interface DressCodeConfig {
   guidance: string[];
   examples?: string[];
   womenExamples?: string[];
+  suggestions?: {
+    label: string;
+    href: string;
+  };
+  gift?: {
+    title: string;
+    description?: string;
+    text: string;
+    image: string;
+  };
   note: string;
 }
 
@@ -144,6 +154,7 @@ export interface WeddingContent {
     paragraphs: string[];
     ceremony: EventBlock;
     reception: EventBlock;
+    timingImage: string;
     timeline: WeddingTimelineItem[];
     dressCode: DressCodeConfig;
   };

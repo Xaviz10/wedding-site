@@ -94,6 +94,7 @@ function WeddingBackgroundLayer({ moment, index, momentCount, progress, shouldRe
     moment.align === "right"
       ? "linear-gradient(90deg, rgba(18, 14, 11, 0.04) 0%, rgba(18, 14, 11, 0.18) 42%, rgba(18, 14, 11, 0.8) 82%, rgba(18, 14, 11, 0.94) 100%)"
       : "linear-gradient(90deg, rgba(18, 14, 11, 0.94) 0%, rgba(18, 14, 11, 0.78) 24%, rgba(18, 14, 11, 0.2) 62%, rgba(18, 14, 11, 0.04) 100%)";
+  const isTimeline = Boolean(moment.timeline?.length);
 
   return (
     <motion.div className="absolute inset-0 z-0 overflow-hidden" style={{ opacity }} aria-hidden>
@@ -109,9 +110,15 @@ function WeddingBackgroundLayer({ moment, index, momentCount, progress, shouldRe
           y,
         }}
       />
-      <div className="absolute inset-0 bg-[rgba(22,16,12,0.28)]" />
-      <div className="absolute inset-0 hidden md:block" style={{ background: sideGradient }} />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(16,12,9,0.44)_0%,rgba(16,12,9,0.08)_38%,rgba(16,12,9,0.72)_100%)] md:bg-[radial-gradient(circle_at_50%_45%,rgba(255,247,230,0.08)_0%,rgba(16,12,9,0.28)_48%,rgba(16,12,9,0.68)_100%)]" />
+      <div className={`absolute inset-0 ${isTimeline ? "bg-[rgba(10,8,6,0.34)]" : "bg-[rgba(22,16,12,0.28)]"}`} />
+      {!isTimeline && <div className="absolute inset-0 hidden md:block" style={{ background: sideGradient }} />}
+      <div
+        className={
+          isTimeline
+            ? "absolute inset-0 bg-[linear-gradient(180deg,rgba(10,8,6,0.34)_0%,rgba(10,8,6,0.26)_42%,rgba(10,8,6,0.48)_100%)]"
+            : "absolute inset-0 bg-[linear-gradient(180deg,rgba(16,12,9,0.44)_0%,rgba(16,12,9,0.08)_38%,rgba(16,12,9,0.72)_100%)] md:bg-[radial-gradient(circle_at_50%_45%,rgba(255,247,230,0.08)_0%,rgba(16,12,9,0.28)_48%,rgba(16,12,9,0.68)_100%)]"
+        }
+      />
     </motion.div>
   );
 }
@@ -371,7 +378,12 @@ function WeddingMomentPanel({ moment, index, momentCount, progress, isActive, sh
   );
 }
 
-function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock, timeline: WeddingTimelineItem[]): WeddingMoment[] {
+function buildWeddingMoments(
+  ceremony: EventBlock,
+  reception: EventBlock,
+  timeline: WeddingTimelineItem[],
+  timingImage: string,
+): WeddingMoment[] {
   return [
     {
       number: "01",
@@ -405,13 +417,13 @@ function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock, timeli
     },
     {
       number: "03",
-      title: "Timeline",
-      subtitle: "Cronograma de la boda",
+      title: "Timing",
+      subtitle: "",
       body: "",
       details: [],
       timeline,
-      image: reception.image,
-      imagePosition: "48% 50%",
+      image: timingImage,
+      imagePosition: "50% 50%",
       align: "right",
     },
   ];
@@ -420,14 +432,15 @@ function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock, timeli
 interface WeddingDetailsStoryProps {
   ceremony: EventBlock;
   reception: EventBlock;
+  timingImage: string;
   timeline: WeddingTimelineItem[];
   shouldReduceMotion: boolean;
 }
 
-function WeddingDetailsStory({ ceremony, reception, timeline, shouldReduceMotion }: WeddingDetailsStoryProps) {
+function WeddingDetailsStory({ ceremony, reception, timingImage, timeline, shouldReduceMotion }: WeddingDetailsStoryProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [activeMomentIndex, setActiveMomentIndex] = useState(0);
-  const moments = buildWeddingMoments(ceremony, reception, timeline);
+  const moments = buildWeddingMoments(ceremony, reception, timeline, timingImage);
   const momentCount = moments.length;
   const storyHeight = `${120 * momentCount}dvh`;
   const storyMinHeight = `${120 * momentCount}svh`;
@@ -491,6 +504,12 @@ function WeddingDetailsStory({ ceremony, reception, timeline, shouldReduceMotion
 interface DressCodeNoteProps {
   config: DressCodeConfig;
   step: number;
+  shouldReduceMotion: boolean;
+}
+
+interface GiftNoteProps {
+  gift: NonNullable<DressCodeConfig["gift"]>;
+  backgroundImage: string;
   shouldReduceMotion: boolean;
 }
 
@@ -565,6 +584,28 @@ function ChampagneToastIcon({ className }: { className?: string }) {
   );
 }
 
+function GiftEnvelopeIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 96 72" fill="none" className={className} aria-hidden>
+      <path
+        d="M14 18h68v40H14z"
+        fill="color-mix(in oklab, white 80%, var(--color-gold) 20%)"
+        stroke="var(--color-terracotta)"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m15 19 33 25 33-25M16 58l23-22M80 58 57 36"
+        stroke="var(--color-terracotta)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M48 9v-5M38 12l-5-6M58 12l5-6" stroke="var(--color-gold)" strokeWidth="2.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 interface DressSuggestionProps {
   label: string;
   lead: string;
@@ -580,7 +621,7 @@ interface DressSuggestionProps {
 }
 
 function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, shouldReduceMotion }: DressSuggestionProps) {
-  const restrictionCaption = restrictedTones.length === 1 ? "Tono a evitar" : "Paleta a evitar";
+  const restrictionCaption = "Colores a evitar";
   const paletteGridClass = restrictedTones.length === 1 ? "grid-cols-1" : "grid-cols-3";
   const itemVariants = {
     hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
@@ -632,30 +673,6 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
       >
         {lead}
       </motion.p>
-      {bullets.length > 0 && (
-        <motion.div
-          variants={{
-            hidden: {},
-            visible: {
-              transition: {
-                staggerChildren: shouldReduceMotion ? 0 : 0.06,
-              },
-            },
-          }}
-          className="mt-3 grid gap-1.5 text-left text-[0.76rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.84rem] md:leading-[1.4]"
-        >
-          {bullets.map((bullet) => (
-            <motion.p
-              key={bullet}
-              variants={itemVariants}
-              transition={{ duration: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
-              className="m-0 border-l border-[color-mix(in_oklab,var(--color-terracotta)_38%,var(--color-gold)_62%)] pl-3"
-            >
-              {bullet}
-            </motion.p>
-          ))}
-        </motion.div>
-      )}
       <motion.div
         variants={{
           hidden: {},
@@ -701,6 +718,30 @@ function DressSuggestion({ label, lead, bullets, type, restrictedTones, delay, s
           ))}
         </div>
       </motion.div>
+      {bullets.length > 0 && (
+        <motion.div
+          variants={{
+            hidden: {},
+            visible: {
+              transition: {
+                staggerChildren: shouldReduceMotion ? 0 : 0.06,
+              },
+            },
+          }}
+          className="mt-3 grid max-w-[18rem] gap-1.5 text-center text-[0.76rem] leading-[1.35] text-[color-mix(in_oklab,var(--color-forest)_72%,var(--color-terracotta)_28%)] md:mt-4 md:text-[0.84rem] md:leading-[1.4]"
+        >
+          {bullets.map((bullet) => (
+            <motion.p
+              key={bullet}
+              variants={itemVariants}
+              transition={{ duration: shouldReduceMotion ? 0 : 0.62, ease: [0.16, 1, 0.3, 1] }}
+              className="m-0"
+            >
+              {bullet}
+            </motion.p>
+          ))}
+        </motion.div>
+      )}
     </motion.div>
   );
 }
@@ -797,6 +838,19 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
             ))}
           </motion.p>
         )}
+
+        {config.suggestions && (
+          <motion.a
+            variants={introVariants}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.78, ease: [0.16, 1, 0.3, 1] }}
+            href={config.suggestions.href}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-5 inline-flex min-h-11 items-center justify-center border border-[color-mix(in_oklab,var(--color-terracotta)_48%,transparent)] px-6 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-terracotta)] transition duration-300 hover:border-[var(--color-terracotta)] hover:bg-[rgba(188,108,37,0.06)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-terracotta)] md:mt-6 md:min-h-12 md:px-8 md:text-[0.68rem] md:tracking-[0.28em]"
+          >
+            {config.suggestions.label}
+          </motion.a>
+        )}
       </div>
 
       <motion.div
@@ -868,6 +922,104 @@ function DressCodeNote({ config, step, shouldReduceMotion }: DressCodeNoteProps)
   );
 }
 
+function GiftNote({ gift, backgroundImage, shouldReduceMotion }: GiftNoteProps) {
+  const itemVariants = {
+    hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  return (
+    <motion.section
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.28 }}
+      variants={{
+        hidden: {},
+        visible: {
+          transition: {
+            staggerChildren: shouldReduceMotion ? 0 : 0.11,
+          },
+        },
+      }}
+      className="relative isolate overflow-hidden bg-[#15100d] px-4 py-20 text-center md:px-8 md:py-24"
+      aria-labelledby="gift-note-title"
+    >
+      <motion.img
+        src={backgroundImage}
+        alt=""
+        className="pointer-events-none absolute inset-0 -z-20 h-full w-full object-cover object-center"
+        loading="lazy"
+        decoding="async"
+        aria-hidden
+        initial={{ scale: shouldReduceMotion ? 1 : 1.06 }}
+        whileInView={{ scale: 1 }}
+        viewport={{ once: true, amount: 0.28 }}
+        transition={{ duration: shouldReduceMotion ? 0 : 1.6, ease: [0.16, 1, 0.3, 1] }}
+      />
+      <div
+        className="pointer-events-none absolute inset-0 -z-10 bg-[linear-gradient(180deg,rgba(16,12,9,0.62),rgba(16,12,9,0.52)),radial-gradient(circle_at_50%_42%,rgba(255,247,230,0.08)_0%,rgba(16,12,9,0.24)_45%,rgba(16,12,9,0.72)_100%)]"
+        aria-hidden
+      />
+      <div className="mx-auto grid max-w-3xl justify-items-center gap-4 text-[var(--color-ivory)] drop-shadow-[0_9px_32px_rgba(0,0,0,0.52)]">
+        <motion.div
+          variants={{
+            hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 18, scale: shouldReduceMotion ? 1 : 0.92 },
+            visible: { opacity: 1, y: 0, scale: 1 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.78, ease: [0.16, 1, 0.3, 1] }}
+        >
+          <motion.div
+            animate={shouldReduceMotion ? undefined : { y: [0, -5, 0], rotate: [-2, 2, -2] }}
+            transition={shouldReduceMotion ? undefined : { duration: 5.2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <GiftEnvelopeIcon className="h-12 w-16 text-[var(--color-gold)] md:h-14 md:w-20" />
+          </motion.div>
+        </motion.div>
+        <motion.h2
+          id="gift-note-title"
+          variants={{
+            hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 24, scale: shouldReduceMotion ? 1 : 0.97 },
+            visible: { opacity: 1, y: 0, scale: 1 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.95, ease: [0.16, 1, 0.3, 1] }}
+          className="font-heading text-[clamp(2.55rem,8vw,5.45rem)] font-medium italic leading-[0.86] text-[var(--color-ivory)] md:text-[clamp(3rem,5vw,4.5rem)]"
+        >
+          {gift.title}
+        </motion.h2>
+        {gift.description && (
+          <motion.p
+            variants={itemVariants}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.78, ease: [0.16, 1, 0.3, 1] }}
+            className="font-editorial mx-auto m-0 max-w-3xl text-[clamp(1rem,2.25vw,1.5rem)] leading-[1.45] text-[color-mix(in_oklab,var(--color-ivory)_82%,var(--color-gold)_18%)] md:text-[clamp(1rem,1.6vw,1.25rem)]"
+          >
+            {gift.description}
+          </motion.p>
+        )}
+        <motion.div
+          variants={itemVariants}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.78, ease: [0.16, 1, 0.3, 1] }}
+          className="flex w-full max-w-xl items-center gap-5 text-[var(--color-gold)]"
+          aria-hidden
+        >
+          <span className="h-px flex-1 bg-current opacity-45" />
+          <span className="h-2.5 w-2.5 rotate-45 border border-current opacity-70" />
+          <span className="h-px flex-1 bg-current opacity-45" />
+        </motion.div>
+        <motion.p
+          variants={{
+            hidden: { opacity: 0, y: shouldReduceMotion ? 0 : 16, scale: shouldReduceMotion ? 1 : 0.96 },
+            visible: { opacity: 1, y: 0, scale: 1 },
+          }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.82, ease: [0.16, 1, 0.3, 1] }}
+          className="font-heading m-0 text-[clamp(1.55rem,5vw,2.65rem)] font-medium italic leading-none text-[var(--color-gold)]"
+        >
+          {gift.text}
+        </motion.p>
+      </div>
+    </motion.section>
+  );
+}
+
 export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSectionProps) {
   const shouldReduceMotion = useReducedMotion() ?? false;
   const rsvpRef = useRef<HTMLDivElement | null>(null);
@@ -884,17 +1036,26 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
       <WeddingDetailsStory
         ceremony={event.ceremony}
         reception={event.reception}
+        timingImage={event.timingImage}
         timeline={event.timeline}
         shouldReduceMotion={shouldReduceMotion}
       />
 
-      <div className="relative overflow-hidden bg-white md:h-[100svh]">
-        <div className="mx-auto max-w-[1180px] px-4 py-24 md:flex md:h-full md:items-center md:px-8 md:py-8 lg:py-10">
-          <section className="relative w-full md:h-full" aria-label="Código de vestimenta">
+      <div className="relative overflow-hidden bg-white md:min-h-[100svh]">
+        <div className="mx-auto max-w-[1180px] px-4 py-24 md:flex md:min-h-[100svh] md:items-center md:px-8 md:py-20 lg:py-24">
+          <section className="relative w-full" aria-label="Código de vestimenta">
             <DressCodeNote config={event.dressCode} step={4} shouldReduceMotion={shouldReduceMotion} />
           </section>
         </div>
       </div>
+
+      {event.dressCode.gift && (
+        <GiftNote
+          gift={event.dressCode.gift}
+          backgroundImage={event.dressCode.gift.image}
+          shouldReduceMotion={shouldReduceMotion}
+        />
+      )}
 
       <div ref={rsvpRef} className="relative isolate overflow-hidden bg-[var(--color-surface)] py-20 md:py-28">
         <img

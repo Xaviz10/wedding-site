@@ -31,6 +31,8 @@ import propuestaCataDijoSi2025Image from "../assets/propuesta-cata-dijo-si-2025.
 import propuestaEigergletscherBgImage from "../assets/Frame-27-06-2026-09-17-07.jpeg";
 import propuestaFamiliaNieve2025Image from "../assets/propuesta-familia-nieve-2025.jpg";
 import propuestaGrindelwaldFamilia2025Image from "../assets/propuesta-grindelwald-familia-2025.jpg";
+import regaloSugeridoBgImage from "../assets/regalo-sugerido-bg.jpg";
+import timingBgImage from "../assets/timing-bg.jpg";
 
 export const weddingContent: WeddingContent = {
   couple: "Cata & Javier",
@@ -451,6 +453,7 @@ export const weddingContent: WeddingContent = {
       locationCtaLabel: "Ver ubicación",
       locationCtaHref: "https://maps.app.goo.gl/pKbaD39XnPYG72tg6",
     },
+    timingImage: timingBgImage,
     timeline: [
       {
         label: "Bienvenida",
@@ -497,13 +500,22 @@ export const weddingContent: WeddingContent = {
       ],
       examples: [
         "Traje formal, sin chaleco.",
-        "Evitar solo el tono marcado en la paleta.",
       ],
       womenExamples: [
         "Vestido largo. Unicolor.",
         "Recuerda que la recepción es en una zona campestre y con piedras rústicas, evita tacones muy altos.",
-        "Evitar los tonos marcados en la paleta.",
       ],
+      suggestions: {
+        label: "Sugerencias",
+        href: "https://pin.it/Bxi7j3BRC",
+      },
+      gift: {
+        title: "Regalo sugerido",
+        description:
+          "Tu presencia es nuestro mejor regalo. Si deseas tener un detalle con nosotros, contaremos con lluvia de sobres en el lugar de la recepción.",
+        text: "Lluvia de sobres",
+        image: regaloSugeridoBgImage,
+      },
       note: "",
     },
   },
