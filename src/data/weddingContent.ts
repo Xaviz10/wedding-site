@@ -447,10 +447,47 @@ export const weddingContent: WeddingContent = {
       imageAlt: "Finca La Mara",
       venue: "Finca La Mara",
       location: "Vía Tibasosa Km 4 vía Duitama - Tibasosa",
-      time: "4:30 pm",
+      time: "5:00 pm",
       locationCtaLabel: "Ver ubicación",
       locationCtaHref: "https://maps.app.goo.gl/pKbaD39XnPYG72tg6",
     },
+    timeline: [
+      {
+        label: "Bienvenida",
+        time: "2:30 pm",
+        description: "Llegada y recibimiento antes de entrar a la ceremonia.",
+      },
+      {
+        label: "Ceremonia",
+        time: "3:00 pm",
+        description: "Nos acompañas en el momento más importante del día.",
+      },
+      {
+        label: "Traslado hacia la Finca La Mara",
+        time: "4:30 pm",
+        description: "Salida hacia la finca para continuar la celebración.",
+      },
+      {
+        label: "Coctel y brindis",
+        time: "5:00 pm",
+        description: "Primer brindis, bebidas y conversación al atardecer.",
+      },
+      {
+        label: "Cena",
+        time: "7:00 pm",
+        description: "Compartimos la mesa y celebramos con calma.",
+      },
+      {
+        label: "Fiesta",
+        time: "9:00 pm",
+        description: "Música, baile y celebración para cerrar la noche.",
+      },
+      {
+        label: "Fin de fiesta",
+        time: "2:00 am",
+        description: "Terminamos la celebración con el corazón lleno.",
+      },
+    ],
     dressCode: {
       title: "Código de vestimenta",
       subtitle: "Elegante formal",
@@ -464,6 +501,7 @@ export const weddingContent: WeddingContent = {
       ],
       womenExamples: [
         "Vestido largo. Unicolor.",
+        "Recuerda que la recepción es en una zona campestre y con piedras rústicas, evita tacones muy altos.",
         "Evitar los tonos marcados en la paleta.",
       ],
       note: "",

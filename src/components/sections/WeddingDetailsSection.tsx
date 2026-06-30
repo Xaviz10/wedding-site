@@ -2,7 +2,7 @@ import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "fr
 import type { MotionValue } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import RSVPForm from "../RSVPForm";
-import type { DressCodeConfig, EventBlock, RSVPConfig, WeddingContent } from "../../types/wedding";
+import type { DressCodeConfig, EventBlock, RSVPConfig, WeddingContent, WeddingTimelineItem } from "../../types/wedding";
 
 interface WeddingDetailsSectionProps {
   event: WeddingContent["event"];
@@ -20,36 +20,75 @@ interface WeddingMoment {
     label: string;
     value: string;
   }>;
+  timeline?: WeddingTimelineItem[];
   supportText?: string;
-  ctaLabel: string;
-  ctaHref: string;
+  ctaLabel?: string;
+  ctaHref?: string;
   image: string;
   imagePosition: string;
   align: MomentAlignment;
 }
 
+function getMomentVisibilityRange(index: number, count: number) {
+  if (count <= 1) {
+    return {
+      input: [0, 1],
+      opacity: [1, 1],
+      y: [0, 0],
+    };
+  }
+
+  const segmentStart = index / count;
+  const segmentEnd = (index + 1) / count;
+  const fadeWidth = Math.min(0.16, 0.32 / count);
+  const enterStart = Math.max(0, segmentStart - fadeWidth / 2);
+  const enterEnd = Math.min(1, segmentStart + fadeWidth / 2);
+  const exitStart = Math.max(0, segmentEnd - fadeWidth / 2);
+  const exitEnd = Math.min(1, segmentEnd + fadeWidth / 2);
+
+  if (index === 0) {
+    return {
+      input: [0, exitStart, exitEnd, 1],
+      opacity: [1, 1, 0, 0],
+      y: [0, 0, -28, -28],
+    };
+  }
+
+  if (index === count - 1) {
+    return {
+      input: [0, enterStart, enterEnd, 1],
+      opacity: [0, 0, 1, 1],
+      y: [28, 28, 0, 0],
+    };
+  }
+
+  return {
+    input: [0, enterStart, enterEnd, exitStart, exitEnd, 1],
+    opacity: [0, 0, 1, 1, 0, 0],
+    y: [28, 28, 0, 0, -28, -28],
+  };
+}
+
 interface WeddingBackgroundLayerProps {
   moment: WeddingMoment;
   index: number;
+  momentCount: number;
   progress: MotionValue<number>;
   shouldReduceMotion: boolean;
 }
 
-function WeddingBackgroundLayer({ moment, index, progress, shouldReduceMotion }: WeddingBackgroundLayerProps) {
-  const opacity = useTransform(
-    progress,
-    [0, 0.45, 0.6, 1],
-    index === 0 ? [1, 1, 0, 0] : [0, 0, 1, 1],
-  );
+function WeddingBackgroundLayer({ moment, index, momentCount, progress, shouldReduceMotion }: WeddingBackgroundLayerProps) {
+  const visibility = getMomentVisibilityRange(index, momentCount);
+  const opacity = useTransform(progress, visibility.input, visibility.opacity);
   const scale = useTransform(
     progress,
     [0, 1],
-    shouldReduceMotion ? [1, 1] : index === 0 ? [1.05, 1.12] : [1.1, 1.04],
+    shouldReduceMotion ? [1, 1] : index % 2 === 0 ? [1.05, 1.12] : [1.1, 1.04],
   );
   const y = useTransform(
     progress,
     [0, 1],
-    shouldReduceMotion ? ["0%", "0%"] : index === 0 ? ["-1.5%", "1.5%"] : ["1.25%", "-1.25%"],
+    shouldReduceMotion ? ["0%", "0%"] : index % 2 === 0 ? ["-1.5%", "1.5%"] : ["1.25%", "-1.25%"],
   );
   const sideGradient =
     moment.align === "right"
@@ -77,26 +116,182 @@ function WeddingBackgroundLayer({ moment, index, progress, shouldReduceMotion }:
   );
 }
 
+function WeddingTimelineIllustration({ index }: { index: number }) {
+  const commonProps = {
+    className: "h-full w-full overflow-visible",
+    fill: "none",
+    viewBox: "0 0 96 96",
+    "aria-hidden": true,
+  };
+
+  switch (index) {
+    case 0:
+      return (
+        <svg {...commonProps}>
+          <path d="M26 35h44v25H26z" fill="currentColor" opacity="0.16" />
+          <path d="M24 34h48v27H24zM33 61 23 86M63 61l10 25" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M31 44c7-5 20-6 33-1M33 51c9 4 20 4 30 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.72" />
+          <path d="M17 26c6-12 18-13 25-5M57 20c10-6 21-1 23 10" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.45" />
+          <circle cx="22" cy="30" r="5" fill="currentColor" opacity="0.35" />
+          <circle cx="75" cy="30" r="5" fill="currentColor" opacity="0.35" />
+          <circle cx="65" cy="20" r="4" fill="currentColor" opacity="0.28" />
+        </svg>
+      );
+    case 1:
+      return (
+        <svg {...commonProps}>
+          <circle cx="40" cy="55" r="24" stroke="currentColor" strokeWidth="6" opacity="0.58" />
+          <circle cx="58" cy="47" r="24" stroke="currentColor" strokeWidth="6" opacity="0.72" />
+          <path d="M50 21 58 10l9 11-8 9Z" fill="currentColor" opacity="0.22" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
+          <path d="M36 32c11 5 22 4 34-3" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.34" />
+        </svg>
+      );
+    case 2:
+      return (
+        <svg {...commonProps}>
+          <path d="M16 55c10-17 23-25 38-25h13c8 0 14 6 14 14v16H16Z" fill="currentColor" opacity="0.18" />
+          <path d="M22 46h18M47 39h22M17 60h64M30 60a8 8 0 1 0 0 16 8 8 0 0 0 0-16Zm36 0a8 8 0 1 0 0 16 8 8 0 0 0 0-16Z" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M31 30c2-7 9-11 17-9" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.45" />
+        </svg>
+      );
+    case 3:
+      return (
+        <svg {...commonProps}>
+          <g transform="rotate(-13 35 45)">
+            <path d="M24 16h23l-3 27c-1 9-16 9-17 0Z" fill="currentColor" opacity="0.18" />
+            <path d="M24 16h23l-3 27c-1 9-16 9-17 0ZM36 52v25M27 80h18" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+          <g transform="rotate(14 61 45)">
+            <path d="M49 16h23l-3 27c-1 9-16 9-17 0Z" fill="currentColor" opacity="0.18" />
+            <path d="M49 16h23l-3 27c-1 9-16 9-17 0ZM61 52v25M52 80h18" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+          <path d="M48 8v-5M41 11l-4-5M55 11l4-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.72" />
+        </svg>
+      );
+    case 4:
+      return (
+        <svg {...commonProps}>
+          <ellipse cx="31" cy="61" rx="19" ry="10" fill="currentColor" opacity="0.18" />
+          <ellipse cx="64" cy="50" rx="18" ry="10" fill="currentColor" opacity="0.18" />
+          <path d="M18 58c9-12 23-12 33 0M51 47c9-12 22-11 31 0" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <path d="M26 51c5-6 12-6 17 0M58 40c5-6 12-5 16 0" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.38" />
+          <path d="M32 42c4-8 10-10 17-7M65 32c3-7 9-9 15-6" stroke="currentColor" strokeWidth="4" strokeLinecap="round" opacity="0.52" />
+        </svg>
+      );
+    case 5:
+      return (
+        <svg {...commonProps}>
+          <path d="M27 72c13-10 13-28 4-47h19c-6 19-2 34 12 47" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M31 27h17M35 78h28" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+          <path d="M56 25c7 3 14 12 14 23M65 18c10 4 18 16 18 30" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.52" />
+          <circle cx="42" cy="18" r="4" fill="currentColor" opacity="0.58" />
+        </svg>
+      );
+    default:
+      return (
+        <svg {...commonProps}>
+          <path d="M21 52c13-10 23 10 35 0 12-10 19-3 24 4" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.58" />
+          <path d="M23 64c15-10 26 8 39-1 9-6 15-3 21 2" stroke="currentColor" strokeWidth="5" strokeLinecap="round" opacity="0.72" />
+          <circle cx="27" cy="43" r="9" fill="currentColor" opacity="0.2" />
+          <circle cx="49" cy="37" r="9" fill="currentColor" opacity="0.26" />
+          <circle cx="71" cy="43" r="9" fill="currentColor" opacity="0.2" />
+          <path d="M30 33 25 18M50 27l2-17M69 33l7-14" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.66" />
+          <path d="M18 23h6M74 13h8M58 16l5-5" stroke="currentColor" strokeWidth="3" strokeLinecap="round" opacity="0.72" />
+        </svg>
+      );
+  }
+}
+
+function WeddingTimelinePanel({
+  moment,
+  isActive,
+  style,
+}: {
+  moment: WeddingMoment;
+  isActive: boolean;
+  style: {
+    opacity: MotionValue<number>;
+    y: MotionValue<number>;
+  };
+}) {
+  return (
+    <motion.article
+      className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden px-5 py-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8 md:px-10 md:py-8 ${
+        isActive ? "pointer-events-auto" : "pointer-events-none"
+      }`}
+      style={style}
+      aria-hidden={!isActive}
+      aria-label={`${moment.number}. ${moment.title}. ${moment.subtitle}`}
+    >
+      <div className="w-full max-w-[42rem] text-center text-[var(--color-ivory)] drop-shadow-[0_9px_32px_rgba(0,0,0,0.52)]">
+        <div className="flex flex-col items-center gap-3 md:gap-4">
+          <p className="text-[0.64rem] font-semibold uppercase tracking-[0.36em] text-[var(--color-gold)] md:text-[0.74rem] md:tracking-[0.38em]">
+            {moment.number}
+          </p>
+          <span className="h-px w-20 bg-[color-mix(in_oklab,var(--color-gold)_70%,transparent)]" aria-hidden />
+        </div>
+
+        <h3 className="font-heading mt-4 text-[clamp(2.45rem,11vw,5.8rem)] font-medium italic leading-[0.94] tracking-normal text-[var(--color-ivory)] md:mt-7 md:text-[clamp(4rem,6vw,6.25rem)] md:leading-[0.92]">
+          {moment.title}
+        </h3>
+
+        <p className="mt-3 text-[0.62rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-gold)] md:mt-5 md:text-[0.78rem] md:tracking-[0.34em]">
+          {moment.subtitle}
+        </p>
+
+        <ol className="wedding-timeline-list mx-auto mt-4 grid max-w-[38rem] border-y border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] py-3 md:mt-7 md:py-4">
+          {moment.timeline?.map((item, itemIndex) => (
+            <li
+              key={`${item.time}-${item.label}`}
+              className="grid min-h-[3.82rem] grid-cols-[3.45rem_1.1rem_minmax(0,1fr)] gap-x-2.5 sm:grid-cols-[4.25rem_1.2rem_minmax(0,1fr)] md:min-h-[4.2rem] md:grid-cols-[4.85rem_1.35rem_minmax(0,1fr)] md:gap-x-4"
+            >
+              <div className="flex justify-center pt-0.5">
+                <span className="block h-9 w-9 text-[color-mix(in_oklab,var(--color-gold)_82%,var(--color-ivory)_18%)] opacity-90 sm:h-11 sm:w-11 md:h-12 md:w-12">
+                  <WeddingTimelineIllustration index={itemIndex} />
+                </span>
+              </div>
+
+              <div className="wedding-timeline-rail flex justify-center text-[var(--color-gold)]" aria-hidden>
+                <span className="mt-[0.72rem] h-2.5 w-2.5 rounded-full bg-[var(--color-gold)] shadow-[0_0_0_4px_rgba(18,14,11,0.72)]" />
+              </div>
+
+              <div className="pb-2.5 text-left md:pb-3">
+                <time className="font-heading block text-[0.98rem] font-semibold uppercase leading-none tracking-normal text-[var(--color-gold)] md:text-[1.16rem]">
+                  {item.time}
+                </time>
+                <h4 className="mt-1 text-[0.58rem] font-semibold uppercase leading-[1.18] tracking-[0.24em] text-[var(--color-ivory)] sm:text-[0.64rem] md:text-[0.68rem] md:tracking-[0.28em]">
+                  {item.label}
+                </h4>
+                <p className="mt-1 max-w-[27rem] text-[0.68rem] leading-[1.28] text-[color-mix(in_oklab,var(--color-ivory)_74%,var(--color-gold)_26%)] sm:text-[0.74rem] md:text-[0.8rem] md:leading-[1.36]">
+                  {item.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </motion.article>
+  );
+}
+
 interface WeddingMomentPanelProps {
   moment: WeddingMoment;
   index: number;
+  momentCount: number;
   progress: MotionValue<number>;
   isActive: boolean;
   shouldReduceMotion: boolean;
 }
 
-function WeddingMomentPanel({ moment, index, progress, isActive, shouldReduceMotion }: WeddingMomentPanelProps) {
-  const opacity = useTransform(
-    progress,
-    index === 0 ? [0, 0.42, 0.58] : [0.48, 0.63, 1],
-    index === 0 ? [1, 1, 0] : [0, 1, 1],
-  );
-  const y = useTransform(
-    progress,
-    index === 0 ? [0, 0.42, 0.58] : [0.48, 0.63, 1],
-    shouldReduceMotion ? [0, 0, 0] : index === 0 ? [0, 0, -28] : [28, 0, 0],
-  );
+function WeddingMomentPanel({ moment, index, momentCount, progress, isActive, shouldReduceMotion }: WeddingMomentPanelProps) {
+  const visibility = getMomentVisibilityRange(index, momentCount);
+  const opacity = useTransform(progress, visibility.input, visibility.opacity);
+  const y = useTransform(progress, visibility.input, shouldReduceMotion ? visibility.y.map(() => 0) : visibility.y);
   const isRight = moment.align === "right";
+
+  if (moment.timeline && moment.timeline.length > 0) {
+    return <WeddingTimelinePanel moment={moment} isActive={isActive} style={{ opacity, y }} />;
+  }
 
   return (
     <motion.article
@@ -133,22 +328,24 @@ function WeddingMomentPanel({ moment, index, progress, isActive, shouldReduceMot
           {moment.body}
         </p>
 
-        <div
-          className={`mt-4 grid gap-3 border-y border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] py-3 sm:grid-cols-2 md:mt-8 md:gap-8 md:py-6 ${
-            isRight ? "md:ml-auto" : ""
-          }`}
-        >
-          {moment.details.map((detail) => (
-            <div key={detail.label}>
-              <p className="text-[0.58rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-gold)] md:text-[0.68rem] md:tracking-[0.28em]">
-                {detail.label}
-              </p>
-              <p className="font-heading mt-1.5 text-[clamp(1.16rem,4.5vw,1.65rem)] font-semibold leading-[1.12] tracking-normal text-[var(--color-ivory)] md:mt-2 md:text-[clamp(1.45rem,2vw,2rem)]">
-                {detail.value}
-              </p>
-            </div>
-          ))}
-        </div>
+        {moment.details.length > 0 && (
+          <div
+            className={`mt-4 grid gap-3 border-y border-[color-mix(in_oklab,var(--color-gold)_42%,transparent)] py-3 sm:grid-cols-2 md:mt-8 md:gap-8 md:py-6 ${
+              isRight ? "md:ml-auto" : ""
+            }`}
+          >
+            {moment.details.map((detail) => (
+              <div key={detail.label}>
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-gold)] md:text-[0.68rem] md:tracking-[0.28em]">
+                  {detail.label}
+                </p>
+                <p className="font-heading mt-1.5 text-[clamp(1.16rem,4.5vw,1.65rem)] font-semibold leading-[1.12] tracking-normal text-[var(--color-ivory)] md:mt-2 md:text-[clamp(1.45rem,2vw,2rem)]">
+                  {detail.value}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {moment.supportText && (
           <p className="mt-3 text-[0.82rem] leading-[1.45] text-[color-mix(in_oklab,var(--color-gold)_74%,var(--color-ivory)_26%)] md:mt-4 md:text-[0.95rem] md:leading-[1.55]">
@@ -174,7 +371,7 @@ function WeddingMomentPanel({ moment, index, progress, isActive, shouldReduceMot
   );
 }
 
-function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock): WeddingMoment[] {
+function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock, timeline: WeddingTimelineItem[]): WeddingMoment[] {
   return [
     {
       number: "01",
@@ -206,19 +403,34 @@ function buildWeddingMoments(ceremony: EventBlock, reception: EventBlock): Weddi
       imagePosition: "58% 50%",
       align: "left",
     },
+    {
+      number: "03",
+      title: "Timeline",
+      subtitle: "Cronograma de la boda",
+      body: "",
+      details: [],
+      timeline,
+      image: reception.image,
+      imagePosition: "48% 50%",
+      align: "right",
+    },
   ];
 }
 
 interface WeddingDetailsStoryProps {
   ceremony: EventBlock;
   reception: EventBlock;
+  timeline: WeddingTimelineItem[];
   shouldReduceMotion: boolean;
 }
 
-function WeddingDetailsStory({ ceremony, reception, shouldReduceMotion }: WeddingDetailsStoryProps) {
+function WeddingDetailsStory({ ceremony, reception, timeline, shouldReduceMotion }: WeddingDetailsStoryProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [activeMomentIndex, setActiveMomentIndex] = useState(0);
-  const moments = buildWeddingMoments(ceremony, reception);
+  const moments = buildWeddingMoments(ceremony, reception, timeline);
+  const momentCount = moments.length;
+  const storyHeight = `${120 * momentCount}dvh`;
+  const storyMinHeight = `${120 * momentCount}svh`;
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end end"],
@@ -227,12 +439,18 @@ function WeddingDetailsStory({ ceremony, reception, shouldReduceMotion }: Weddin
 
   useEffect(() => {
     return progress.on("change", (latest) => {
-      setActiveMomentIndex(latest >= 0.55 ? 1 : 0);
+      const nextIndex = Math.min(momentCount - 1, Math.max(0, Math.floor(latest * momentCount)));
+      setActiveMomentIndex(nextIndex);
     });
-  }, [progress]);
+  }, [momentCount, progress]);
 
   return (
-    <div ref={containerRef} className="relative h-[240dvh] min-h-[240svh] bg-[#15100d]" aria-labelledby="gran-dia-title">
+    <div
+      ref={containerRef}
+      className="relative bg-[#15100d]"
+      style={{ height: storyHeight, minHeight: storyMinHeight }}
+      aria-labelledby="gran-dia-title"
+    >
       <div className="sticky top-0 h-[100dvh] min-h-[100svh] overflow-hidden bg-[#15100d] text-[var(--color-ivory)]">
         <h2 id="gran-dia-title" className="sr-only">
           El Gran Día
@@ -243,6 +461,7 @@ function WeddingDetailsStory({ ceremony, reception, shouldReduceMotion }: Weddin
             key={`${moment.number}-background`}
             moment={moment}
             index={index}
+            momentCount={momentCount}
             progress={progress}
             shouldReduceMotion={shouldReduceMotion}
           />
@@ -258,6 +477,7 @@ function WeddingDetailsStory({ ceremony, reception, shouldReduceMotion }: Weddin
             key={`${moment.number}-copy`}
             moment={moment}
             index={index}
+            momentCount={momentCount}
             progress={progress}
             isActive={activeMomentIndex === index}
             shouldReduceMotion={shouldReduceMotion}
@@ -664,13 +884,14 @@ export default function WeddingDetailsSection({ event, rsvp }: WeddingDetailsSec
       <WeddingDetailsStory
         ceremony={event.ceremony}
         reception={event.reception}
+        timeline={event.timeline}
         shouldReduceMotion={shouldReduceMotion}
       />
 
       <div className="relative overflow-hidden bg-white md:h-[100svh]">
         <div className="mx-auto max-w-[1180px] px-4 py-24 md:flex md:h-full md:items-center md:px-8 md:py-8 lg:py-10">
           <section className="relative w-full md:h-full" aria-label="Código de vestimenta">
-            <DressCodeNote config={event.dressCode} step={3} shouldReduceMotion={shouldReduceMotion} />
+            <DressCodeNote config={event.dressCode} step={4} shouldReduceMotion={shouldReduceMotion} />
           </section>
         </div>
       </div>

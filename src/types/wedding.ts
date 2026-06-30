@@ -81,6 +81,12 @@ export interface EventBlock {
   locationCtaHref: string;
 }
 
+export interface WeddingTimelineItem {
+  label: string;
+  time: string;
+  description: string;
+}
+
 export interface DressCodeConfig {
   title: string;
   subtitle: string;
@@ -138,6 +144,7 @@ export interface WeddingContent {
     paragraphs: string[];
     ceremony: EventBlock;
     reception: EventBlock;
+    timeline: WeddingTimelineItem[];
     dressCode: DressCodeConfig;
   };
   rsvp: RSVPConfig;
