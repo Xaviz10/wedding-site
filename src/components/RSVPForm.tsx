@@ -200,7 +200,7 @@ export default function RSVPForm({ config }: RSVPFormProps) {
           </label>
 
           <fieldset className="grid gap-3">
-            <legend className="form-label">¿Necesitas información de hospedaje o transporte?</legend>
+            <legend className="form-label">¿Necesitas información sobre hospedaje, maquillaje o peinado?</legend>
             <div className="grid gap-3 sm:grid-cols-2">
               <label className="rsvp-chip">
                 <input
