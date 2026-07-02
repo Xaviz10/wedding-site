@@ -172,16 +172,17 @@ function DividerOrnament() {
 function BottomOrnament() {
   return (
     <svg
-      viewBox="0 0 240 96"
+      viewBox="0 0 240 112"
       fill="none"
       aria-hidden
-      className="h-auto w-[6.25rem] text-[var(--color-gold)] opacity-45 md:w-[8.5rem]"
+      className="h-auto w-[6.5rem] text-[var(--color-gold)] opacity-60 md:w-[8.75rem]"
     >
-      <path d="M120 14V82" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M120 14V86" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
       <path d="M120 47C95 38 74 36 55 42" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
       <path d="M120 47C145 38 166 36 185 42" stroke="currentColor" strokeWidth="1" strokeLinecap="round" />
       <path d="M120 64C91 56 64 57 39 68" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
       <path d="M120 64C149 56 176 57 201 68" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
+      <path d="M104 76L120 92L136 76" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="120" cy="14" r="3.5" fill="currentColor" />
       <circle cx="55" cy="42" r="3.3" fill="currentColor" />
       <circle cx="185" cy="42" r="3.3" fill="currentColor" />
@@ -377,11 +378,11 @@ export default function HeroSection({ content }: HeroSectionProps) {
 
           <motion.a
             href="#nuestra-historia"
-            aria-label={content.cta}
+            aria-label="Desliza para continuar a nuestra historia"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 1.18 }}
-            className="mt-2 inline-flex rounded-full p-1.5 transition-opacity hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] md:mt-3"
+            className="mt-2 inline-flex rounded-full p-1.5 transition-opacity hover:opacity-85 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] md:mt-3"
           >
             <motion.span
               animate={shouldReduceMotion ? undefined : { y: [0, 7, 0], opacity: [0.5, 0.82, 0.5] }}

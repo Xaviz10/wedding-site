@@ -29,6 +29,55 @@ interface WeddingMoment {
   align: MomentAlignment;
 }
 
+function WeddingDetailsScrollOrnament() {
+  return (
+    <svg
+      viewBox="0 0 164 92"
+      fill="none"
+      aria-hidden
+      className="h-auto w-[4.1rem] md:w-[4.85rem]"
+    >
+      <path d="M82 10V68" stroke="currentColor" strokeWidth="0.95" strokeLinecap="round" />
+      <path d="M82 37C65 30 50 29 36 34" stroke="currentColor" strokeWidth="0.78" strokeLinecap="round" />
+      <path d="M82 37C99 30 114 29 128 34" stroke="currentColor" strokeWidth="0.78" strokeLinecap="round" />
+      <path d="M82 52C62 46 43 47 25 56" stroke="currentColor" strokeWidth="0.74" strokeLinecap="round" />
+      <path d="M82 52C102 46 121 47 139 56" stroke="currentColor" strokeWidth="0.74" strokeLinecap="round" />
+      <path d="M69 62L82 75L95 62" stroke="currentColor" strokeWidth="1.08" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="82" cy="10" r="2.45" fill="currentColor" />
+      <circle cx="36" cy="34" r="2.2" fill="currentColor" />
+      <circle cx="128" cy="34" r="2.2" fill="currentColor" />
+      <circle cx="25" cy="56" r="2" fill="currentColor" />
+      <circle cx="139" cy="56" r="2" fill="currentColor" />
+    </svg>
+  );
+}
+
+function WeddingDetailsScrollCue({
+  label = "Desliza para continuar",
+  shouldReduceMotion,
+  className = "",
+}: {
+  label?: string;
+  shouldReduceMotion: boolean;
+  className?: string;
+}) {
+  return (
+    <div className={`flex w-fit max-w-full flex-col items-center gap-0 text-center ${className}`}>
+      <span className="text-[0.46rem] font-semibold uppercase tracking-[0.2em] text-[color-mix(in_oklab,var(--color-ivory)_62%,var(--color-gold)_38%)] opacity-[0.58] md:text-[0.5rem] md:tracking-[0.22em]">
+        {label}
+      </span>
+      <motion.span
+        className="block text-[var(--color-gold)] opacity-[0.42]"
+        animate={shouldReduceMotion ? undefined : { y: [0, 5, 0], opacity: [0.28, 0.54, 0.28] }}
+        transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+        aria-hidden
+      >
+        <WeddingDetailsScrollOrnament />
+      </motion.span>
+    </div>
+  );
+}
+
 function getMomentVisibilityRange(index: number, count: number) {
   if (count <= 1) {
     return {
@@ -213,6 +262,8 @@ function WeddingTimelinePanel({
   moment,
   isActive,
   style,
+  scrollCueLabel,
+  shouldReduceMotion,
 }: {
   moment: WeddingMoment;
   isActive: boolean;
@@ -220,10 +271,12 @@ function WeddingTimelinePanel({
     opacity: MotionValue<number>;
     y: MotionValue<number>;
   };
+  scrollCueLabel: string;
+  shouldReduceMotion: boolean;
 }) {
   return (
     <motion.article
-      className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden px-5 py-[max(1.25rem,env(safe-area-inset-bottom))] sm:px-8 md:px-10 md:py-8 ${
+      className={`absolute inset-0 z-20 flex h-full w-full items-center justify-center overflow-hidden px-5 pb-[max(5rem,calc(env(safe-area-inset-bottom)+4.25rem))] pt-7 sm:px-8 sm:pt-8 md:px-10 md:pb-20 md:pt-8 ${
         isActive ? "pointer-events-auto" : "pointer-events-none"
       }`}
       style={style}
@@ -277,6 +330,12 @@ function WeddingTimelinePanel({
           ))}
         </ol>
       </div>
+
+      <WeddingDetailsScrollCue
+        label={scrollCueLabel}
+        shouldReduceMotion={shouldReduceMotion}
+        className="pointer-events-none absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 md:bottom-5"
+      />
     </motion.article>
   );
 }
@@ -295,14 +354,23 @@ function WeddingMomentPanel({ moment, index, momentCount, progress, isActive, sh
   const opacity = useTransform(progress, visibility.input, visibility.opacity);
   const y = useTransform(progress, visibility.input, shouldReduceMotion ? visibility.y.map(() => 0) : visibility.y);
   const isRight = moment.align === "right";
+  const scrollCueLabel = index < momentCount - 1 ? "Desliza para continuar" : "Desliza para código de vestimenta";
 
   if (moment.timeline && moment.timeline.length > 0) {
-    return <WeddingTimelinePanel moment={moment} isActive={isActive} style={{ opacity, y }} />;
+    return (
+      <WeddingTimelinePanel
+        moment={moment}
+        isActive={isActive}
+        style={{ opacity, y }}
+        scrollCueLabel={scrollCueLabel}
+        shouldReduceMotion={shouldReduceMotion}
+      />
+    );
   }
 
   return (
     <motion.article
-      className={`absolute inset-0 z-20 flex h-full w-full px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-12 sm:px-8 md:items-center md:px-0 md:py-0 ${
+      className={`absolute inset-0 z-20 flex h-full w-full px-5 pb-[max(5.5rem,calc(env(safe-area-inset-bottom)+4.75rem))] pt-12 sm:px-8 md:items-center md:px-0 md:py-0 ${
         isRight
           ? "items-end md:justify-end md:pr-[clamp(3.5rem,8vw,8rem)]"
           : "items-end md:justify-start md:pl-[clamp(3rem,7vw,7rem)]"
@@ -374,6 +442,12 @@ function WeddingMomentPanel({ moment, index, momentCount, progress, isActive, sh
           </a>
         )}
       </div>
+
+      <WeddingDetailsScrollCue
+        label={scrollCueLabel}
+        shouldReduceMotion={shouldReduceMotion}
+        className="pointer-events-none absolute bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-1/2 z-30 -translate-x-1/2 md:bottom-5"
+      />
     </motion.article>
   );
 }

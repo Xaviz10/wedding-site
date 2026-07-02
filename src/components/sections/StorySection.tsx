@@ -7,7 +7,7 @@ import {
   useSpring,
   useTransform,
 } from "framer-motion";
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import SectionWrapper from "../SectionWrapper";
 import type { StoryBeat, WeddingContent } from "../../types/wedding";
 
@@ -119,9 +119,13 @@ function StoryTitleBirds({ shouldReduceMotion }: { shouldReduceMotion: boolean }
 function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowProps) {
   const articleRef = useRef<HTMLElement | null>(null);
   const carouselRef = useRef<HTMLDivElement | null>(null);
-  const slides = beat.images && beat.images.length > 0 ? beat.images : [{ src: beat.image, alt: beat.alt }];
+  const slides = useMemo(
+    () => (beat.images && beat.images.length > 0 ? beat.images : [{ src: beat.image, alt: beat.alt }]),
+    [beat.alt, beat.image, beat.images],
+  );
   const hasMultipleSlides = slides.length > 1;
   const [activeSlide, setActiveSlide] = useState(0);
+  const shouldPreloadSlides = useInView(articleRef, { once: true, amount: 0.01, margin: "700px 0px" });
   const { scrollYProgress } = useScroll({
     target: articleRef,
     offset: ["start 88%", "end 18%"],
@@ -176,6 +180,16 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
     [activeSlide, hasMultipleSlides, scrollToSlide, slides.length],
   );
 
+  useEffect(() => {
+    if (!shouldPreloadSlides) return;
+
+    slides.forEach((slide) => {
+      const image = new window.Image();
+      image.decoding = "async";
+      image.src = slide.src;
+    });
+  }, [shouldPreloadSlides, slides]);
+
   const isEven = index % 2 === 1;
   const entryX = shouldReduceMotion ? 0 : isEven ? 50 : -50;
 
@@ -215,7 +229,7 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
             {slides.map((slide, slideIndex) => (
               <div
                 key={`${beat.title}-slide-${slideIndex}`}
-                className="relative h-full w-full shrink-0 snap-center overflow-hidden bg-[var(--color-forest)]"
+                className="relative h-full w-full shrink-0 snap-center overflow-hidden bg-[color-mix(in_oklab,var(--color-ivory)_70%,var(--color-gold)_30%)]"
                 role={hasMultipleSlides ? "group" : undefined}
                 aria-label={hasMultipleSlides ? `${slideIndex + 1} de ${slides.length}` : undefined}
               >
@@ -225,7 +239,8 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
                     alt=""
                     aria-hidden
                     className="absolute inset-0 h-full w-full scale-110 object-cover opacity-60 blur-2xl"
-                    loading="lazy"
+                    loading={shouldPreloadSlides ? "eager" : "lazy"}
+                    decoding="async"
                   />
                 )}
                 <img
@@ -237,7 +252,8 @@ function StoryChapterRow({ beat, index, shouldReduceMotion }: StoryChapterRowPro
                       ? { objectFit: slide.objectFit, objectPosition: slide.objectPosition }
                       : undefined
                   }
-                  loading="lazy"
+                  loading={shouldPreloadSlides ? "eager" : "lazy"}
+                  decoding="async"
                 />
               </div>
             ))}
