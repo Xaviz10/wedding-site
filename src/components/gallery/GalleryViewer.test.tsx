@@ -34,19 +34,13 @@ describe("full-screen gallery viewer", () => {
     const user = userEvent.setup();
     render(<GalleryViewer group={group} onClose={vi.fn()} />);
 
-    expect(screen.getByRole("dialog")).toHaveClass(
-      "h-dvh",
-      "max-h-dvh",
-      "grid-rows-[auto_minmax(0,1fr)_auto]",
-      "overflow-hidden",
-    );
-    expect(screen.getByLabelText("Medios del grupo")).toHaveClass("min-h-0", "min-w-0", "overflow-hidden");
-    expect(screen.getByRole("img", { name: "La ceremonia" })).toHaveClass(
-      "h-full",
-      "w-full",
-      "max-w-full",
-      "object-contain",
-    );
+    const dialog = screen.getByRole("dialog");
+    expect(dialog).toHaveClass("gallery-viewer-shell", "grid-rows-[auto_minmax(0,1fr)_auto]");
+    expect(dialog.parentElement).toBe(document.body);
+    expect(screen.getByLabelText("Medios del grupo")).toHaveClass("gallery-viewer-stage");
+    expect(screen.getByRole("img", { name: "La ceremonia" })).toHaveClass("gallery-viewer-media");
+    expect(screen.getByRole("img", { name: "La ceremonia" }).parentElement).toHaveClass("gallery-viewer-media-frame");
+    expect(screen.getByRole("img", { name: "La ceremonia" }).parentElement?.parentElement).toHaveClass("gallery-viewer-slide");
     expect(screen.getByText("1 de 2")).toBeInTheDocument();
     expect(screen.getAllByText(/La ceremonia/)).toHaveLength(1);
     expect(screen.getAllByText("Ana")).toHaveLength(1);
@@ -65,9 +59,11 @@ describe("full-screen gallery viewer", () => {
     const { unmount } = render(<GalleryViewer group={group} onClose={onClose} />);
 
     expect(document.body.style.overflow).toBe("hidden");
+    expect(document.documentElement.style.overflow).toBe("hidden");
     await user.keyboard("{Escape}");
     expect(onClose).toHaveBeenCalledOnce();
     unmount();
     expect(document.body.style.overflow).toBe("");
+    expect(document.documentElement.style.overflow).toBe("");
   });
 });

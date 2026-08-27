@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
+import { createPortal } from "react-dom";
 import type { GalleryMediaGroup } from "../../lib/galleryGrouping";
 
 interface GalleryViewerProps {
@@ -21,8 +22,10 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
   }, [itemCount]);
 
   useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousRootOverflow = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     closeButtonRef.current?.focus();
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -32,7 +35,8 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousRootOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [hasMultipleItems, moveBy, onClose]);
@@ -53,12 +57,12 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
     moveBy(endX < startX ? 1 : -1);
   }
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-label={group.displayName ? `Recuerdos de ${group.displayName}` : "Visor de recuerdos"}
-      className="fixed inset-0 z-[100] grid h-dvh max-h-dvh w-full max-w-full grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden overscroll-none bg-[#090b09] text-white"
+      className="gallery-viewer-shell isolate z-[100] grid grid-rows-[auto_minmax(0,1fr)_auto] overscroll-none bg-[#090b09] text-white"
     >
       <header className="relative z-20 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/35 px-3 backdrop-blur-xl [padding-top:env(safe-area-inset-top)] sm:px-5">
         <button
@@ -89,37 +93,39 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
       <div
         ref={slidesRef}
         aria-label="Medios del grupo"
-        className="relative min-h-0 min-w-0 overflow-hidden overscroll-contain"
+        className="gallery-viewer-stage relative overscroll-contain"
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <div
-          className="flex h-full min-h-0 min-w-0 transition-transform duration-300 ease-out motion-reduce:transition-none"
+          className="flex h-full w-full min-h-0 min-w-0 flex-nowrap transition-transform duration-300 ease-out motion-reduce:transition-none"
           style={{ transform: `translateX(-${activeIndex * 100}%)` }}
         >
           {group.items.map((item, index) => (
-            <div key={item.id} aria-hidden={index !== activeIndex} className="grid h-full min-h-0 w-full min-w-full max-w-full place-items-center overflow-hidden sm:p-6">
-              {item.mediaUrl ? (
-                item.mediaKind === "image" ? (
-                  <img
-                    src={item.mediaUrl}
-                    alt={item.caption || "Foto compartida por un invitado"}
-                    className="block h-full min-h-0 w-full min-w-0 max-w-full object-contain"
-                  />
+            <div key={item.id} aria-hidden={index !== activeIndex} className="gallery-viewer-slide">
+              <div className="gallery-viewer-media-frame">
+                {item.mediaUrl ? (
+                  item.mediaKind === "image" ? (
+                    <img
+                      src={item.mediaUrl}
+                      alt={item.caption || "Foto compartida por un invitado"}
+                      className="gallery-viewer-media"
+                    />
+                  ) : (
+                    <video
+                      src={item.mediaUrl}
+                      controls={index === activeIndex}
+                      playsInline
+                      preload="metadata"
+                      className="gallery-viewer-media bg-black"
+                    >
+                      Tu navegador no puede reproducir este video.
+                    </video>
+                  )
                 ) : (
-                  <video
-                    src={item.mediaUrl}
-                    controls={index === activeIndex}
-                    playsInline
-                    preload="metadata"
-                    className="block h-full min-h-0 w-full min-w-0 max-w-full bg-black object-contain"
-                  >
-                    Tu navegador no puede reproducir este video.
-                  </video>
-                )
-              ) : (
-                <p className="text-sm text-white/60">Este archivo no está disponible.</p>
-              )}
+                  <p className="text-sm text-white/60">Este archivo no está disponible.</p>
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -165,6 +171,7 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
           </div>
         )}
       </footer>
-    </div>
+    </div>,
+    document.body,
   );
 }
