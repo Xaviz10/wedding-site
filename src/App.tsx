@@ -1,14 +1,41 @@
+import { useEffect, useState } from "react";
 import { MotionConfig, motion, useScroll } from "framer-motion";
 import weddingContent from "./data/weddingContent";
+import GuestGalleryPage from "./components/gallery/GuestGalleryPage";
 import HeroSection from "./components/sections/HeroSection";
 import StorySection from "./components/sections/StorySection";
 import MilkaSection from "./components/sections/MilkaSection";
 import ProposalSection from "./components/sections/ProposalSection";
 import WeddingDetailsSection from "./components/sections/WeddingDetailsSection";
 import FooterSection from "./components/sections/FooterSection";
+import { consumeInviteToken, isGalleryHash } from "./lib/gallerySession";
 
-function App() {
+interface AppProps {
+  initialInviteToken?: string;
+}
+
+function App({ initialInviteToken }: AppProps) {
   const { scrollYProgress } = useScroll();
+  const [hash, setHash] = useState(() => window.location.hash);
+  const [inviteToken, setInviteToken] = useState(initialInviteToken);
+
+  useEffect(() => {
+    const onHashChange = () => {
+      const token = consumeInviteToken();
+      if (token) setInviteToken(token);
+      setHash(window.location.hash);
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  if (isGalleryHash(hash)) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <GuestGalleryPage initialInviteToken={inviteToken} />
+      </MotionConfig>
+    );
+  }
 
   return (
     <MotionConfig

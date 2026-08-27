@@ -86,12 +86,9 @@ function getMilkaBackgroundPosition(photo: MilkaPhoto, index: number) {
 
 function MilkaStoryBackground({ photos, selectedIndex = 0, shouldReduceMotion }: MilkaStoryBackgroundProps) {
   const [activePhotoIndex, setActivePhotoIndex] = useState(selectedIndex);
-  const photo = photos[activePhotoIndex] ?? photos[0];
-  const position = photo ? getMilkaBackgroundPosition(photo, activePhotoIndex) : undefined;
-
-  useEffect(() => {
-    setActivePhotoIndex(Math.min(selectedIndex, Math.max(photos.length - 1, 0)));
-  }, [photos.length, selectedIndex]);
+  const displayedPhotoIndex = Math.min(activePhotoIndex, Math.max(photos.length - 1, 0));
+  const photo = photos[displayedPhotoIndex] ?? photos[0];
+  const position = photo ? getMilkaBackgroundPosition(photo, displayedPhotoIndex) : undefined;
 
   useEffect(() => {
     if (photos.length <= 1) return undefined;

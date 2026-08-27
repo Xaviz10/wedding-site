@@ -89,7 +89,7 @@ async function googleSheetsRSVPTransport(data: RSVPInput): Promise<RSVPResult> {
     };
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new Error("La confirmación tardó demasiado. Intenta de nuevo.");
+      throw new Error("La confirmación tardó demasiado. Intenta de nuevo.", { cause: error });
     }
 
     throw error;

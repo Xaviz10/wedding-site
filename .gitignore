@@ -13,6 +13,7 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+!.env.gallery-demo
 
 # OS/editor files
 .DS_Store

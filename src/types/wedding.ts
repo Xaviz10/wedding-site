@@ -16,6 +16,7 @@ export interface HeroContent {
   date: string;
   countdownTarget: string;
   cta: string;
+  galleryCta: string;
 }
 
 export interface StoryBeat {

@@ -4,6 +4,7 @@ import heroImage from "../../assets/hero.jpg";
 import heroImage0892 from "../../assets/hero-img-0892.jpg";
 import heroImage20190828 from "../../assets/hero-img-20190828.jpg";
 import heroImageJkm0396 from "../../assets/hero-img-jkm-0396.jpg";
+import { hasEventStarted } from "../../lib/eventTime";
 import type { HeroContent } from "../../types/wedding";
 
 interface HeroSectionProps {
@@ -74,7 +75,7 @@ function CountdownField({ label, value }: CountdownFieldProps) {
   );
 }
 
-function WeddingCountdown({ target }: { target: string }) {
+export function WeddingCountdown({ target }: { target: string }) {
   const targetTime = useMemo(() => new Date(target).getTime(), [target]);
   const [now, setNow] = useState(() => Date.now());
 
@@ -115,6 +116,42 @@ function WeddingCountdown({ target }: { target: string }) {
       <CountdownField label="Min" value={minutes} />
       <CountdownField label="Seg" value={seconds} />
     </div>
+  );
+}
+
+export function GalleryCta({ target, label }: { target: string; label: string }) {
+  const [isVisible, setIsVisible] = useState(() => hasEventStarted(target));
+
+  useEffect(() => {
+    if (isVisible) return undefined;
+
+    const targetTime = new Date(target).getTime();
+    if (!Number.isFinite(targetTime)) return undefined;
+
+    let timeoutId: number;
+    const scheduleVisibility = () => {
+      const remaining = targetTime - Date.now();
+      if (remaining <= 0) {
+        setIsVisible(true);
+        return;
+      }
+      timeoutId = window.setTimeout(scheduleVisibility, Math.min(remaining, 2_147_000_000));
+    };
+    scheduleVisibility();
+    return () => window.clearTimeout(timeoutId);
+  }, [isVisible, target]);
+
+  if (!isVisible) return null;
+
+  return (
+    <motion.a
+      href="#/gallery"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mt-3 inline-flex items-center justify-center rounded-full border border-[var(--color-gold)] bg-[rgba(19,20,16,0.7)] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_12px_30px_rgba(0,0,0,0.25)] backdrop-blur-md transition hover:bg-[var(--color-gold)] hover:text-[var(--color-forest)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)]"
+    >
+      {label}
+    </motion.a>
   );
 }
 
@@ -375,6 +412,8 @@ export default function HeroSection({ content }: HeroSectionProps) {
             </span>
             <WeddingCountdown target={content.countdownTarget} />
           </motion.div>
+
+          <GalleryCta target={content.countdownTarget} label={content.galleryCta} />
 
           <motion.a
             href="#nuestra-historia"

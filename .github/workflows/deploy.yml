@@ -35,6 +35,8 @@ jobs:
         run: npm run build
         env:
           VITE_RSVP_ENDPOINT: ${{ vars.VITE_RSVP_ENDPOINT }}
+          VITE_WEDDING_API_URL: ${{ vars.VITE_WEDDING_API_URL }}
+          VITE_WEBSITE_URL: ${{ vars.VITE_WEBSITE_URL }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

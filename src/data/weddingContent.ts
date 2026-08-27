@@ -44,6 +44,7 @@ export const weddingContent: WeddingContent = {
     date: "5 de septiembre de 2026",
     countdownTarget: "2026-09-05T14:30:00-05:00",
     cta: "Ver nuestra historia",
+    galleryCta: "Compartir recuerdos de la boda",
   },
   story: {
     intro:
