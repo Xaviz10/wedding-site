@@ -15,7 +15,7 @@ describe("local gallery demo", () => {
       token: "local-gallery-demo",
       expiresAt: 1_000 + 24 * 60 * 60,
     });
-    expect(listDemoMedia().items).toHaveLength(2);
+    expect(listDemoMedia().items).toHaveLength(21);
     expect(listDemoMedia().items.every((item) => item.status === "READY")).toBe(true);
   });
 

@@ -19,9 +19,11 @@ import { readStoredSession, storeSession, type GallerySession } from "../../lib/
 import { waitForProcessedMedia } from "../../lib/galleryPolling";
 import { galleryFileValidationError } from "../../lib/galleryValidation";
 import { createDemoSession, isGalleryDemoMode } from "../../lib/galleryDemoApi";
-import { groupGalleryMedia } from "../../lib/galleryGrouping";
+import { groupGalleryMedia, type GalleryMediaGroup } from "../../lib/galleryGrouping";
+import { galleryTileSize, shouldUseCollageLayout } from "../../lib/galleryLayout";
 import { runWithConcurrency } from "../../lib/uploadBatch";
-import MediaCarouselCard from "./MediaCarouselCard";
+import GalleryGroupTile from "./GalleryGroupTile";
+import GalleryViewer from "./GalleryViewer";
 
 interface GuestGalleryPageProps {
   initialInviteToken?: string;
@@ -73,6 +75,8 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   const [batchUploading, setBatchUploading] = useState(false);
   const [uploadHasError, setUploadHasError] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [viewerGroup, setViewerGroup] = useState<GalleryMediaGroup>();
   const exchangedInvite = useRef<string | undefined>(undefined);
   const selectedMediaRef = useRef<QueuedMedia[]>([]);
 
@@ -82,6 +86,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
     ? Math.round(selectedMedia.reduce((sum, media) => sum + media.progress, 0) / selectedMedia.length)
     : 0;
   const galleryGroups = groupGalleryMedia(items);
+  const useCollageLayout = shouldUseCollageLayout(galleryGroups.length);
 
   useEffect(() => {
     selectedMediaRef.current = selectedMedia;
@@ -94,6 +99,8 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   const handleSessionExpired = useCallback((error: unknown) => {
     if (error instanceof SessionExpiredError) {
       setSession(undefined);
+      setIsUploadOpen(false);
+      setViewerGroup(undefined);
       setAuthStatus("error");
       setAuthError(error.message);
       return true;
@@ -139,6 +146,20 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
     const timeoutId = window.setTimeout(() => void refreshGallery(session), 0);
     return () => window.clearTimeout(timeoutId);
   }, [refreshGallery, session]);
+
+  useEffect(() => {
+    if (!isUploadOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && !batchUploading) setIsUploadOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", onKeyDown);
+    };
+  }, [batchUploading, isUploadOpen]);
 
   function updateQueuedMedia(id: string, values: Partial<QueuedMedia>): void {
     setSelectedMedia((current) => current.map((media) => media.id === id ? { ...media, ...values } : media));
@@ -269,6 +290,11 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
       setUploadMessage(
         `${succeeded} ${succeeded === 1 ? "recuerdo publicado" : "recuerdos publicados"}. ¡Gracias!`,
       );
+      setSelectedMedia((current) => {
+        current.forEach((media) => URL.revokeObjectURL(media.previewUrl));
+        return [];
+      });
+      setDisplayName("");
       setCaption("");
     } else {
       setUploadMessage(
@@ -305,195 +331,216 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   }
 
   return (
-    <main className="gallery-page relative isolate min-h-screen overflow-hidden text-[var(--color-forest)]">
-      <div className="paper-grain" aria-hidden />
-      <header className="gallery-hero relative z-10 px-5 py-12 text-center text-white md:px-10 md:py-20">
-        <div className="mx-auto max-w-4xl">
-          <a href="#portada" className="inline-flex min-h-11 items-center justify-center rounded-full border border-[var(--color-gold)]/55 px-5 py-2.5 text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-gold)] transition hover:border-[var(--color-gold)] hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)]">
-            ← Volver a la invitación
-          </a>
-          <p className="mt-10 text-[0.62rem] font-semibold uppercase tracking-[0.38em] text-[var(--color-gold)] md:text-[0.7rem]">Cata &amp; Javier</p>
-          <h1 className="font-heading mt-3 text-[clamp(3.2rem,9vw,6.2rem)] font-medium italic leading-[0.88] tracking-normal">Nuestros recuerdos</h1>
-          <p className="font-editorial mx-auto mt-5 max-w-2xl text-[clamp(1.15rem,3vw,1.55rem)] italic leading-[1.35] text-white/84">
-            Ayúdanos a guardar la boda desde todas las miradas.
-          </p>
-          {demoMode && (
-            <p className="mx-auto mt-5 w-fit rounded-full border border-[var(--color-gold)]/55 bg-black/25 px-4 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)]">
-              Modo demo local · sin conexión a AWS
-            </p>
-          )}
+    <main className="min-h-screen bg-[#f4f5f2] text-[var(--color-forest)] [padding-bottom:calc(5.5rem+env(safe-area-inset-bottom))]">
+      <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between gap-3 border-b border-black/8 bg-[#f4f5f2]/88 px-3 backdrop-blur-xl [padding-top:env(safe-area-inset-top)] sm:px-5">
+        <a
+          href="#portada"
+          aria-label="Volver a la invitación"
+          className="grid h-11 w-11 place-items-center rounded-full transition hover:bg-black/6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-olive)]"
+        >
+          <span className="text-2xl" aria-hidden>‹</span>
+        </a>
+        <div className="min-w-0 flex-1 text-center">
+          <h1 className="truncate text-[0.95rem] font-semibold tracking-[-0.01em]">Recuerdos</h1>
+          <p className="mt-0.5 text-[0.62rem] uppercase tracking-[0.16em] text-[var(--color-olive)]">Cata &amp; Javier</p>
         </div>
+        <button
+          type="button"
+          onClick={() => void refreshGallery(session)}
+          aria-label="Actualizar galería"
+          className="grid h-11 w-11 place-items-center rounded-full transition hover:bg-black/6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-olive)]"
+        >
+          <svg viewBox="0 0 24 24" className={`h-5 w-5 ${galleryStatus === "loading" ? "animate-spin" : ""}`} fill="none" aria-hidden>
+            <path d="M20 11a8 8 0 1 0-2.35 5.65" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+            <path d="M20 5v6h-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
       </header>
 
-      <div className="relative z-10 mx-auto grid max-w-[1180px] gap-12 px-4 py-20 md:px-8 lg:grid-cols-[minmax(22rem,0.42fr)_minmax(0,0.58fr)] lg:py-28">
-        <section aria-labelledby="upload-title">
-          <form onSubmit={onUpload} className="gallery-upload-form paper-surface grid gap-6 rounded-[8px] p-6 md:p-8">
-            <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">Comparte un momento</p>
-              <h2 id="upload-title" className="font-heading mt-3 text-[clamp(2.5rem,6vw,3.6rem)] font-medium italic leading-[0.92]">Sube tus fotos y videos</h2>
-              <p className="font-editorial mt-3 text-xl italic leading-[1.35] text-[var(--color-terracotta)]">
-                Elige varios archivos de tu galería y compártelos juntos.
-              </p>
-            </div>
+      <section aria-labelledby="gallery-title" className="px-4 pb-5 pt-6 sm:px-6 sm:pb-7 sm:pt-8">
+        <div className="flex items-end justify-between gap-4">
+          <div>
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">La boda desde todos los ángulos</p>
+            <h2 id="gallery-title" className="font-heading mt-1 text-[clamp(2.6rem,8vw,4.5rem)] font-medium italic leading-[0.9]">Nuestra galería</h2>
+          </div>
+          <p className="shrink-0 pb-1 text-xs text-[var(--color-forest)]/55">
+            {galleryGroups.length} {galleryGroups.length === 1 ? "grupo" : "grupos"}
+          </p>
+        </div>
+        {demoMode && (
+          <p className="mt-4 w-fit rounded-full bg-[var(--color-forest)] px-3 py-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">
+            Demo local · sin AWS
+          </p>
+        )}
+      </section>
 
-            <input
-              id="gallery-media-picker"
-              type="file"
-              accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,.mov"
-              className="sr-only"
-              onChange={onFileSelection}
-              multiple
-              disabled={batchUploading}
+      {galleryError && <p className="mx-4 mb-4 rounded-2xl bg-red-50 p-4 text-sm text-red-900 sm:mx-6" role="alert">{galleryError}</p>}
+
+      {galleryStatus === "loading" && items.length === 0 ? (
+        <div className="grid grid-cols-3 gap-0.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7" aria-label="Cargando galería">
+          {Array.from({ length: 14 }, (_, index) => <span key={index} className="aspect-square animate-pulse bg-black/8" />)}
+        </div>
+      ) : galleryGroups.length === 0 && !galleryError ? (
+        <section className="mx-auto grid min-h-[45svh] max-w-md place-items-center px-6 text-center">
+          <div>
+            <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white text-3xl shadow-sm" aria-hidden>＋</span>
+            <h2 className="mt-5 text-xl font-semibold">Todavía no hay recuerdos</h2>
+            <p className="mt-2 text-sm leading-relaxed text-[var(--color-forest)]/60">Sé la primera persona en compartir fotos y videos de la boda.</p>
+          </div>
+        </section>
+      ) : (
+        <ul
+          className={useCollageLayout
+            ? "gallery-collage bg-[#f4f5f2]"
+            : "grid grid-cols-3 gap-0.5 bg-[#f4f5f2] sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7"}
+          aria-label="Recuerdos compartidos"
+        >
+          {galleryGroups.map((group, index) => (
+            <GalleryGroupTile
+              key={group.id}
+              group={group}
+              size={useCollageLayout ? galleryTileSize(index, galleryGroups.length) : undefined}
+              onOpen={setViewerGroup}
             />
-            <label
-              htmlFor="gallery-media-picker"
-              onDragOver={(event) => event.preventDefault()}
-              onDrop={onFileDrop}
-              className={`paper-surface--soft group grid min-h-44 cursor-pointer place-items-center rounded-[8px] px-5 py-7 text-center transition hover:border-[var(--color-olive)] hover:bg-white/60 focus-within:outline focus-within:outline-2 focus-within:outline-offset-4 focus-within:outline-[var(--color-olive)] ${batchUploading ? "pointer-events-none opacity-55" : ""}`}
-            >
-              <span>
-                <span className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-[var(--color-olive)]/35 bg-[var(--color-ivory)] text-2xl text-[var(--color-forest)] shadow-[0_8px_20px_rgba(36,41,31,0.1)] transition group-hover:border-[var(--color-forest)]" aria-hidden>
-                  ＋
-                </span>
-                <span className="mt-4 block text-[0.72rem] font-semibold uppercase tracking-[0.18em]">Elegir fotos y videos</span>
-                <span className="mt-1 block text-xs leading-relaxed text-[var(--color-forest)]/65">
-                  Selecciona varios desde tu galería o arrástralos aquí<br />
-                  Imágenes hasta 20 MB · Videos hasta 500 MB cada uno
-                </span>
-              </span>
-            </label>
+          ))}
+        </ul>
+      )}
 
-            {selectedMedia.length > 0 && (
-              <div className="grid gap-3" aria-label="Archivos seleccionados">
-                <div className="flex items-center justify-between gap-3">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-olive)]">
-                    {selectedMedia.length} {selectedMedia.length === 1 ? "archivo seleccionado" : "archivos seleccionados"}
-                  </p>
-                  <label htmlFor="gallery-media-picker" className={`gallery-text-action cursor-pointer ${batchUploading ? "pointer-events-none opacity-50" : ""}`}>
-                    Agregar más
-                  </label>
-                </div>
+      {nextCursor && (
+        <div className="py-8 text-center">
+          <button
+            type="button"
+            disabled={galleryStatus === "loading"}
+            onClick={() => void refreshGallery(session, nextCursor)}
+            className="inline-flex min-h-11 items-center rounded-full border border-black/12 bg-white px-6 text-xs font-semibold shadow-sm transition hover:bg-black hover:text-white disabled:opacity-50"
+          >
+            {galleryStatus === "loading" ? "Cargando…" : "Ver más recuerdos"}
+          </button>
+        </div>
+      )}
 
-                <ul className="grid max-h-80 grid-cols-2 gap-2 overflow-y-auto pr-1 sm:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3">
-                  {selectedMedia.map((media) => (
-                    <li key={media.id} className="relative overflow-hidden rounded-[8px] bg-[var(--color-forest)]/10">
-                      <div className="pointer-events-none aspect-square select-none" aria-hidden="true">
-                        {media.file.type.startsWith("image/") ? (
-                          <img src={media.previewUrl} alt="" draggable={false} className="pointer-events-none h-full w-full object-cover" />
-                        ) : (
-                          <video src={media.previewUrl} muted playsInline preload="metadata" className="pointer-events-none h-full w-full bg-black object-cover" />
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        aria-label={`Quitar ${media.file.name}`}
-                        onClick={() => removeQueuedMedia(media.id)}
-                        disabled={media.status === "uploading" || media.status === "processing"}
-                        className="absolute right-1 top-1 z-20 grid h-11 w-11 touch-manipulation place-items-center rounded-full border border-white/45 bg-[rgba(252,251,248,0.9)] text-2xl leading-none text-[var(--color-forest)] shadow-md backdrop-blur-sm transition hover:bg-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)] disabled:hidden sm:h-9 sm:w-9 sm:text-xl"
-                      >
-                        ×
-                      </button>
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-black/90 via-black/65 to-transparent px-2 pb-2 pt-8 text-white">
-                        <p className="truncate text-[0.68rem] font-semibold" title={media.file.name}>{media.file.name}</p>
-                        <div className="mt-1 flex items-center justify-between gap-2 text-[0.6rem]">
-                          <span className="opacity-75">{formatFileSize(media.file.size)}</span>
-                          <span className={media.status === "error" ? "font-semibold text-red-200" : media.status === "success" ? "font-semibold text-emerald-200" : "font-semibold text-[var(--color-gold)]"}>
-                            {queueStatusLabel(media)}
-                          </span>
+      <button
+        type="button"
+        onClick={() => setIsUploadOpen(true)}
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 inline-flex min-h-14 touch-manipulation items-center gap-2 rounded-full bg-[var(--color-forest)] px-5 text-sm font-semibold text-white shadow-[0_14px_35px_rgba(20,24,18,0.3)] transition hover:-translate-y-0.5 hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-olive)] sm:right-6"
+      >
+        <span className="text-2xl font-light leading-none" aria-hidden>＋</span>
+        Subir recuerdos
+      </button>
+
+      {isUploadOpen && (
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/45 backdrop-blur-sm lg:items-stretch lg:justify-end">
+          <button
+            type="button"
+            aria-label="Cerrar formulario de carga"
+            onClick={() => !batchUploading && setIsUploadOpen(false)}
+            className="absolute inset-0 cursor-default"
+          />
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="upload-title"
+            className="relative z-10 max-h-[92dvh] w-full overflow-y-auto rounded-t-[28px] bg-[#f8f9f6] shadow-[0_-20px_60px_rgba(0,0,0,0.24)] [padding-bottom:max(1.5rem,env(safe-area-inset-bottom))] lg:h-full lg:max-h-none lg:max-w-[31rem] lg:rounded-none lg:shadow-[-20px_0_60px_rgba(0,0,0,0.18)]"
+          >
+            <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/8 bg-[#f8f9f6]/92 px-5 py-4 backdrop-blur-xl">
+              <div>
+                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">Comparte un momento</p>
+                <h2 id="upload-title" className="mt-1 text-xl font-semibold">Subir recuerdos</h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsUploadOpen(false)}
+                disabled={batchUploading}
+                aria-label="Cerrar"
+                className="grid h-11 w-11 place-items-center rounded-full bg-black/6 text-2xl transition hover:bg-black/10 disabled:opacity-35"
+              >
+                ×
+              </button>
+            </header>
+
+            <form onSubmit={onUpload} className="grid gap-6 px-5 py-6 sm:px-7">
+              <input
+                id="gallery-media-picker"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,.mov"
+                className="sr-only"
+                onChange={onFileSelection}
+                multiple
+                disabled={batchUploading}
+              />
+              <label
+                htmlFor="gallery-media-picker"
+                onDragOver={(event) => event.preventDefault()}
+                onDrop={onFileDrop}
+                className={`group grid min-h-40 cursor-pointer place-items-center rounded-3xl border border-dashed border-black/18 bg-white px-5 py-6 text-center shadow-sm transition hover:border-[var(--color-olive)] ${batchUploading ? "pointer-events-none opacity-50" : ""}`}
+              >
+                <span>
+                  <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[var(--color-forest)] text-2xl text-white" aria-hidden>＋</span>
+                  <span className="mt-3 block text-sm font-semibold">Elegir fotos y videos</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-black/48">Selecciona varios o arrástralos aquí<br />20 MB por imagen · 500 MB por video</span>
+                </span>
+              </label>
+
+              {selectedMedia.length > 0 && (
+                <div className="grid gap-3" aria-label="Archivos seleccionados">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold">{selectedMedia.length} {selectedMedia.length === 1 ? "archivo seleccionado" : "archivos seleccionados"}</p>
+                    <label htmlFor="gallery-media-picker" className={`cursor-pointer text-xs font-semibold text-[var(--color-olive)] ${batchUploading ? "pointer-events-none opacity-50" : ""}`}>Agregar más</label>
+                  </div>
+                  <ul className="grid max-h-72 grid-cols-3 gap-1.5 overflow-y-auto">
+                    {selectedMedia.map((media) => (
+                      <li key={media.id} className="relative overflow-hidden rounded-xl bg-black/8">
+                        <div className="pointer-events-none aspect-square select-none" aria-hidden="true">
+                          {media.file.type.startsWith("image/") ? (
+                            <img src={media.previewUrl} alt="" draggable={false} className="pointer-events-none h-full w-full object-cover" />
+                          ) : (
+                            <video src={media.previewUrl} muted playsInline preload="metadata" className="pointer-events-none h-full w-full bg-black object-cover" />
+                          )}
                         </div>
-                        {media.status === "uploading" && (
-                          <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/25" aria-hidden>
-                            <div className="h-full rounded-full bg-[var(--color-gold)] transition-[width]" style={{ width: `${media.progress}%` }} />
-                          </div>
-                        )}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-
-                {selectedMedia.some((media) => media.status === "error" && media.message) && (
-                  <ul className="grid gap-1 text-xs text-red-800" aria-label="Errores de carga">
-                    {selectedMedia.filter((media) => media.status === "error" && media.message).map((media) => (
-                      <li key={media.id}><strong>{media.file.name}:</strong> {media.message}</li>
+                        <button
+                          type="button"
+                          aria-label={`Quitar ${media.file.name}`}
+                          onClick={() => removeQueuedMedia(media.id)}
+                          disabled={media.status === "uploading" || media.status === "processing"}
+                          className="absolute right-1 top-1 z-20 grid h-11 w-11 touch-manipulation place-items-center rounded-full bg-black/66 text-2xl text-white shadow-md backdrop-blur-sm disabled:hidden sm:h-9 sm:w-9 sm:text-xl"
+                        >×</button>
+                        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 to-transparent px-2 pb-2 pt-7 text-white">
+                          <p className="truncate text-[0.62rem] font-semibold">{media.file.name}</p>
+                          <div className="mt-0.5 flex justify-between gap-1 text-[0.55rem] text-white/72"><span>{formatFileSize(media.file.size)}</span><span>{queueStatusLabel(media)}</span></div>
+                        </div>
+                      </li>
                     ))}
                   </ul>
-                )}
-              </div>
-            )}
+                  {selectedMedia.some((media) => media.status === "error" && media.message) && (
+                    <ul className="grid gap-1 rounded-2xl bg-red-50 p-3 text-xs text-red-900" aria-label="Errores de carga">
+                      {selectedMedia.filter((media) => media.status === "error" && media.message).map((media) => <li key={media.id}><strong>{media.file.name}:</strong> {media.message}</li>)}
+                    </ul>
+                  )}
+                </div>
+              )}
 
-            <label className="grid gap-2">
-              <span className="form-label">Tu nombre <span className="font-normal normal-case opacity-65">(opcional)</span></span>
-              <input className="form-control" value={displayName} maxLength={80} onChange={(event) => setDisplayName(event.target.value)} />
-            </label>
+              <label className="grid gap-2">
+                <span className="text-xs font-medium text-black/55">Tu nombre <span className="font-normal">(opcional)</span></span>
+                <input className="min-h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:border-[var(--color-olive)] focus:ring-2 focus:ring-[var(--color-olive)]/20" value={displayName} maxLength={80} onChange={(event) => setDisplayName(event.target.value)} />
+              </label>
+              <label className="grid gap-2">
+                <span className="text-xs font-medium text-black/55">Mensaje para este grupo <span className="font-normal">(opcional)</span></span>
+                <textarea className="min-h-28 resize-none rounded-2xl border border-black/10 bg-white p-4 outline-none transition focus:border-[var(--color-olive)] focus:ring-2 focus:ring-[var(--color-olive)]/20" rows={3} value={caption} maxLength={280} onChange={(event) => setCaption(event.target.value)} />
+                <span className="text-right text-[0.65rem] text-black/40">{caption.length}/280</span>
+              </label>
 
-            <label className="grid gap-2">
-              <span className="form-label">Mensaje para este grupo <span className="font-normal normal-case opacity-65">(opcional)</span></span>
-              <textarea className="form-control resize-none" rows={3} value={caption} maxLength={280} onChange={(event) => setCaption(event.target.value)} />
-              <span className="text-right text-xs text-[var(--color-forest)]/60">{caption.length}/280</span>
-            </label>
-
-            <button
-              type="submit"
-              disabled={batchUploading || uploadableCount === 0}
-              className="gallery-primary-action"
-            >
-              {batchUploading
-                ? "Compartiendo recuerdos…"
-                : uploadableCount === 1
-                  ? "Compartir 1 recuerdo"
-                  : `Compartir ${uploadableCount} recuerdos`}
-            </button>
-
-            {batchUploading && (
-              <div className="h-2 overflow-hidden rounded-full bg-[var(--color-forest)]/10" aria-hidden>
-                <div className="h-full rounded-full bg-[var(--color-gold)] transition-[width]" style={{ width: `${overallProgress}%` }} />
-              </div>
-            )}
-            {completedCount > 0 && !batchUploading && (
-              <button type="button" onClick={clearCompletedMedia} className="gallery-text-action mx-auto">
-                Limpiar {completedCount === 1 ? "archivo publicado" : `${completedCount} archivos publicados`}
+              <button type="submit" disabled={batchUploading || uploadableCount === 0} className="inline-flex min-h-14 items-center justify-center rounded-2xl bg-[var(--color-forest)] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:cursor-wait disabled:opacity-40">
+                {batchUploading ? "Compartiendo recuerdos…" : uploadableCount === 1 ? "Compartir 1 recuerdo" : `Compartir ${uploadableCount} recuerdos`}
               </button>
-            )}
-            {uploadMessage && (
-              <p className={uploadHasError ? "form-feedback form-feedback--error" : "form-feedback form-feedback--success"} role={uploadHasError ? "alert" : "status"}>
-                {uploadMessage}
-              </p>
-            )}
-          </form>
-        </section>
+              {batchUploading && <div className="h-1.5 overflow-hidden rounded-full bg-black/8" aria-hidden><div className="h-full rounded-full bg-[var(--color-olive)] transition-[width]" style={{ width: `${overallProgress}%` }} /></div>}
+              {completedCount > 0 && !batchUploading && <button type="button" onClick={clearCompletedMedia} className="text-xs font-semibold text-[var(--color-olive)]">Limpiar {completedCount === 1 ? "archivo publicado" : `${completedCount} archivos publicados`}</button>}
+              {uploadMessage && <p className={`rounded-2xl p-4 text-sm leading-relaxed ${uploadHasError ? "bg-red-50 text-red-900" : "bg-[var(--color-moss-soft)]/22 text-[var(--color-forest)]"}`} role={uploadHasError ? "alert" : "status"}>{uploadMessage}</p>}
+            </form>
+          </section>
+        </div>
+      )}
 
-        <section aria-labelledby="gallery-title">
-          <div className="flex items-end justify-between gap-4 border-b border-[var(--color-olive)]/20 pb-5">
-            <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.3em] text-[var(--color-olive)]">La boda desde todos los ángulos</p>
-              <h2 id="gallery-title" className="font-heading mt-3 text-[clamp(2.7rem,6vw,4.6rem)] font-medium italic leading-[0.92]">Galería</h2>
-            </div>
-            <button type="button" onClick={() => void refreshGallery(session)} className="gallery-secondary-action shrink-0">
-              Actualizar
-            </button>
-          </div>
-
-          {galleryStatus === "loading" && items.length === 0 && <p className="mt-10" role="status">Cargando recuerdos…</p>}
-          {galleryError && <p className="form-feedback form-feedback--error mt-8" role="alert">{galleryError}</p>}
-          {galleryStatus !== "loading" && items.length === 0 && !galleryError && (
-            <div className="paper-surface mt-8 rounded-[8px] p-8 text-center">
-              <p className="font-editorial text-2xl italic">Sé la primera persona en compartir un recuerdo.</p>
-            </div>
-          )}
-
-          <div className="mt-8 columns-1 gap-5 sm:columns-2">
-            {galleryGroups.map((group) => <MediaCarouselCard key={group.id} group={group} />)}
-          </div>
-
-          {nextCursor && (
-            <div className="mt-8 text-center">
-              <button type="button" disabled={galleryStatus === "loading"} onClick={() => void refreshGallery(session, nextCursor)} className="gallery-secondary-action px-6">
-                {galleryStatus === "loading" ? "Cargando…" : "Ver más recuerdos"}
-              </button>
-            </div>
-          )}
-        </section>
-      </div>
+      {viewerGroup && <GalleryViewer key={viewerGroup.id} group={viewerGroup} onClose={() => setViewerGroup(undefined)} />}
     </main>
   );
 }

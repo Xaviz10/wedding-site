@@ -32,7 +32,7 @@ describe("guest gallery authentication", () => {
       }));
 
     render(<GuestGalleryPage initialInviteToken="invite-secret" />);
-    expect(await screen.findByRole("heading", { name: "Nuestros recuerdos" })).toBeInTheDocument();
+    expect(await screen.findByRole("heading", { name: "Recuerdos" })).toBeInTheDocument();
     await waitFor(() => expect(screen.getByText(/primera persona/i)).toBeInTheDocument());
     expect(fetchMock).toHaveBeenNthCalledWith(1, "https://api.example.test/dev/session", expect.objectContaining({
       headers: { "X-Invite-Token": "invite-secret" },
@@ -67,7 +67,10 @@ describe("guest gallery authentication", () => {
     }), { status: 200, headers: { "Content-Type": "application/json" } }));
 
     const { container } = render(<GuestGalleryPage />);
-    const image = await screen.findByRole("img", { name: "Una foto" });
+    await screen.findByRole("heading", { name: "Recuerdos" });
+    await waitFor(() => expect(container.querySelectorAll("[aria-label='Recuerdos compartidos'] li")).toHaveLength(2));
+    const image = container.querySelector<HTMLImageElement>('img[src="https://media.example/images/thumb.webp"]');
+    expect(image).not.toBeNull();
     expect(image).toHaveAttribute("loading", "lazy");
     expect(image).toHaveAttribute("src", "https://media.example/images/thumb.webp");
     expect(container.querySelector("video")).toHaveAttribute("src", "https://media.example/videos/video.mp4");
@@ -79,9 +82,16 @@ describe("guest gallery authentication", () => {
 
     render(<GuestGalleryPage />);
 
-    expect(screen.getByText(/modo demo local/i)).toBeInTheDocument();
-    expect(await screen.findByText(/recuerdo de ejemplo/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Compartir 0 recuerdos" })).toBeDisabled();
+    expect(screen.getByText(/demo local/i)).toBeInTheDocument();
+    const groupTile = await screen.findByRole("button", {
+      name: /abrir grupo de 2 recuerdos de familia y amigos/i,
+    });
+    expect(screen.getByRole("list", { name: "Recuerdos compartidos" })).toHaveClass("gallery-collage");
+    expect(groupTile.closest("li")).toHaveClass("col-span-2", "row-span-2");
+    await userEvent.click(groupTile);
+    expect(screen.getByRole("dialog", { name: "Recuerdos de Familia y amigos" })).toBeInTheDocument();
+    expect(screen.getByText(/recuerdo de ejemplo/i)).toBeInTheDocument();
+    expect(screen.getByText("1 de 2")).toBeInTheDocument();
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
@@ -89,6 +99,7 @@ describe("guest gallery authentication", () => {
     vi.stubEnv("VITE_GALLERY_DEMO_MODE", "true");
     const user = userEvent.setup();
     render(<GuestGalleryPage />);
+    await user.click(screen.getByRole("button", { name: "Subir recuerdos" }));
     const picker = screen.getByLabelText(/elegir fotos y videos/i);
     const photo = new File(["photo"], "ceremonia.jpg", { type: "image/jpeg" });
     const video = new File(["video"], "baile.mp4", { type: "video/mp4" });
@@ -109,5 +120,29 @@ describe("guest gallery authentication", () => {
     await user.click(removePhoto);
     expect(screen.getByText("1 archivo seleccionado")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Compartir 1 recuerdo" })).toBeEnabled();
+  });
+
+  it("resets the upload sheet after every selected file is published", async () => {
+    vi.stubEnv("VITE_GALLERY_DEMO_MODE", "true");
+    const revokeObjectUrl = vi.spyOn(URL, "revokeObjectURL");
+    const user = userEvent.setup();
+    render(<GuestGalleryPage />);
+
+    await user.click(screen.getByRole("button", { name: "Subir recuerdos" }));
+    const picker = screen.getByLabelText(/elegir fotos y videos/i);
+    const displayName = screen.getByLabelText(/tu nombre/i);
+    const caption = screen.getByLabelText(/mensaje para este grupo/i);
+    await user.upload(picker, new File(["photo"], "nuevo-recuerdo.jpg", { type: "image/jpeg" }));
+    await user.type(displayName, "Ana");
+    await user.type(caption, "Un nuevo recuerdo");
+    await user.click(screen.getByRole("button", { name: "Compartir 1 recuerdo" }));
+
+    expect(await screen.findByText(/1 recuerdo publicado/i, {}, { timeout: 5_000 })).toBeInTheDocument();
+    expect(screen.queryByText("nuevo-recuerdo.jpg")).not.toBeInTheDocument();
+    expect(screen.queryByText(/archivo seleccionado/i)).not.toBeInTheDocument();
+    expect(displayName).toHaveValue("");
+    expect(caption).toHaveValue("");
+    expect(screen.getByRole("button", { name: "Compartir 0 recuerdos" })).toBeDisabled();
+    expect(revokeObjectUrl).toHaveBeenCalled();
   });
 });

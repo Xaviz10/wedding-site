@@ -28,9 +28,10 @@ This mode:
 
 - Opens the authenticated gallery without a QR secret.
 - Shows representative local sample media.
-- Uses a gallery-style picker with multi-select, previews, removal controls, and desktop drag-and-drop.
+- Uses a phone-gallery layout with an edge-to-edge media grid, a full-screen viewer, and an upload bottom sheet. At eight or more upload groups, the grid becomes a subtle non-overlapping collage where most tiles remain small.
+- Supports multi-select, square previews, mobile removal controls, and desktop drag-and-drop.
 - Simulates parallel file-upload progress, processing polling, and automatic publication.
-- Keeps files selected in one submission together as a swipeable carousel with one shared guest name and message.
+- Keeps files selected in one submission together as one grouped tile; opening it shows a swipeable full-screen viewer with one shared guest name and message.
 - Keeps uploaded files only in browser memory; refreshing resets them.
 - Does not call API Gateway, S3, DynamoDB, Lambda, or MediaConvert.
 - Is guarded by both Vite development mode and `VITE_GALLERY_DEMO_MODE=true`, so it cannot activate in a normal production build.
