@@ -24,12 +24,14 @@ import { galleryTileSize, shouldUseCollageLayout } from "../../lib/galleryLayout
 import { runWithConcurrency } from "../../lib/uploadBatch";
 import { createClientUuid } from "../../lib/clientUuid";
 import { prepareGalleryFile } from "../../lib/galleryFilePreparation";
+import { clearAdminSession } from "../../lib/adminAuth";
 import heroImage from "../../assets/hero.jpg";
 import GalleryGroupTile from "./GalleryGroupTile";
 import GalleryViewer from "./GalleryViewer";
 
 interface GuestGalleryPageProps {
   initialInviteToken?: string;
+  onInviteConsumed?(): void;
 }
 
 export type QueuedMediaStatus = "queued" | "uploading" | "processing" | "success" | "error";
@@ -104,7 +106,7 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(bytes < 10 * 1024 * 1024 ? 1 : 0)} MB`;
 }
 
-export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPageProps) {
+export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed }: GuestGalleryPageProps) {
   const demoMode = isGalleryDemoMode();
   const [session, setSession] = useState<GallerySession | undefined>(() =>
     demoMode ? createDemoSession() : readStoredSession(),
@@ -159,6 +161,10 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
             : "Selecciona fotos y videos";
 
   useEffect(() => {
+    if (initialInviteToken && !demoMode) clearAdminSession();
+  }, [demoMode, initialInviteToken]);
+
+  useEffect(() => {
     selectedMediaRef.current = selectedMedia;
   }, [selectedMedia]);
 
@@ -197,6 +203,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   useEffect(() => {
     if (demoMode || !initialInviteToken || exchangedInvite.current === initialInviteToken) return;
     exchangedInvite.current = initialInviteToken;
+    onInviteConsumed?.();
     setAuthStatus("loading");
     void exchangeInviteToken(initialInviteToken)
       .then((newSession) => {
@@ -208,7 +215,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
         setAuthStatus("error");
         setAuthError(error instanceof Error ? error.message : "El enlace de invitación no es válido.");
       });
-  }, [demoMode, initialInviteToken]);
+  }, [demoMode, initialInviteToken, onInviteConsumed]);
 
   useEffect(() => {
     if (!session) return undefined;

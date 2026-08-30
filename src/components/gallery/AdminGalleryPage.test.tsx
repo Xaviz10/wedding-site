@@ -38,6 +38,7 @@ function storeAdminSession(): void {
 describe("admin gallery", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
+    window.localStorage.clear();
     window.history.replaceState(null, "", "/wedding-site/#/admin");
     vi.stubEnv("VITE_WEDDING_API_URL", "https://api.example.test/prod");
     vi.stubEnv("VITE_COGNITO_DOMAIN", "https://wedding.auth.example.test");
@@ -91,6 +92,40 @@ describe("admin gallery", () => {
     expect(await screen.findByRole("region", { name: "Descargas preparadas" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "foto-0.webp" })).toHaveAttribute("href", downloads[0]?.url);
     expect(screen.getByRole("link", { name: "foto-1.webp" })).toHaveAttribute("href", downloads[1]?.url);
+  });
+
+  it("opens grouped admin media in the guest full-screen viewer at the selected item", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify({
+      items: mediaItems,
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+    const user = userEvent.setup();
+
+    render(<AdminGalleryPage />);
+    await user.click(await screen.findByRole("button", { name: "Administrar grupo" }));
+    await user.click(screen.getByRole("button", { name: "Ver familia-2.jpg en grande" }));
+
+    expect(screen.getByRole("dialog", { name: "Recuerdos de Familia" })).toBeInTheDocument();
+    expect(screen.getByText("2 de 2")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Foto compartida por un invitado" })).toHaveAttribute(
+      "src",
+      mediaItems[1]?.mediaUrl,
+    );
+  });
+
+  it("keeps guest and admin sessions mutually exclusive when admin mode is active", async () => {
+    window.localStorage.setItem("wedding-gallery-session-v1", JSON.stringify({
+      token: "guest-token",
+      expiresAt: 9_999_999_999,
+    }));
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify({
+      items: [],
+    }), { status: 200, headers: { "Content-Type": "application/json" } }));
+
+    render(<AdminGalleryPage />);
+
+    await screen.findByText("No hay recuerdos publicados");
+    expect(window.localStorage.getItem("wedding-gallery-session-v1")).toBeNull();
+    expect(window.sessionStorage.getItem("wedding-admin-session-v1")).not.toBeNull();
   });
 
   it("keeps the authenticated page visible when the API returns a forbidden response", async () => {

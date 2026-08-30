@@ -1,3 +1,5 @@
+import { clearSession } from "./gallerySession";
+
 const ADMIN_SESSION_KEY = "wedding-admin-session-v1";
 const ADMIN_OAUTH_KEY = "wedding-admin-oauth-v1";
 const OAUTH_TRANSACTION_TTL_MS = 10 * 60 * 1000;
@@ -108,6 +110,7 @@ export async function completeAdminLogin(options: {
   storage?: Storage;
   location?: Location;
   history?: History;
+  galleryStorage?: Storage;
   now?: number;
 } = {}): Promise<AdminSession> {
   const fetcher = options.fetcher ?? fetch;
@@ -177,6 +180,7 @@ export async function completeAdminLogin(options: {
     email: claims.email,
     expiresAt: claims.exp * 1000,
   };
+  clearSession(options.galleryStorage ?? window.localStorage);
   storage.setItem(ADMIN_SESSION_KEY, JSON.stringify(session));
   storage.removeItem(ADMIN_OAUTH_KEY);
   scrubCallback(history, location);

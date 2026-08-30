@@ -7,6 +7,7 @@ import * as galleryFilePreparation from "../../lib/galleryFilePreparation";
 describe("guest gallery authentication", () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
     resetDemoGallery();
     vi.stubEnv("VITE_GALLERY_DEMO_MODE", "false");
     vi.stubEnv("VITE_WEDDING_API_URL", "https://api.example.test/dev");
@@ -26,6 +27,12 @@ describe("guest gallery authentication", () => {
   });
 
   it("exchanges the invite and renders the empty authenticated gallery", async () => {
+    const onInviteConsumed = vi.fn();
+    window.sessionStorage.setItem("wedding-admin-session-v1", JSON.stringify({
+      idToken: "admin-token",
+      email: "admin@example.test",
+      expiresAt: Date.now() + 3_600_000,
+    }));
     const fetchMock = vi.spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(new Response(JSON.stringify({ sessionToken: "session", expiresAt: 9_999_999_999 }), {
         status: 201,
@@ -36,7 +43,7 @@ describe("guest gallery authentication", () => {
         headers: { "Content-Type": "application/json" },
       }));
 
-    render(<GuestGalleryPage initialInviteToken="invite-secret" />);
+    render(<GuestGalleryPage initialInviteToken="invite-secret" onInviteConsumed={onInviteConsumed} />);
     expect(await screen.findByRole("heading", { name: "Recuerdos" })).toBeInTheDocument();
     const galleryTitle = screen.getByRole("heading", { name: "Nuestra galería" });
     expect(galleryTitle).toHaveClass("font-heading", "italic");
@@ -46,6 +53,8 @@ describe("guest gallery authentication", () => {
       headers: { "X-Invite-Token": "invite-secret" },
     }));
     expect(window.localStorage.getItem("wedding-gallery-session-v1")).not.toContain("invite-secret");
+    expect(window.sessionStorage.getItem("wedding-admin-session-v1")).toBeNull();
+    expect(onInviteConsumed).toHaveBeenCalledOnce();
   });
 
   it("renders lazy images and inline video from a stored session", async () => {

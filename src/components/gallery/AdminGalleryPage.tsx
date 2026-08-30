@@ -15,10 +15,17 @@ import {
   readAdminSession,
   type AdminSession,
 } from "../../lib/adminAuth";
+import { clearSession } from "../../lib/gallerySession";
 import { groupGalleryMedia, type GalleryMediaGroup } from "../../lib/galleryGrouping";
+import GalleryViewer from "./GalleryViewer";
 
 interface AdminMediaGroup extends Omit<GalleryMediaGroup, "items"> {
   items: AdminMedia[];
+}
+
+interface AdminViewerState {
+  group: AdminMediaGroup;
+  initialIndex: number;
 }
 
 function AdminPreview({ item }: { item: AdminMedia }) {
@@ -46,6 +53,7 @@ export default function AdminGalleryPage() {
   const [error, setError] = useState("");
   const [selectedGroups, setSelectedGroups] = useState<Set<string>>(() => new Set());
   const [activeGroupId, setActiveGroupId] = useState<string>();
+  const [viewer, setViewer] = useState<AdminViewerState>();
   const [downloads, setDownloads] = useState<AdminDownload[]>([]);
   const callbackStarted = useRef(false);
   const loadedSessionToken = useRef<string | undefined>(undefined);
@@ -91,6 +99,7 @@ export default function AdminGalleryPage() {
 
   useEffect(() => {
     if (!session || loadedSessionToken.current === session.idToken) return;
+    clearSession();
     loadedSessionToken.current = session.idToken;
     void loadMedia(session);
     const remaining = Math.max(0, session.expiresAt - Date.now());
@@ -118,6 +127,7 @@ export default function AdminGalleryPage() {
       setItems((current) => current.filter((item) => !deleted.has(item.id)));
       setSelectedGroups(new Set());
       setActiveGroupId(undefined);
+      setViewer(undefined);
     } catch (deleteError) {
       setError(deleteError instanceof Error ? deleteError.message : "No pudimos eliminar la selección.");
       if (!readAdminSession()) setSession(undefined);
@@ -232,7 +242,15 @@ export default function AdminGalleryPage() {
             const selected = selectedGroups.has(group.id);
             return (
               <li key={group.id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition ${selected ? "border-[var(--color-olive)] ring-2 ring-[var(--color-olive)]/20" : "border-black/8"}`}>
-                <div className="relative aspect-square overflow-hidden bg-black/5"><AdminPreview item={group.items[0]!} />
+                <div className="relative aspect-square overflow-hidden bg-black/5">
+                  <button
+                    type="button"
+                    aria-label={`Ver grupo ${group.displayName || "sin nombre"} en grande`}
+                    onClick={() => setViewer({ group, initialIndex: 0 })}
+                    className="block h-full w-full touch-manipulation text-left"
+                  >
+                    <AdminPreview item={group.items[0]!} />
+                  </button>
                   <label className="absolute left-3 top-3 grid h-11 w-11 cursor-pointer place-items-center rounded-full bg-white/92 shadow-md backdrop-blur">
                     <input type="checkbox" checked={selected} onChange={() => toggleGroup(group.id)} aria-label={`Seleccionar ${group.displayName || "grupo"}`} className="h-5 w-5 accent-[var(--color-olive)]" />
                   </label>
@@ -276,10 +294,19 @@ export default function AdminGalleryPage() {
           <button type="button" aria-label="Cerrar detalle" onClick={() => setActiveGroupId(undefined)} className="absolute inset-0" />
           <section role="dialog" aria-modal="true" aria-label="Administrar archivos del grupo" className="relative z-10 max-h-[92dvh] w-full max-w-3xl overflow-y-auto rounded-t-3xl bg-[#f4f5f2] p-5 [padding-bottom:max(1.25rem,env(safe-area-inset-bottom))] sm:rounded-3xl sm:p-7">
             <div className="flex items-start justify-between gap-4"><div><p className="text-[0.62rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">Grupo</p><h2 className="mt-1 text-2xl font-semibold">{activeGroup.displayName || "Recuerdo de invitado"}</h2><p className="mt-1 text-sm text-black/50">{activeGroup.items.length} {activeGroup.items.length === 1 ? "archivo" : "archivos"}</p></div><button type="button" onClick={() => setActiveGroupId(undefined)} aria-label="Cerrar" className="grid h-11 w-11 place-items-center rounded-full bg-white text-xl">×</button></div>
-            <ul className="mt-6 grid gap-3 sm:grid-cols-2">{activeGroup.items.map((item) => <li key={item.id} className="flex items-center gap-3 rounded-2xl bg-white p-2 shadow-sm"><div className="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-black/5"><AdminPreview item={item} /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{item.originalFileName}</p><p className="mt-1 text-xs uppercase tracking-wide text-black/40">{item.mediaKind === "image" ? "Imagen" : "Video"}</p><button type="button" disabled={Boolean(operation)} onClick={() => void removeMedia([item.id], `este ${item.mediaKind === "image" ? "archivo" : "video"}`)} className="mt-2 min-h-9 text-xs font-semibold text-red-700 disabled:opacity-50">Eliminar archivo</button></div></li>)}</ul>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">{activeGroup.items.map((item, index) => <li key={item.id} className="flex items-center gap-3 rounded-2xl bg-white p-2 shadow-sm"><button type="button" aria-label={`Ver ${item.originalFileName} en grande`} onClick={() => setViewer({ group: activeGroup, initialIndex: index })} className="h-20 w-20 shrink-0 touch-manipulation overflow-hidden rounded-xl bg-black/5"><AdminPreview item={item} /></button><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{item.originalFileName}</p><p className="mt-1 text-xs uppercase tracking-wide text-black/40">{item.mediaKind === "image" ? "Imagen" : "Video"}</p><button type="button" disabled={Boolean(operation)} onClick={() => void removeMedia([item.id], `este ${item.mediaKind === "image" ? "archivo" : "video"}`)} className="mt-2 min-h-9 text-xs font-semibold text-red-700 disabled:opacity-50">Eliminar archivo</button></div></li>)}</ul>
             <div className="mt-6 flex flex-wrap justify-end gap-3"><button type="button" disabled={Boolean(operation)} onClick={() => void downloadMedia(activeGroup.items.map((item) => item.id))} className="min-h-11 rounded-full border border-black/12 bg-white px-5 text-xs font-semibold disabled:opacity-50">Descargar grupo</button><button type="button" disabled={Boolean(operation)} onClick={() => void removeMedia(activeGroup.items.map((item) => item.id), "todo este grupo")} className="min-h-11 rounded-full bg-red-700 px-5 text-xs font-semibold text-white disabled:opacity-50">Eliminar grupo</button></div>
           </section>
         </div>
+      )}
+
+      {viewer && (
+        <GalleryViewer
+          key={`${viewer.group.id}:${viewer.initialIndex}`}
+          group={viewer.group}
+          initialIndex={viewer.initialIndex}
+          onClose={() => setViewer(undefined)}
+        />
       )}
     </main>
   );

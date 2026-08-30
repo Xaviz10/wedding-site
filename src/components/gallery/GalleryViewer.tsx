@@ -4,11 +4,14 @@ import type { GalleryMediaGroup } from "../../lib/galleryGrouping";
 
 interface GalleryViewerProps {
   group: GalleryMediaGroup;
+  initialIndex?: number;
   onClose(): void;
 }
 
-export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
-  const [activeIndex, setActiveIndex] = useState(0);
+export default function GalleryViewer({ group, initialIndex = 0, onClose }: GalleryViewerProps) {
+  const [activeIndex, setActiveIndex] = useState(() =>
+    Math.min(Math.max(0, initialIndex), Math.max(0, group.items.length - 1)),
+  );
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const slidesRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | undefined>(undefined);

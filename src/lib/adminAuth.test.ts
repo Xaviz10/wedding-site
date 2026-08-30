@@ -12,6 +12,7 @@ function jwt(claims: Record<string, unknown>): string {
 describe("Cognito admin PKCE authentication", () => {
   beforeEach(() => {
     window.sessionStorage.clear();
+    window.localStorage.clear();
     vi.stubEnv("VITE_COGNITO_DOMAIN", "https://wedding.auth.us-east-1.amazoncognito.com");
     vi.stubEnv("VITE_COGNITO_CLIENT_ID", "client-id");
     vi.stubEnv("VITE_WEBSITE_URL", "https://example.test/wedding-site");
@@ -48,6 +49,10 @@ describe("Cognito admin PKCE authentication", () => {
       headers: { "Content-Type": "application/json" },
     }));
     const replaceState = vi.fn();
+    window.localStorage.setItem("wedding-gallery-session-v1", JSON.stringify({
+      token: "guest-session",
+      expiresAt: Math.floor(now / 1000) + 3600,
+    }));
 
     const session = await completeAdminLogin({
       fetcher,
@@ -59,6 +64,7 @@ describe("Cognito admin PKCE authentication", () => {
 
     expect(session).toMatchObject({ email: "admin@example.test", idToken });
     expect(readAdminSession(window.sessionStorage, now)).toEqual(session);
+    expect(window.localStorage.getItem("wedding-gallery-session-v1")).toBeNull();
     expect(replaceState).toHaveBeenCalledWith(null, "", "/wedding-site/#/admin");
     expect(fetcher).toHaveBeenCalledWith(
       "https://wedding.auth.us-east-1.amazoncognito.com/oauth2/token",

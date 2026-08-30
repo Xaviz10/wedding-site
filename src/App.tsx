@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { MotionConfig, motion, useScroll } from "framer-motion";
 import weddingContent from "./data/weddingContent";
 import GuestGalleryPage from "./components/gallery/GuestGalleryPage";
@@ -20,6 +20,7 @@ function App({ initialInviteToken }: AppProps) {
   const { scrollYProgress } = useScroll();
   const [hash, setHash] = useState(() => hasAdminOAuthCallback() ? "#/admin" : window.location.hash);
   const [inviteToken, setInviteToken] = useState(initialInviteToken);
+  const clearInviteToken = useCallback(() => setInviteToken(undefined), []);
 
   useEffect(() => {
     const onHashChange = () => {
@@ -34,7 +35,7 @@ function App({ initialInviteToken }: AppProps) {
   if (isGalleryHash(hash)) {
     return (
       <MotionConfig reducedMotion="user">
-        <GuestGalleryPage initialInviteToken={inviteToken} />
+        <GuestGalleryPage initialInviteToken={inviteToken} onInviteConsumed={clearInviteToken} />
       </MotionConfig>
     );
   }
