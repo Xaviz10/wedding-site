@@ -22,6 +22,8 @@ import { createDemoSession, isGalleryDemoMode } from "../../lib/galleryDemoApi";
 import { groupGalleryMedia, type GalleryMediaGroup } from "../../lib/galleryGrouping";
 import { galleryTileSize, shouldUseCollageLayout } from "../../lib/galleryLayout";
 import { runWithConcurrency } from "../../lib/uploadBatch";
+import { createClientUuid } from "../../lib/clientUuid";
+import { prepareGalleryFile } from "../../lib/galleryFilePreparation";
 import GalleryGroupTile from "./GalleryGroupTile";
 import GalleryViewer from "./GalleryViewer";
 
@@ -72,6 +74,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   const [selectedMedia, setSelectedMedia] = useState<QueuedMedia[]>([]);
   const [displayName, setDisplayName] = useState("");
   const [caption, setCaption] = useState("");
+  const [preparingMedia, setPreparingMedia] = useState(false);
   const [batchUploading, setBatchUploading] = useState(false);
   const [uploadHasError, setUploadHasError] = useState(false);
   const [uploadMessage, setUploadMessage] = useState("");
@@ -79,6 +82,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   const [viewerGroup, setViewerGroup] = useState<GalleryMediaGroup>();
   const exchangedInvite = useRef<string | undefined>(undefined);
   const selectedMediaRef = useRef<QueuedMedia[]>([]);
+  const preparingMediaRef = useRef(false);
 
   const uploadableCount = selectedMedia.filter((media) => media.status === "queued" || media.status === "error").length;
   const completedCount = selectedMedia.filter((media) => media.status === "success").length;
@@ -152,39 +156,58 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && !batchUploading) setIsUploadOpen(false);
+      if (event.key === "Escape" && !batchUploading && !preparingMedia) setIsUploadOpen(false);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [batchUploading, isUploadOpen]);
+  }, [batchUploading, isUploadOpen, preparingMedia]);
 
   function updateQueuedMedia(id: string, values: Partial<QueuedMedia>): void {
     setSelectedMedia((current) => current.map((media) => media.id === id ? { ...media, ...values } : media));
   }
 
-  function addFiles(files: FileList | readonly File[]): void {
-    if (batchUploading) return;
+  async function addFiles(files: FileList | readonly File[]): Promise<void> {
+    if (batchUploading || preparingMediaRef.current) return;
     const incoming = Array.from(files);
     const accepted: QueuedMedia[] = [];
     const validationErrors: string[] = [];
+    let convertedHeicCount = 0;
 
-    for (const file of incoming) {
-      const validationError = galleryFileValidationError(file);
-      if (validationError) {
-        validationErrors.push(`${file.name}: ${validationError}`);
-        continue;
+    preparingMediaRef.current = true;
+    setPreparingMedia(true);
+    setUploadHasError(false);
+    setUploadMessage(
+      incoming.length === 1 ? "Preparando el archivo…" : `Preparando ${incoming.length} archivos…`,
+    );
+
+    for (const originalFile of incoming) {
+      try {
+        // Convert sequentially to keep memory usage predictable on iPhones.
+        const prepared = await prepareGalleryFile(originalFile);
+        const validationError = galleryFileValidationError(prepared.file);
+        if (validationError) {
+          validationErrors.push(`${originalFile.name}: ${validationError}`);
+          continue;
+        }
+        if (prepared.convertedFromHeic) convertedHeicCount += 1;
+        accepted.push({
+          id: createClientUuid(),
+          file: prepared.file,
+          previewUrl: URL.createObjectURL(prepared.file),
+          status: "queued",
+          progress: 0,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "No pudimos preparar este archivo.";
+        validationErrors.push(`${originalFile.name}: ${message}`);
       }
-      accepted.push({
-        id: crypto.randomUUID(),
-        file,
-        previewUrl: URL.createObjectURL(file),
-        status: "queued",
-        progress: 0,
-      });
     }
+
+    preparingMediaRef.current = false;
+    setPreparingMedia(false);
 
     if (accepted.length) setSelectedMedia((current) => [...current, ...accepted]);
     setUploadHasError(validationErrors.length > 0);
@@ -193,20 +216,24 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
         `${validationErrors.length} ${validationErrors.length === 1 ? "archivo no se agregó" : "archivos no se agregaron"}. ${validationErrors[0]}`,
       );
     } else if (accepted.length) {
+      const conversionMessage = convertedHeicCount > 0
+        ? ` ${convertedHeicCount} ${convertedHeicCount === 1 ? "foto HEIC fue convertida" : "fotos HEIC fueron convertidas"} a JPEG.`
+        : "";
       setUploadMessage(
-        `${accepted.length} ${accepted.length === 1 ? "archivo listo" : "archivos listos"} para compartir.`,
+        `${accepted.length} ${accepted.length === 1 ? "archivo listo" : "archivos listos"} para compartir.${conversionMessage}`,
       );
     }
   }
 
   function onFileSelection(event: ChangeEvent<HTMLInputElement>): void {
-    if (event.target.files) addFiles(event.target.files);
+    const files = event.target.files ? Array.from(event.target.files) : [];
     event.target.value = "";
+    if (files.length) void addFiles(files);
   }
 
   function onFileDrop(event: DragEvent<HTMLLabelElement>): void {
     event.preventDefault();
-    if (event.dataTransfer.files.length) addFiles(event.dataTransfer.files);
+    if (event.dataTransfer.files.length) void addFiles(event.dataTransfer.files);
   }
 
   function removeQueuedMedia(id: string): void {
@@ -238,7 +265,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
     const sharedDisplayName = displayName.trim();
     const sharedCaption = caption.trim();
     const uploadBatchId = mediaToUpload.find((media) => media.batchId)?.batchId
-      ?? (mediaToUpload.length > 1 ? crypto.randomUUID() : undefined);
+      ?? (mediaToUpload.length > 1 ? createClientUuid() : undefined);
     if (uploadBatchId) {
       const mediaIds = new Set(mediaToUpload.map((media) => media.id));
       setSelectedMedia((current) => current.map((media) =>
@@ -433,7 +460,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
           <button
             type="button"
             aria-label="Cerrar formulario de carga"
-            onClick={() => !batchUploading && setIsUploadOpen(false)}
+            onClick={() => !batchUploading && !preparingMedia && setIsUploadOpen(false)}
             className="absolute inset-0 cursor-default"
           />
           <section
@@ -450,7 +477,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
-                disabled={batchUploading}
+                disabled={batchUploading || preparingMedia}
                 aria-label="Cerrar"
                 className="grid h-11 w-11 place-items-center rounded-full bg-black/6 text-2xl transition hover:bg-black/10 disabled:opacity-35"
               >
@@ -462,22 +489,22 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
               <input
                 id="gallery-media-picker"
                 type="file"
-                accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,.mov"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif,video/mp4,video/quicktime,.mov"
                 className="sr-only"
                 onChange={onFileSelection}
                 multiple
-                disabled={batchUploading}
+                disabled={batchUploading || preparingMedia}
               />
               <label
                 htmlFor="gallery-media-picker"
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={onFileDrop}
-                className={`group grid min-h-40 cursor-pointer place-items-center rounded-3xl border border-dashed border-black/18 bg-white px-5 py-6 text-center shadow-sm transition hover:border-[var(--color-olive)] ${batchUploading ? "pointer-events-none opacity-50" : ""}`}
+                className={`group grid min-h-40 cursor-pointer place-items-center rounded-3xl border border-dashed border-black/18 bg-white px-5 py-6 text-center shadow-sm transition hover:border-[var(--color-olive)] ${batchUploading || preparingMedia ? "pointer-events-none opacity-50" : ""}`}
               >
                 <span>
                   <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[var(--color-forest)] text-2xl text-white" aria-hidden>＋</span>
-                  <span className="mt-3 block text-sm font-semibold">Elegir fotos y videos</span>
-                  <span className="mt-1 block text-xs leading-relaxed text-black/48">Selecciona varios o arrástralos aquí<br />20 MB por imagen · 500 MB por video</span>
+                  <span className="mt-3 block text-sm font-semibold">{preparingMedia ? "Preparando fotos del iPhone…" : "Elegir fotos y videos"}</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-black/48">JPEG, PNG, WebP y HEIC · MP4 y MOV<br />20 MB por imagen · 500 MB por video</span>
                 </span>
               </label>
 
@@ -485,7 +512,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                 <div className="grid gap-3" aria-label="Archivos seleccionados">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-xs font-semibold">{selectedMedia.length} {selectedMedia.length === 1 ? "archivo seleccionado" : "archivos seleccionados"}</p>
-                    <label htmlFor="gallery-media-picker" className={`cursor-pointer text-xs font-semibold text-[var(--color-olive)] ${batchUploading ? "pointer-events-none opacity-50" : ""}`}>Agregar más</label>
+                    <label htmlFor="gallery-media-picker" className={`cursor-pointer text-xs font-semibold text-[var(--color-olive)] ${batchUploading || preparingMedia ? "pointer-events-none opacity-50" : ""}`}>Agregar más</label>
                   </div>
                   <ul className="grid max-h-72 grid-cols-3 gap-1.5 overflow-y-auto">
                     {selectedMedia.map((media) => (
@@ -529,8 +556,8 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                 <span className="text-right text-[0.65rem] text-black/40">{caption.length}/280</span>
               </label>
 
-              <button type="submit" disabled={batchUploading || uploadableCount === 0} className="inline-flex min-h-14 items-center justify-center rounded-2xl bg-[var(--color-forest)] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:cursor-wait disabled:opacity-40">
-                {batchUploading ? "Compartiendo recuerdos…" : uploadableCount === 1 ? "Compartir 1 recuerdo" : `Compartir ${uploadableCount} recuerdos`}
+              <button type="submit" disabled={preparingMedia || batchUploading || uploadableCount === 0} className="inline-flex min-h-14 items-center justify-center rounded-2xl bg-[var(--color-forest)] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:cursor-wait disabled:opacity-40">
+                {preparingMedia ? "Preparando fotos…" : batchUploading ? "Compartiendo recuerdos…" : uploadableCount === 1 ? "Compartir 1 recuerdo" : `Compartir ${uploadableCount} recuerdos`}
               </button>
               {batchUploading && <div className="h-1.5 overflow-hidden rounded-full bg-black/8" aria-hidden><div className="h-full rounded-full bg-[var(--color-olive)] transition-[width]" style={{ width: `${overallProgress}%` }} /></div>}
               {completedCount > 0 && !batchUploading && <button type="button" onClick={clearCompletedMedia} className="text-xs font-semibold text-[var(--color-olive)]">Limpiar {completedCount === 1 ? "archivo publicado" : `${completedCount} archivos publicados`}</button>}

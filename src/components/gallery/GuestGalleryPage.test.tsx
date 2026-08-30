@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import GuestGalleryPage from "./GuestGalleryPage";
 import { resetDemoGallery } from "../../lib/galleryDemoApi";
+import * as galleryFilePreparation from "../../lib/galleryFilePreparation";
 
 describe("guest gallery authentication", () => {
   beforeEach(() => {
@@ -119,6 +120,25 @@ describe("guest gallery authentication", () => {
     expect(photoName.closest("li")?.querySelector("img")).toHaveClass("pointer-events-none");
     await user.click(removePhoto);
     expect(screen.getByText("1 archivo seleccionado")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Compartir 1 recuerdo" })).toBeEnabled();
+  });
+
+  it("converts an iPhone HEIC photo before adding it to the upload queue", async () => {
+    vi.stubEnv("VITE_GALLERY_DEMO_MODE", "true");
+    const user = userEvent.setup();
+    const heic = new File(["heic"], "IMG_2048.HEIC", { type: "image/heic", lastModified: 1234 });
+    const jpeg = new File(["jpeg"], "IMG_2048.jpg", { type: "image/jpeg", lastModified: 1234 });
+    vi.spyOn(galleryFilePreparation, "prepareGalleryFile").mockResolvedValueOnce({
+      file: jpeg,
+      convertedFromHeic: true,
+    });
+
+    render(<GuestGalleryPage />);
+    await user.click(screen.getByRole("button", { name: "Subir recuerdos" }));
+    await user.upload(screen.getByLabelText(/elegir fotos y videos/i), heic);
+
+    expect(await screen.findByText("IMG_2048.jpg")).toBeInTheDocument();
+    expect(screen.getByText(/foto HEIC fue convertida a JPEG/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Compartir 1 recuerdo" })).toBeEnabled();
   });
 

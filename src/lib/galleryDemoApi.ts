@@ -21,6 +21,7 @@ import milkaWalkImage from "../assets/milka-carrusel-2.jpg";
 import winterPortraitImage from "../assets/propuesta-cata-anillo-nieve-2025.jpg";
 import type { GalleryMedia, GalleryPageResult, UploadRequest, UploadTicket } from "./galleryApi";
 import type { GallerySession } from "./gallerySession";
+import { createClientUuid } from "./clientUuid";
 
 const DEMO_SESSION_SECONDS = 24 * 60 * 60;
 const DEMO_PROCESSING_DELAY_MS = 700;
@@ -282,7 +283,7 @@ export function resetDemoGallery(): void {
 }
 
 export function createDemoUploadTicket(request: UploadRequest, now = Date.now()): UploadTicket {
-  const mediaId = crypto.randomUUID();
+  const mediaId = createClientUuid();
   demoMedia.unshift({
     id: mediaId,
     mediaKind: request.contentType.startsWith("image/") ? "image" : "video",

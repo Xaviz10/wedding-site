@@ -24,3 +24,6 @@ Thumbs.db
 # TypeScript/Vite cache
 *.tsbuildinfo
 .vite/
+
+# Generated local-network QR code
+gallery-phone-qr.png
