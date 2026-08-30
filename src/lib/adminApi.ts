@@ -53,7 +53,11 @@ async function adminRequest<T>(
   } catch {
     // The HTTP status is sufficient for a fallback message.
   }
-  if (response.status === 401 || response.status === 403) clearAdminSession();
+  // A 401 means the token itself is no longer usable. A 403 means Cognito
+  // authenticated the user but the API rejected an authorization claim; keep
+  // that session so the admin page can show the real error instead of flashing
+  // back to its login screen.
+  if (response.status === 401) clearAdminSession();
   throw new AdminApiError(body.message ?? "No fue posible completar la operación administrativa.", response.status);
 }
 

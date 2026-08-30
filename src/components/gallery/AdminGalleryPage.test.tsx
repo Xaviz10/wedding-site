@@ -92,4 +92,17 @@ describe("admin gallery", () => {
     expect(screen.getByRole("link", { name: "foto-0.webp" })).toHaveAttribute("href", downloads[0]?.url);
     expect(screen.getByRole("link", { name: "foto-1.webp" })).toHaveAttribute("href", downloads[1]?.url);
   });
+
+  it("keeps the authenticated page visible when the API returns a forbidden response", async () => {
+    vi.spyOn(globalThis, "fetch").mockResolvedValueOnce(new Response(JSON.stringify({
+      message: "Esta cuenta no tiene acceso de administración.",
+    }), { status: 403, headers: { "Content-Type": "application/json" } }));
+
+    render(<AdminGalleryPage />);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Esta cuenta no tiene acceso de administración.");
+    expect(screen.getByRole("heading", { name: "Administrar recuerdos" })).toBeInTheDocument();
+    expect(window.sessionStorage.getItem("wedding-admin-session-v1")).not.toBeNull();
+    expect(screen.queryByRole("button", { name: "Iniciar sesión con Cognito" })).not.toBeInTheDocument();
+  });
 });
