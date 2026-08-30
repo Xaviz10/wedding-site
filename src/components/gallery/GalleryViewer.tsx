@@ -62,28 +62,28 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
       role="dialog"
       aria-modal="true"
       aria-label={group.displayName ? `Recuerdos de ${group.displayName}` : "Visor de recuerdos"}
-      className="gallery-viewer-shell isolate z-[100] grid grid-rows-[auto_minmax(0,1fr)_auto] overscroll-none bg-[#090b09] text-white"
+      className="gallery-viewer-shell isolate z-[100] grid grid-rows-[auto_minmax(0,1fr)_auto] overscroll-none bg-[#11140f] text-white"
     >
-      <header className="relative z-20 flex min-h-16 items-center justify-between gap-3 border-b border-white/10 bg-black/35 px-3 backdrop-blur-xl [padding-top:env(safe-area-inset-top)] sm:px-5">
+      <header className="relative z-20 flex min-h-16 items-center justify-between gap-3 border-b border-[var(--color-gold)]/22 bg-[var(--color-forest)]/82 px-3 backdrop-blur-xl [padding-top:env(safe-area-inset-top)] sm:px-5">
         <button
           ref={closeButtonRef}
           type="button"
           onClick={onClose}
           aria-label="Cerrar visor"
-          className="grid h-11 w-11 touch-manipulation place-items-center rounded-full bg-white/10 text-2xl transition hover:bg-white/18 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          className="grid h-11 w-11 touch-manipulation place-items-center rounded-full text-2xl text-[var(--color-gold)] transition hover:bg-white/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]"
         >
           ×
         </button>
         <div className="min-w-0 flex-1 text-center">
-          <p className="truncate text-sm font-semibold">{group.displayName || "Recuerdo de la boda"}</p>
-          <p className="mt-0.5 text-[0.65rem] text-white/60">{activeIndex + 1} de {itemCount}</p>
+          <p className="font-heading truncate text-xl font-medium italic leading-none">{group.displayName || "Recuerdo de la boda"}</p>
+          <p className="mt-1 text-[0.55rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)]">{activeIndex + 1} de {itemCount}</p>
         </div>
         {activeItem?.mediaUrl ? (
           <a
             href={activeItem.mediaUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex h-11 items-center rounded-full px-3 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-white/82 transition hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="inline-flex h-11 items-center px-3 text-[0.6rem] font-semibold uppercase tracking-[0.16em] text-[var(--color-gold)] transition hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]"
           >
             Abrir
           </a>
@@ -152,7 +152,7 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
         )}
       </div>
 
-      <footer className="relative z-20 max-h-[30dvh] overflow-y-auto overscroll-contain border-t border-white/10 bg-black/38 px-5 py-4 text-center backdrop-blur-xl [padding-bottom:max(1rem,env(safe-area-inset-bottom))]">
+      <footer className="relative z-20 max-h-[30dvh] overflow-y-auto overscroll-contain border-t border-[var(--color-gold)]/22 bg-[var(--color-forest)]/82 px-5 py-4 text-center backdrop-blur-xl [padding-bottom:max(1rem,env(safe-area-inset-bottom))]">
         {group.caption && <p className="font-editorial mx-auto max-w-2xl text-lg italic leading-snug text-white/90">“{group.caption}”</p>}
         {hasMultipleItems && (
           <div className="mt-3 flex justify-center gap-1">
@@ -165,7 +165,7 @@ export default function GalleryViewer({ group, onClose }: GalleryViewerProps) {
                 aria-current={index === activeIndex ? "true" : undefined}
                 className="group/dot inline-flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
               >
-                <span className={`block h-1.5 rounded-full transition-all ${index === activeIndex ? "w-5 bg-white" : "w-1.5 bg-white/35 group-hover/dot:bg-white/65"}`} aria-hidden />
+                <span className={`block h-1.5 rounded-full transition-all ${index === activeIndex ? "w-5 bg-[var(--color-gold)]" : "w-1.5 bg-white/30 group-hover/dot:bg-white/60"}`} aria-hidden />
               </button>
             ))}
           </div>

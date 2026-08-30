@@ -26,7 +26,7 @@ export default function GalleryGroupTile({ group, size, onOpen }: GalleryGroupTi
         type="button"
         onClick={() => onOpen(group)}
         aria-label={`Abrir ${count === 1 ? "recuerdo" : `grupo de ${count} recuerdos`}${owner}`}
-        className={`group relative block w-full touch-manipulation overflow-hidden bg-[var(--color-forest)]/10 text-left focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white ${size ? "h-full min-h-0" : "aspect-square"}`}
+        className={`group relative block w-full touch-manipulation overflow-hidden bg-[var(--color-forest)]/10 text-left focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-gold)] ${size ? "h-full min-h-0" : "aspect-square"}`}
       >
         {cover.mediaUrl ? (
           cover.mediaKind === "image" ? (
@@ -62,7 +62,7 @@ export default function GalleryGroupTile({ group, size, onOpen }: GalleryGroupTi
         )}
 
         {group.displayName && (
-          <span className="pointer-events-none absolute inset-x-2 bottom-2 truncate text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white drop-shadow-md">
+          <span className="font-editorial pointer-events-none absolute inset-x-2 bottom-2 truncate text-sm font-medium italic text-white drop-shadow-md">
             {group.displayName}
           </span>
         )}

@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import GuestGalleryPage from "./GuestGalleryPage";
+import GuestGalleryPage, { QueuedMediaStatusIndicator } from "./GuestGalleryPage";
 import { resetDemoGallery } from "../../lib/galleryDemoApi";
 import * as galleryFilePreparation from "../../lib/galleryFilePreparation";
 
@@ -38,6 +38,9 @@ describe("guest gallery authentication", () => {
 
     render(<GuestGalleryPage initialInviteToken="invite-secret" />);
     expect(await screen.findByRole("heading", { name: "Recuerdos" })).toBeInTheDocument();
+    const galleryTitle = screen.getByRole("heading", { name: "Nuestra galería" });
+    expect(galleryTitle).toHaveClass("font-heading", "italic");
+    expect(galleryTitle.closest("section")).toHaveClass("gallery-hero");
     await waitFor(() => expect(screen.getByText(/primera persona/i)).toBeInTheDocument());
     expect(fetchMock).toHaveBeenNthCalledWith(1, "https://api.example.test/dev/session", expect.objectContaining({
       headers: { "X-Invite-Token": "invite-secret" },
@@ -188,5 +191,15 @@ describe("guest gallery authentication", () => {
     expect(closeButton).toBeEnabled();
     await user.click(closeButton);
     expect(screen.queryByRole("dialog", { name: "Subir recuerdos" })).not.toBeInTheDocument();
+  });
+
+  it("shows progress and processing feedback on each selected item", () => {
+    const { rerender } = render(<QueuedMediaStatusIndicator status="uploading" progress={42} />);
+    expect(screen.getByRole("status", { name: "Subiendo 42%" })).toBeInTheDocument();
+    expect(screen.getByText("42%")).toBeInTheDocument();
+
+    rerender(<QueuedMediaStatusIndicator status="processing" progress={100} />);
+    expect(screen.getByRole("status", { name: "Procesando archivo" })).toBeInTheDocument();
+    expect(screen.getByText("Procesando")).toBeInTheDocument();
   });
 });

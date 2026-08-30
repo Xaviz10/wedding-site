@@ -37,7 +37,10 @@ body {
 }
 
 .gallery-page {
-  background: var(--color-ivory);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(176, 185, 161, 0.15), transparent 34%),
+    radial-gradient(circle at 92% 56%, rgba(203, 194, 173, 0.18), transparent 38%),
+    var(--color-ivory);
 }
 
 .gallery-viewer-shell {

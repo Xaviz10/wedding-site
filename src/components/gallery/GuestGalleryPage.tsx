@@ -137,6 +137,10 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   const errorCount = selectedMedia.filter((media) => media.status === "error").length;
   const processingCount = selectedMedia.filter((media) => media.status === "processing").length;
   const activelyUploadingCount = selectedMedia.filter((media) => media.status === "uploading").length;
+  const visibleUploadingCount = activelyUploadingCount || Math.min(uploadableCount, UPLOAD_CONCURRENCY);
+  const waitingUploadCount = activelyUploadingCount > 0
+    ? uploadableCount
+    : Math.max(0, uploadableCount - visibleUploadingCount);
   const overallProgress = selectedMedia.length
     ? Math.round(selectedMedia.reduce((sum, media) => sum + media.progress, 0) / selectedMedia.length)
     : 0;
@@ -145,9 +149,9 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   const uploadStateLabel = preparingMedia
     ? "Preparando tus archivos"
     : batchUploading
-      ? `Subiendo ${activelyUploadingCount || uploadableCount} ${activelyUploadingCount === 1 ? "archivo" : "archivos"}`
+      ? `Subiendo ${visibleUploadingCount} ${visibleUploadingCount === 1 ? "archivo" : "archivos"}${waitingUploadCount > 0 ? ` · ${waitingUploadCount} en espera` : ""}`
       : processingCount > 0
-        ? `Procesando ${processingCount} ${processingCount === 1 ? "archivo" : "archivos"}`
+        ? `${processingCount} ${processingCount === 1 ? "archivo procesándose" : "archivos procesándose"}${uploadableCount > 0 ? ` · ${uploadableCount} por compartir` : ""}`
         : errorCount > 0
           ? `${errorCount} ${errorCount === 1 ? "archivo necesita" : "archivos necesitan"} atención`
           : queuedCount > 0
@@ -479,18 +483,19 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
   }
 
   return (
-    <main className="min-h-screen bg-[#f4f5f2] text-[var(--color-forest)] [padding-bottom:calc(5.5rem+env(safe-area-inset-bottom))]">
-      <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between gap-3 border-b border-black/8 bg-[#f4f5f2]/88 px-3 backdrop-blur-xl [padding-top:env(safe-area-inset-top)] sm:px-5">
+    <main className="gallery-page relative min-h-screen overflow-x-hidden text-[var(--color-forest)] [padding-bottom:calc(5.5rem+env(safe-area-inset-bottom))]">
+      <div className="paper-grain opacity-35" aria-hidden />
+      <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between gap-3 border-b border-[color-mix(in_oklab,var(--color-gold)_24%,transparent)] bg-[var(--color-forest)]/94 px-3 text-[var(--color-ivory)] shadow-[0_8px_28px_rgba(17,20,15,0.18)] backdrop-blur-xl [padding-top:env(safe-area-inset-top)] sm:px-5">
         <a
           href="#portada"
           aria-label="Volver a la invitación"
-          className="grid h-11 w-11 place-items-center rounded-full transition hover:bg-black/6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-olive)]"
+          className="grid h-11 w-11 place-items-center rounded-full text-[var(--color-gold)] transition hover:bg-white/8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]"
         >
           <span className="text-2xl" aria-hidden>‹</span>
         </a>
         <div className="min-w-0 flex-1 text-center">
-          <h1 className="truncate text-[0.95rem] font-semibold tracking-[-0.01em]">Recuerdos</h1>
-          <p className="mt-0.5 text-[0.62rem] uppercase tracking-[0.16em] text-[var(--color-olive)]">Cata &amp; Javier</p>
+          <h1 className="font-heading truncate text-xl font-medium italic leading-none">Recuerdos</h1>
+          <p className="mt-1 text-[0.54rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-gold)]">Cata &amp; Javier</p>
         </div>
         <button
           type="button"
@@ -498,7 +503,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
           disabled={galleryStatus === "loading"}
           aria-label="Actualizar galería"
           aria-busy={galleryStatus === "loading"}
-          className="grid h-11 w-11 place-items-center rounded-full transition hover:bg-black/6 disabled:cursor-wait disabled:bg-black/4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-olive)]"
+          className="grid h-11 w-11 place-items-center rounded-full text-[var(--color-gold)] transition hover:bg-white/8 disabled:cursor-wait disabled:opacity-45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-gold)]"
         >
           <svg viewBox="0 0 24 24" className={`h-5 w-5 ${galleryStatus === "loading" ? "animate-spin" : ""}`} fill="none" aria-hidden>
             <path d="M19 7.5A8 8 0 1 0 20 12" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
@@ -507,42 +512,47 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
         </button>
       </header>
 
-      <section aria-labelledby="gallery-title" className="px-4 pb-5 pt-6 sm:px-6 sm:pb-7 sm:pt-8">
-        <div className="flex items-end justify-between gap-4">
-          <div>
-            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">La boda desde todos los ángulos</p>
-            <h2 id="gallery-title" className="font-heading mt-1 text-[clamp(2.6rem,8vw,4.5rem)] font-medium italic leading-[0.9]">Nuestra galería</h2>
+      <section aria-labelledby="gallery-title" className="gallery-hero relative isolate z-10 min-h-[17rem] overflow-hidden text-white sm:min-h-[20rem]">
+        <img src={heroImage} alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[50%_43%]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,15,10,0.54),rgba(15,18,13,0.82))]" aria-hidden />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_25%,rgba(255,255,255,0.13),transparent_34%)]" aria-hidden />
+        <div className="relative z-10 mx-auto flex min-h-[17rem] w-full max-w-6xl flex-col items-center justify-center px-5 py-10 text-center sm:min-h-[20rem]">
+          <div className="flex w-[min(15rem,62vw)] items-center gap-3 text-[var(--color-gold)]/75" aria-hidden>
+            <span className="h-px flex-1 bg-current" />
+            <span className="h-2 w-2 rotate-45 border border-current" />
+            <span className="h-px flex-1 bg-current" />
           </div>
-          <p className="shrink-0 pb-1 text-xs text-[var(--color-forest)]/55">
-            {galleryGroups.length} {galleryGroups.length === 1 ? "grupo" : "grupos"}
+          <p className="mt-5 text-[0.58rem] font-semibold uppercase tracking-[0.34em] text-[var(--color-gold)] sm:text-[0.66rem]">La boda desde todos los ángulos</p>
+          <h2 id="gallery-title" className="font-heading mt-3 text-[clamp(3.2rem,13vw,6.5rem)] font-medium italic leading-[0.84] tracking-normal drop-shadow-[0_10px_28px_rgba(0,0,0,0.42)]">Nuestra galería</h2>
+          <p className="font-editorial mt-4 max-w-xl text-[clamp(1.05rem,4vw,1.35rem)] italic leading-snug text-white/82">
+            Recuerdos compartidos por quienes celebraron con nosotros.
           </p>
+          <p className="mt-5 border-t border-[var(--color-gold)]/35 pt-3 text-[0.58rem] font-semibold uppercase tracking-[0.22em] text-[var(--color-gold)]">
+            {galleryGroups.length} {galleryGroups.length === 1 ? "historia compartida" : "historias compartidas"}
+          </p>
+          {demoMode && <p className="mt-2 text-[0.54rem] uppercase tracking-[0.18em] text-white/55">Demo local · sin AWS</p>}
         </div>
-        {demoMode && (
-          <p className="mt-4 w-fit rounded-full bg-[var(--color-forest)] px-3 py-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-white">
-            Demo local · sin AWS
-          </p>
-        )}
       </section>
 
-      {galleryError && <p className="mx-4 mb-4 rounded-2xl bg-red-50 p-4 text-sm text-red-900 sm:mx-6" role="alert">{galleryError}</p>}
+      {galleryError && <p className="relative z-10 mx-5 my-6 max-w-2xl border-l-2 border-red-700 py-2 pl-4 text-sm text-red-900 sm:mx-auto" role="alert">{galleryError}</p>}
 
       {galleryStatus === "loading" && items.length === 0 ? (
-        <div className="grid grid-cols-3 gap-0.5 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7" aria-label="Cargando galería">
-          {Array.from({ length: 14 }, (_, index) => <span key={index} className="aspect-square animate-pulse bg-black/8" />)}
+        <div className="relative z-10 grid grid-cols-3 gap-px bg-[var(--color-gold)]/24 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7" aria-label="Cargando galería">
+          {Array.from({ length: 14 }, (_, index) => <span key={index} className="aspect-square animate-pulse bg-[var(--color-ivory)]" />)}
         </div>
       ) : galleryGroups.length === 0 && !galleryError ? (
-        <section className="mx-auto grid min-h-[45svh] max-w-md place-items-center px-6 text-center">
+        <section className="relative z-10 mx-auto grid min-h-[42svh] max-w-md place-items-center px-6 py-14 text-center">
           <div>
-            <span className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-white text-3xl shadow-sm" aria-hidden>＋</span>
-            <h2 className="mt-5 text-xl font-semibold">Todavía no hay recuerdos</h2>
-            <p className="mt-2 text-sm leading-relaxed text-[var(--color-forest)]/60">Sé la primera persona en compartir fotos y videos de la boda.</p>
+            <span className="font-heading text-5xl text-[var(--color-gold)]" aria-hidden>✦</span>
+            <h2 className="font-heading mt-3 text-4xl font-medium italic leading-none">Todavía no hay recuerdos</h2>
+            <p className="font-editorial mt-4 text-lg italic leading-snug text-[var(--color-forest)]/66">Sé la primera persona en compartir fotos y videos de la boda.</p>
           </div>
         </section>
       ) : (
         <ul
           className={useCollageLayout
-            ? "gallery-collage bg-[#f4f5f2]"
-            : "grid grid-cols-3 gap-0.5 bg-[#f4f5f2] sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7"}
+            ? "gallery-collage relative z-10 bg-[var(--color-ivory)]"
+            : "relative z-10 grid grid-cols-3 gap-px bg-[var(--color-gold)]/28 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7"}
           aria-label="Recuerdos compartidos"
         >
           {galleryGroups.map((group, index) => (
@@ -557,12 +567,12 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
       )}
 
       {nextCursor && (
-        <div className="py-8 text-center">
+        <div className="relative z-10 py-10 text-center">
           <button
             type="button"
             disabled={galleryStatus === "loading"}
             onClick={() => void refreshGallery(session, nextCursor)}
-            className="inline-flex min-h-11 items-center rounded-full border border-black/12 bg-white px-6 text-xs font-semibold shadow-sm transition hover:bg-black hover:text-white disabled:opacity-50"
+            className="gallery-secondary-action border-[var(--color-forest)]/30 px-6 disabled:opacity-50"
           >
             {galleryStatus === "loading" ? "Cargando…" : "Ver más recuerdos"}
           </button>
@@ -572,7 +582,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
       <button
         type="button"
         onClick={() => setIsUploadOpen(true)}
-        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 inline-flex min-h-14 touch-manipulation items-center gap-2 rounded-full bg-[var(--color-forest)] px-5 text-sm font-semibold text-white shadow-[0_14px_35px_rgba(20,24,18,0.3)] transition hover:-translate-y-0.5 hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-olive)] sm:right-6"
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 inline-flex min-h-14 touch-manipulation items-center gap-2 rounded-full border border-[var(--color-gold)]/70 bg-[var(--color-forest)] px-5 text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[var(--color-ivory)] shadow-[0_16px_38px_rgba(20,24,18,0.34)] transition hover:-translate-y-0.5 hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] sm:right-6"
       >
         <span className="text-2xl font-light leading-none" aria-hidden>＋</span>
         Subir recuerdos
@@ -585,7 +595,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
       </button>
 
       {isUploadOpen && (
-        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/45 backdrop-blur-sm lg:items-stretch lg:justify-end">
+        <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#11140f]/62 backdrop-blur-sm lg:items-stretch lg:justify-end">
           <button
             type="button"
             aria-label="Cerrar formulario de carga"
@@ -597,21 +607,21 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
             aria-modal="true"
             aria-labelledby="upload-title"
             aria-describedby="upload-state"
-            className="relative z-10 max-h-[92dvh] w-full overflow-y-auto rounded-t-[28px] bg-[#f8f9f6] shadow-[0_-20px_60px_rgba(0,0,0,0.24)] [padding-bottom:max(1.5rem,env(safe-area-inset-bottom))] lg:h-full lg:max-h-none lg:max-w-[31rem] lg:rounded-none lg:shadow-[-20px_0_60px_rgba(0,0,0,0.18)]"
+            className="relative z-10 max-h-[94dvh] w-full overflow-y-auto rounded-t-[12px] bg-[var(--color-ivory)] shadow-[0_-24px_70px_rgba(0,0,0,0.26)] [padding-bottom:max(1.5rem,env(safe-area-inset-bottom))] lg:h-full lg:max-h-none lg:max-w-[31rem] lg:rounded-none lg:shadow-[-20px_0_60px_rgba(0,0,0,0.2)]"
           >
-            <header className="sticky top-0 z-30 flex items-center justify-between border-b border-black/8 bg-[#f8f9f6]/94 px-5 pb-4 pt-5 backdrop-blur-xl">
-              <span className="absolute left-1/2 top-2 h-1 w-10 -translate-x-1/2 rounded-full bg-black/12 lg:hidden" aria-hidden />
+            <header className="sticky top-0 z-30 flex items-center justify-between border-b border-[var(--color-gold)]/55 bg-[var(--color-ivory)]/95 px-5 pb-4 pt-5 backdrop-blur-xl">
+              <span className="absolute left-1/2 top-2 h-px w-12 -translate-x-1/2 bg-[var(--color-olive)]/45 lg:hidden" aria-hidden />
               <div>
-                <p className="text-[0.62rem] font-semibold uppercase tracking-[0.18em] text-[var(--color-olive)]">Comparte un momento</p>
-                <h2 id="upload-title" className="mt-1 text-xl font-semibold">Subir recuerdos</h2>
-                <p id="upload-state" className="mt-1 text-xs text-black/48" aria-live="polite">{uploadStateLabel}</p>
+                <p className="text-[0.58rem] font-semibold uppercase tracking-[0.24em] text-[var(--color-olive)]">Comparte un momento</p>
+                <h2 id="upload-title" className="font-heading mt-1 text-[2rem] font-medium italic leading-none">Subir recuerdos</h2>
+                <p id="upload-state" className="mt-2 text-xs text-[var(--color-forest)]/52" aria-live="polite">{uploadStateLabel}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setIsUploadOpen(false)}
                 disabled={batchUploading || preparingMedia}
                 aria-label="Cerrar"
-                className="grid h-11 w-11 place-items-center rounded-full bg-black/6 text-2xl transition hover:bg-black/10 disabled:opacity-35"
+                className="grid h-11 w-11 place-items-center rounded-full border border-[var(--color-forest)]/12 text-2xl transition hover:border-[var(--color-forest)]/35 disabled:opacity-35"
               >
                 ×
               </button>
@@ -632,13 +642,13 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                   htmlFor="gallery-media-picker"
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={onFileDrop}
-                  className={`group grid min-h-40 cursor-pointer place-items-center rounded-3xl border border-dashed border-black/18 bg-white px-5 py-6 text-center shadow-sm transition hover:border-[var(--color-olive)] ${batchUploading || preparingMedia ? "pointer-events-none opacity-60" : ""}`}
+                  className={`group grid min-h-40 cursor-pointer place-items-center border-y border-dashed border-[var(--color-olive)]/55 px-5 py-6 text-center transition hover:border-[var(--color-forest)] ${batchUploading || preparingMedia ? "pointer-events-none opacity-60" : ""}`}
                 >
                   <span>
-                    <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-[var(--color-forest)] text-2xl text-white" aria-hidden>
-                      {preparingMedia ? <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : "＋"}
+                    <span className="mx-auto grid h-11 w-11 rotate-45 place-items-center border border-[var(--color-olive)] text-2xl text-[var(--color-forest)]" aria-hidden>
+                      <span className="-rotate-45">{preparingMedia ? <span className="block h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-olive)]/30 border-t-[var(--color-forest)]" /> : "＋"}</span>
                     </span>
-                    <span className="mt-3 block text-sm font-semibold">{preparingMedia ? "Preparando fotos del iPhone…" : "Elegir fotos y videos"}</span>
+                    <span className="font-editorial mt-4 block text-xl font-medium italic">{preparingMedia ? "Preparando fotos del iPhone…" : "Elegir fotos y videos"}</span>
                     <span className="mt-1 block text-xs leading-relaxed text-black/48">JPEG, PNG, WebP y HEIC · MP4 y MOV<br />20 MB por imagen · 500 MB por video</span>
                   </span>
                 </label>
@@ -648,14 +658,14 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                 <div className="grid gap-3" aria-label="Archivos seleccionados">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-xs font-semibold">{selectedMedia.length} {selectedMedia.length === 1 ? "archivo seleccionado" : "archivos seleccionados"}</p>
-                    <label htmlFor="gallery-media-picker" className={`inline-flex min-h-11 cursor-pointer items-center rounded-full border border-black/10 bg-white px-3 text-xs font-semibold text-[var(--color-olive)] shadow-sm ${batchUploading || preparingMedia ? "pointer-events-none opacity-50" : ""}`}>＋ Agregar más</label>
+                    <label htmlFor="gallery-media-picker" className={`gallery-text-action inline-flex min-h-11 cursor-pointer items-center ${batchUploading || preparingMedia ? "pointer-events-none opacity-50" : ""}`}>＋ Agregar más</label>
                   </div>
                   <ul className="grid max-h-[21rem] grid-cols-2 gap-2 overflow-y-auto pr-0.5 sm:grid-cols-3" aria-live="polite">
                     {selectedMedia.map((media) => (
                       <li
                         key={media.id}
                         aria-label={`${media.file.name}: ${queueStatusLabel(media)}`}
-                        className={`relative overflow-hidden rounded-xl bg-black/8 ring-1 ${media.status === "error" ? "ring-red-500" : media.status === "success" ? "ring-emerald-500" : "ring-black/6"}`}
+                        className={`relative overflow-hidden rounded-[4px] bg-black/8 ring-1 ${media.status === "error" ? "ring-red-500" : media.status === "success" ? "ring-emerald-500" : "ring-black/6"}`}
                       >
                         <div className="pointer-events-none aspect-square select-none" aria-hidden="true">
                           {media.file.type.startsWith("image/") ? (
@@ -680,27 +690,27 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                     ))}
                   </ul>
                   {selectedMedia.some((media) => media.status === "error" && media.message) && (
-                    <ul className="grid gap-1 rounded-2xl bg-red-50 p-3 text-xs text-red-900" aria-label="Errores de carga">
+                    <ul className="grid gap-1 border-l-2 border-red-700 py-2 pl-3 text-xs text-red-900" aria-label="Errores de carga">
                       {selectedMedia.filter((media) => media.status === "error" && media.message).map((media) => <li key={media.id}><strong>{media.file.name}:</strong> {media.message}</li>)}
                     </ul>
                   )}
                 </div>
               )}
 
-              <fieldset className="grid gap-4 rounded-2xl border border-black/8 bg-white/58 p-4" disabled={batchUploading || preparingMedia}>
-                <legend className="px-1 text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-olive)]">Detalles para todo el grupo</legend>
-              <label className="grid gap-2">
-                <span className="text-xs font-medium text-black/55">Tu nombre <span className="font-normal">(opcional)</span></span>
-                <input className="min-h-12 rounded-2xl border border-black/10 bg-white px-4 outline-none transition focus:border-[var(--color-olive)] focus:ring-2 focus:ring-[var(--color-olive)]/20" value={displayName} maxLength={80} onChange={(event) => setDisplayName(event.target.value)} />
-              </label>
-              <label className="grid gap-2">
-                <span className="text-xs font-medium text-black/55">Mensaje para este grupo <span className="font-normal">(opcional)</span></span>
-                <textarea className="min-h-28 resize-none rounded-2xl border border-black/10 bg-white p-4 outline-none transition focus:border-[var(--color-olive)] focus:ring-2 focus:ring-[var(--color-olive)]/20" rows={3} value={caption} maxLength={280} onChange={(event) => setCaption(event.target.value)} />
-                <span className="text-right text-[0.65rem] text-black/40">{caption.length}/280</span>
-              </label>
+              <fieldset className="grid gap-5 border-y border-[var(--color-gold)]/65 py-5" disabled={batchUploading || preparingMedia}>
+                <legend className="pr-3 text-[0.58rem] font-semibold uppercase tracking-[0.2em] text-[var(--color-olive)]">Detalles para todo el grupo</legend>
+                <label className="grid gap-1.5">
+                  <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-forest)]/55">Tu nombre <span className="font-normal normal-case tracking-normal">(opcional)</span></span>
+                  <input className="min-h-11 border-0 border-b border-[var(--color-olive)]/38 bg-transparent px-0 font-editorial text-lg outline-none transition focus:border-[var(--color-forest)]" value={displayName} maxLength={80} onChange={(event) => setDisplayName(event.target.value)} />
+                </label>
+                <label className="grid gap-1.5">
+                  <span className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[var(--color-forest)]/55">Mensaje para este grupo <span className="font-normal normal-case tracking-normal">(opcional)</span></span>
+                  <textarea className="min-h-24 resize-none border-0 border-b border-[var(--color-olive)]/38 bg-transparent px-0 py-2 font-editorial text-lg outline-none transition focus:border-[var(--color-forest)]" rows={3} value={caption} maxLength={280} onChange={(event) => setCaption(event.target.value)} />
+                  <span className="text-right text-[0.62rem] text-[var(--color-forest)]/38">{caption.length}/280</span>
+                </label>
               </fieldset>
 
-              <div className="sticky bottom-0 z-20 -mx-5 mt-1 grid gap-3 border-t border-black/8 bg-[#f8f9f6]/96 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 shadow-[0_-12px_30px_rgba(20,24,18,0.08)] backdrop-blur-xl sm:-mx-7 sm:px-7">
+              <div className="sticky bottom-0 z-20 -mx-5 mt-1 grid gap-3 border-t border-[var(--color-gold)]/55 bg-[var(--color-ivory)]/96 px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-4 backdrop-blur-xl sm:-mx-7 sm:px-7">
                 <div className="flex items-center gap-3" role="status" aria-live="polite">
                   {(preparingMedia || batchUploading || processingCount > 0) ? (
                     <span className="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-[var(--color-olive)]/25 border-t-[var(--color-olive)]" aria-hidden />
@@ -714,7 +724,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                   {batchUploading && <span className="text-xs font-bold tabular-nums text-[var(--color-olive)]">{overallProgress}%</span>}
                 </div>
                 {batchUploading && <div className="h-1.5 overflow-hidden rounded-full bg-black/8" role="progressbar" aria-label="Progreso total de carga" aria-valuemin={0} aria-valuemax={100} aria-valuenow={overallProgress}><div className="h-full rounded-full bg-[var(--color-olive)] transition-[width]" style={{ width: `${overallProgress}%` }} /></div>}
-              <button type="submit" disabled={preparingMedia || batchUploading || uploadableCount === 0} className="inline-flex min-h-14 items-center justify-center gap-2 rounded-2xl bg-[var(--color-forest)] px-5 text-sm font-semibold text-white transition hover:bg-black disabled:cursor-wait disabled:opacity-45">
+              <button type="submit" disabled={preparingMedia || batchUploading || uploadableCount === 0} className="inline-flex min-h-14 items-center justify-center gap-2 border border-[var(--color-forest)] bg-[var(--color-forest)] px-5 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[var(--color-ivory)] transition hover:bg-black disabled:cursor-wait disabled:opacity-45">
                 {(preparingMedia || batchUploading) && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden />}
                 {preparingMedia
                   ? "Preparando fotos…"
@@ -729,7 +739,7 @@ export default function GuestGalleryPage({ initialInviteToken }: GuestGalleryPag
                         : "Compartir 0 recuerdos"}
               </button>
               {completedCount > 0 && !batchUploading && <button type="button" onClick={clearCompletedMedia} className="text-xs font-semibold text-[var(--color-olive)]">Limpiar {completedCount === 1 ? "archivo publicado" : `${completedCount} archivos publicados`}</button>}
-              {uploadMessage && <p className={`rounded-2xl p-4 text-sm leading-relaxed ${uploadHasError ? "bg-red-50 text-red-900" : "bg-[var(--color-moss-soft)]/22 text-[var(--color-forest)]"}`} role={uploadHasError ? "alert" : "status"}>{uploadMessage}</p>}
+              {uploadMessage && <p className={`border-l-2 py-2 pl-3 text-sm leading-relaxed ${uploadHasError ? "border-red-700 text-red-900" : "border-[var(--color-olive)] text-[var(--color-forest)]/78"}`} role={uploadHasError ? "alert" : "status"}>{uploadMessage}</p>}
               </div>
             </form>
           </section>
