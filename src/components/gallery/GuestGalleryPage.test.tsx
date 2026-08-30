@@ -17,8 +17,12 @@ describe("guest gallery authentication", () => {
   });
 
   it("asks for the QR link when there is no active session", () => {
-    render(<GuestGalleryPage />);
+    const { container } = render(<GuestGalleryPage />);
     expect(screen.getByText(/código QR de la boda/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Galería de invitados" })).toHaveClass("font-heading", "text-white");
+    expect(screen.getByText("Recuerdos de Cata & Javier")).toHaveClass("text-[var(--color-gold)]");
+    expect(container.querySelector('img[aria-hidden="true"]')).toHaveAttribute("src", expect.stringContaining("hero"));
+    expect(screen.getByRole("link", { name: "Volver a la invitación" })).toHaveAttribute("href", "#portada");
   });
 
   it("exchanges the invite and renders the empty authenticated gallery", async () => {
@@ -164,5 +168,25 @@ describe("guest gallery authentication", () => {
     expect(caption).toHaveValue("");
     expect(screen.getByRole("button", { name: "Compartir 0 recuerdos" })).toBeDisabled();
     expect(revokeObjectUrl).toHaveBeenCalled();
+  });
+
+  it("releases the upload sheet while accepted media processes in the background", async () => {
+    vi.stubEnv("VITE_GALLERY_DEMO_MODE", "true");
+    const user = userEvent.setup();
+    render(<GuestGalleryPage />);
+
+    await user.click(screen.getByRole("button", { name: "Subir recuerdos" }));
+    await user.upload(
+      screen.getByLabelText(/elegir fotos y videos/i),
+      new File(["photo"], "procesando.jpg", { type: "image/jpeg" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Compartir 1 recuerdo" }));
+
+    expect(await screen.findByText(/recuerdo recibido.*segundo plano/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /procesando 1 recuerdo/i })).toBeDisabled();
+    const closeButton = screen.getByRole("button", { name: "Cerrar" });
+    expect(closeButton).toBeEnabled();
+    await user.click(closeButton);
+    expect(screen.queryByRole("dialog", { name: "Subir recuerdos" })).not.toBeInTheDocument();
   });
 });

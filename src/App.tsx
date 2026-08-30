@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { MotionConfig, motion, useScroll } from "framer-motion";
 import weddingContent from "./data/weddingContent";
 import GuestGalleryPage from "./components/gallery/GuestGalleryPage";
+import AdminGalleryPage from "./components/gallery/AdminGalleryPage";
 import HeroSection from "./components/sections/HeroSection";
 import StorySection from "./components/sections/StorySection";
 import MilkaSection from "./components/sections/MilkaSection";
@@ -9,6 +10,7 @@ import ProposalSection from "./components/sections/ProposalSection";
 import WeddingDetailsSection from "./components/sections/WeddingDetailsSection";
 import FooterSection from "./components/sections/FooterSection";
 import { consumeInviteToken, isGalleryHash } from "./lib/gallerySession";
+import { hasAdminOAuthCallback, isAdminHash } from "./lib/adminAuth";
 
 interface AppProps {
   initialInviteToken?: string;
@@ -16,7 +18,7 @@ interface AppProps {
 
 function App({ initialInviteToken }: AppProps) {
   const { scrollYProgress } = useScroll();
-  const [hash, setHash] = useState(() => window.location.hash);
+  const [hash, setHash] = useState(() => hasAdminOAuthCallback() ? "#/admin" : window.location.hash);
   const [inviteToken, setInviteToken] = useState(initialInviteToken);
 
   useEffect(() => {
@@ -33,6 +35,14 @@ function App({ initialInviteToken }: AppProps) {
     return (
       <MotionConfig reducedMotion="user">
         <GuestGalleryPage initialInviteToken={inviteToken} />
+      </MotionConfig>
+    );
+  }
+
+  if (isAdminHash(hash)) {
+    return (
+      <MotionConfig reducedMotion="user">
+        <AdminGalleryPage />
       </MotionConfig>
     );
   }

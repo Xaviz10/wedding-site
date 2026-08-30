@@ -25,8 +25,33 @@ describe("presigned S3 upload", () => {
 
     await uploadToPresignedPost(ticket, new File(["photo"], "photo.jpg", { type: "image/jpeg" }), progress, () => request);
     expect(request.open).toHaveBeenCalledWith("POST", "https://s3.example.test");
+    expect(request.timeout).toBe(120_000);
     expect(request.send).toHaveBeenCalledWith(expect.any(FormData));
     expect(progress).toHaveBeenNthCalledWith(1, 50);
     expect(progress).toHaveBeenLastCalledWith(100);
+  });
+
+  it("rejects an image upload that exceeds the browser timeout", async () => {
+    const requestListeners = new Map<string, EventListener>();
+    const request = {
+      timeout: 0,
+      upload: { addEventListener: vi.fn() },
+      open: vi.fn(),
+      addEventListener: (name: string, listener: EventListener) => requestListeners.set(name, listener),
+      send: vi.fn(() => requestListeners.get("timeout")?.(new Event("timeout"))),
+    } as unknown as XMLHttpRequest;
+    const ticket: UploadTicket = {
+      mediaId: "id",
+      expiresAt: 1,
+      upload: { url: "https://s3.example.test", fields: { key: "uploads/id/source.jpg" } },
+    };
+
+    await expect(uploadToPresignedPost(
+      ticket,
+      new File(["photo"], "photo.jpg", { type: "image/jpeg" }),
+      vi.fn(),
+      () => request,
+    )).rejects.toMatchObject({ code: "UPLOAD_TIMEOUT" });
+    expect(request.timeout).toBe(120_000);
   });
 });

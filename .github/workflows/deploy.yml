@@ -37,6 +37,8 @@ jobs:
           VITE_RSVP_ENDPOINT: ${{ vars.VITE_RSVP_ENDPOINT }}
           VITE_WEDDING_API_URL: ${{ vars.VITE_WEDDING_API_URL }}
           VITE_WEBSITE_URL: ${{ vars.VITE_WEBSITE_URL }}
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

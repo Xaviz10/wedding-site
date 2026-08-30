@@ -53,6 +53,10 @@ interface ApiErrorBody {
   error?: string;
 }
 
+const API_REQUEST_TIMEOUT_MS = 30_000;
+const IMAGE_UPLOAD_TIMEOUT_MS = 2 * 60_000;
+const VIDEO_UPLOAD_TIMEOUT_MS = 30 * 60_000;
+
 export class GalleryApiError extends Error {
   public constructor(
     message: string,
@@ -87,9 +91,32 @@ async function parseResponse<T>(response: Response): Promise<T> {
   throw new GalleryApiError(message, response.status, body.error);
 }
 
+async function fetchWithTimeout(
+  fetcher: typeof fetch,
+  input: RequestInfo | URL,
+  init?: RequestInit,
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = globalThis.setTimeout(() => controller.abort(), API_REQUEST_TIMEOUT_MS);
+  try {
+    return await fetcher(input, { ...init, signal: controller.signal });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      throw new GalleryApiError(
+        "La galería tardó demasiado en responder. Revisa tu conexión e intenta nuevamente.",
+        0,
+        "API_TIMEOUT",
+      );
+    }
+    throw error;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
+  }
+}
+
 export async function exchangeInviteToken(inviteToken: string, fetcher: typeof fetch = fetch): Promise<GallerySession> {
   if (isGalleryDemoMode()) return createDemoSession();
-  const response = await fetcher(`${apiBaseUrl()}/session`, {
+  const response = await fetchWithTimeout(fetcher, `${apiBaseUrl()}/session`, {
     method: "POST",
     headers: { "X-Invite-Token": inviteToken },
   });
@@ -98,7 +125,7 @@ export async function exchangeInviteToken(inviteToken: string, fetcher: typeof f
 }
 
 async function authorizedRequest<T>(path: string, session: GallerySession, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${apiBaseUrl()}${path}`, {
+  const response = await fetchWithTimeout(fetch, `${apiBaseUrl()}${path}`, {
     ...init,
     headers: {
       Authorization: `Bearer ${session.token}`,
@@ -140,6 +167,7 @@ export function uploadToPresignedPost(
   return new Promise((resolve, reject) => {
     const request = createRequest();
     request.open("POST", ticket.upload.url);
+    request.timeout = file.type.startsWith("video/") ? VIDEO_UPLOAD_TIMEOUT_MS : IMAGE_UPLOAD_TIMEOUT_MS;
     request.upload.addEventListener("progress", (event) => {
       if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
     });
@@ -153,6 +181,13 @@ export function uploadToPresignedPost(
     });
     request.addEventListener("error", () => {
       reject(new GalleryApiError("La conexión se interrumpió durante la carga.", 0, "UPLOAD_NETWORK_ERROR"));
+    });
+    request.addEventListener("timeout", () => {
+      reject(new GalleryApiError(
+        "La carga tardó demasiado. Revisa tu conexión e intenta nuevamente.",
+        0,
+        "UPLOAD_TIMEOUT",
+      ));
     });
 
     const form = new FormData();

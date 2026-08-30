@@ -9,6 +9,8 @@ npm run dev
 
 Open `http://localhost:5173/wedding-site/`. The gallery route is `http://localhost:5173/wedding-site/#/gallery`, but real authentication and media operations require the deployed API configured through `VITE_WEDDING_API_URL`.
 
+The administrator uses `#/admin`. A deployed environment must also configure `VITE_COGNITO_DOMAIN` and `VITE_COGNITO_CLIENT_ID` from the CDK outputs. Cognito login cannot be simulated by the guest gallery demo mode.
+
 ## Full gallery demo without AWS
 
 Run the dedicated development mode:
