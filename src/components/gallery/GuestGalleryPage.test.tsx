@@ -84,6 +84,9 @@ describe("guest gallery authentication", () => {
     }), { status: 200, headers: { "Content-Type": "application/json" } }));
 
     const { container } = render(<GuestGalleryPage />);
+    const uploadLauncher = screen.getByRole("button", { name: "Subir recuerdos" });
+    expect(uploadLauncher.parentElement).toBe(document.body);
+    expect(uploadLauncher).toHaveClass("fixed", "z-[70]", "[transform:translateZ(0)]");
     await screen.findByRole("heading", { name: "Recuerdos" });
     await waitFor(() => expect(container.querySelectorAll("[aria-label='Recuerdos compartidos'] li")).toHaveLength(2));
     const image = container.querySelector<HTMLImageElement>('img[src="https://media.example/images/thumb.webp"]');

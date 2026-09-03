@@ -7,6 +7,7 @@ import {
   type DragEvent,
   type FormEvent,
 } from "react";
+import { createPortal } from "react-dom";
 import {
   createUploadTicket,
   exchangeInviteToken,
@@ -586,22 +587,23 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
         </div>
       )}
 
-      <button
-        type="button"
-        onClick={() => setIsUploadOpen(true)}
-        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-40 inline-flex min-h-14 touch-manipulation items-center gap-2 rounded-full border border-[var(--color-gold)]/70 bg-[var(--color-forest)] px-5 text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[var(--color-ivory)] shadow-[0_16px_38px_rgba(20,24,18,0.34)] transition hover:-translate-y-0.5 hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] sm:right-6"
-      >
-        <span className="text-2xl font-light leading-none" aria-hidden>＋</span>
-        Subir recuerdos
-        {(processingCount > 0 || errorCount > 0) && (
-          <span className={`ml-1 inline-flex min-w-7 items-center justify-center gap-1 rounded-full px-2 py-1 text-[0.62rem] ${errorCount > 0 ? "bg-red-600 text-white" : "bg-white/14 text-white"}`}>
-            {processingCount > 0 && <span className="h-2.5 w-2.5 animate-spin rounded-full border border-white/35 border-t-white" aria-hidden />}
-            {errorCount > 0 ? errorCount : processingCount}
-          </span>
-        )}
-      </button>
+      {createPortal(<>
+        <button
+          type="button"
+          onClick={() => setIsUploadOpen(true)}
+          className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom))] right-4 z-[70] isolate inline-flex min-h-14 touch-manipulation items-center gap-2 rounded-full border border-[var(--color-gold)]/70 bg-[var(--color-forest)] px-5 text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[var(--color-ivory)] shadow-[0_16px_38px_rgba(20,24,18,0.34)] [transform:translateZ(0)] transition hover:-translate-y-0.5 hover:bg-black focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[var(--color-gold)] sm:right-6"
+        >
+          <span className="text-2xl font-light leading-none" aria-hidden>＋</span>
+          Subir recuerdos
+          {(processingCount > 0 || errorCount > 0) && (
+            <span className={`ml-1 inline-flex min-w-7 items-center justify-center gap-1 rounded-full px-2 py-1 text-[0.62rem] ${errorCount > 0 ? "bg-red-600 text-white" : "bg-white/14 text-white"}`}>
+              {processingCount > 0 && <span className="h-2.5 w-2.5 animate-spin rounded-full border border-white/35 border-t-white" aria-hidden />}
+              {errorCount > 0 ? errorCount : processingCount}
+            </span>
+          )}
+        </button>
 
-      {isUploadOpen && (
+        {isUploadOpen && (
         <div className="fixed inset-0 z-[80] flex items-end justify-center bg-[#11140f]/62 backdrop-blur-sm lg:items-stretch lg:justify-end">
           <button
             type="button"
@@ -751,7 +753,8 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
             </form>
           </section>
         </div>
-      )}
+        )}
+      </>, document.body)}
 
       {viewerGroup && <GalleryViewer key={viewerGroup.id} group={viewerGroup} onClose={() => setViewerGroup(undefined)} />}
     </main>
