@@ -30,14 +30,13 @@ interface AdminViewerState {
 }
 
 function AdminPreview({ item }: { item: AdminMedia }) {
-  if (item.mediaKind === "image") {
-    return <img src={item.thumbnailUrl ?? item.mediaUrl} alt="" className="h-full w-full object-cover" loading="lazy" />;
+  if (item.mediaKind === "image" || item.thumbnailUrl) {
+    return <img src={item.thumbnailUrl ?? item.mediaUrl} alt="" className="h-full w-full object-cover" loading="lazy" decoding="async" />;
   }
   return (
     <div className="relative h-full w-full bg-black">
       <video
         src={galleryVideoSource(item.mediaUrl, item.thumbnailUrl)}
-        poster={item.thumbnailUrl}
         className="h-full w-full object-cover"
         preload="metadata"
         muted

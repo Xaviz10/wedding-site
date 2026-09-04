@@ -37,7 +37,7 @@ describe("gallery group tile", () => {
     expect(screen.getByRole("button", { name: "Abrir recuerdo de Ana" })).toHaveClass("aspect-square");
   });
 
-  it("shows the generated video thumbnail as its poster", () => {
+  it("renders a generated video thumbnail as an image for mobile Safari", () => {
     const videoGroup: GalleryMediaGroup = {
       id: "media:video",
       items: [{
@@ -51,9 +51,29 @@ describe("gallery group tile", () => {
     };
 
     const { container } = render(<GalleryGroupTile group={videoGroup} onOpen={vi.fn()} />);
-    expect(container.querySelector("video")).toHaveAttribute(
-      "poster",
+    expect(container.querySelector("video")).toBeNull();
+    expect(container.querySelector("img")).toHaveAttribute(
+      "src",
       "https://media.example/video-thumbnail.webp",
+    );
+  });
+
+  it("falls back to decoding a first video frame for legacy items without a thumbnail", () => {
+    const videoGroup: GalleryMediaGroup = {
+      id: "media:legacy-video",
+      items: [{
+        id: "legacy-video",
+        mediaKind: "video",
+        status: "READY",
+        createdAt: "2026-09-05T20:02:00Z",
+        mediaUrl: "https://media.example/legacy-video.mp4",
+      }],
+    };
+
+    const { container } = render(<GalleryGroupTile group={videoGroup} onOpen={vi.fn()} />);
+    expect(container.querySelector("video")).toHaveAttribute(
+      "src",
+      "https://media.example/legacy-video.mp4#t=0.001",
     );
   });
 });

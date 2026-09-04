@@ -58,7 +58,7 @@ describe("guest gallery authentication", () => {
     expect(onInviteConsumed).toHaveBeenCalledOnce();
   });
 
-  it("renders lazy images and inline video from a stored session", async () => {
+  it("renders video thumbnails as images from a stored session", async () => {
     window.localStorage.setItem("wedding-gallery-session-v1", JSON.stringify({
       token: "session",
       expiresAt: 9_999_999_999,
@@ -95,8 +95,8 @@ describe("guest gallery authentication", () => {
     expect(image).not.toBeNull();
     expect(image).toHaveAttribute("loading", "lazy");
     expect(image).toHaveAttribute("src", "https://media.example/images/thumb.webp");
-    expect(container.querySelector("video")).toHaveAttribute("src", "https://media.example/videos/video.mp4");
-    expect(container.querySelector("video")).toHaveAttribute("poster", "https://media.example/videos/thumbnail.webp");
+    expect(container.querySelector('img[src="https://media.example/videos/thumbnail.webp"]')).not.toBeNull();
+    expect(container.querySelector("video")).toBeNull();
   });
 
   it("opens the complete seeded gallery without API calls in local demo mode", async () => {

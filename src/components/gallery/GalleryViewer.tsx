@@ -13,6 +13,7 @@ export default function GalleryViewer({ group, initialIndex = 0, onClose }: Gall
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.min(Math.max(0, initialIndex), Math.max(0, group.items.length - 1)),
   );
+  const [startedVideoIds, setStartedVideoIds] = useState<Set<string>>(() => new Set());
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const slidesRef = useRef<HTMLDivElement>(null);
   const touchStartX = useRef<number | undefined>(undefined);
@@ -116,16 +117,38 @@ export default function GalleryViewer({ group, initialIndex = 0, onClose }: Gall
                       className="gallery-viewer-media"
                     />
                   ) : (
-                    <video
-                      src={galleryVideoSource(item.mediaUrl, item.thumbnailUrl)}
-                      poster={item.thumbnailUrl}
-                      controls={index === activeIndex}
-                      playsInline
-                      preload="metadata"
-                      className="gallery-viewer-media bg-black"
-                    >
-                      Tu navegador no puede reproducir este video.
-                    </video>
+                    <div className="relative h-full w-full">
+                      <video
+                        src={galleryVideoSource(item.mediaUrl, item.thumbnailUrl)}
+                        poster={item.thumbnailUrl}
+                        controls={index === activeIndex}
+                        playsInline
+                        preload="metadata"
+                        onPlay={() => setStartedVideoIds((current) => new Set(current).add(item.id))}
+                        className="gallery-viewer-media bg-black"
+                      >
+                        Tu navegador no puede reproducir este video.
+                      </video>
+                      {item.thumbnailUrl && !startedVideoIds.has(item.id) && (
+                        <button
+                          type="button"
+                          aria-label="Reproducir video"
+                          className="absolute inset-0 z-10 grid h-full w-full touch-manipulation place-items-center overflow-hidden bg-black"
+                          onClick={(event) => {
+                            const video = event.currentTarget.parentElement?.querySelector("video");
+                            const playback = video?.play();
+                            if (playback) void playback.catch(() => undefined);
+                          }}
+                        >
+                          <img
+                            src={item.thumbnailUrl}
+                            alt=""
+                            className="pointer-events-none absolute inset-0 h-full w-full object-contain"
+                          />
+                          <span className="relative grid h-16 w-16 place-items-center rounded-full border border-white/70 bg-black/55 pl-1 text-2xl text-white shadow-xl backdrop-blur-sm" aria-hidden>▶</span>
+                        </button>
+                      )}
+                    </div>
                   )
                 ) : (
                   <p className="text-sm text-white/60">Este archivo no está disponible.</p>

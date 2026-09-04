@@ -85,5 +85,9 @@ describe("full-screen gallery viewer", () => {
       "poster",
       "https://media.example/video-thumbnail.webp",
     );
+    expect(screen.getByRole("button", { name: "Reproducir video" }).querySelector("img")).toHaveAttribute(
+      "src",
+      "https://media.example/video-thumbnail.webp",
+    );
   });
 });

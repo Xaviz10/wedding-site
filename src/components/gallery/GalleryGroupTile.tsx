@@ -29,17 +29,20 @@ export default function GalleryGroupTile({ group, size, onOpen }: GalleryGroupTi
         className={`group relative block w-full touch-manipulation overflow-hidden bg-[var(--color-forest)]/10 text-left focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[var(--color-gold)] ${size ? "h-full min-h-0" : "aspect-square"}`}
       >
         {cover.mediaUrl ? (
-          cover.mediaKind === "image" ? (
+          cover.mediaKind === "image" || cover.thumbnailUrl ? (
             <img
               src={cover.thumbnailUrl ?? cover.mediaUrl}
               alt=""
               loading="lazy"
+              decoding="async"
               className="pointer-events-none h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
             />
           ) : (
+            // This is only a fallback for legacy videos without a generated
+            // poster. Mobile Safari can discard a <video poster> as soon as it
+            // loads metadata, so real thumbnail URLs are rendered as images.
             <video
               src={galleryVideoSource(cover.mediaUrl, cover.thumbnailUrl)}
-              poster={cover.thumbnailUrl}
               muted
               playsInline
               preload="metadata"
