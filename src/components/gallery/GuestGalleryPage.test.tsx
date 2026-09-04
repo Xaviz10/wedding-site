@@ -91,6 +91,7 @@ describe("guest gallery authentication", () => {
     expect(uploadLauncher).toHaveClass("fixed", "z-[70]", "[transform:translateZ(0)]");
     await screen.findByRole("heading", { name: "Recuerdos" });
     await waitFor(() => expect(container.querySelectorAll("[aria-label='Recuerdos compartidos'] li")).toHaveLength(2));
+    expect(container.querySelector(".gallery-media-surface")).toBeInTheDocument();
     const image = container.querySelector<HTMLImageElement>('img[src="https://media.example/images/thumb.webp"]');
     expect(image).not.toBeNull();
     expect(image).toHaveAttribute("loading", "lazy");
@@ -109,8 +110,9 @@ describe("guest gallery authentication", () => {
     const groupTile = await screen.findByRole("button", {
       name: /abrir grupo de 2 recuerdos de familia y amigos/i,
     });
-    expect(screen.getByRole("list", { name: "Recuerdos compartidos" })).toHaveClass("gallery-collage");
-    expect(groupTile.closest("li")).toHaveClass("col-span-2", "row-span-2");
+    const collage = screen.getByRole("list", { name: "Recuerdos compartidos" });
+    expect(collage).toHaveClass("gallery-collage");
+    expect(collage.querySelectorAll("li.col-span-2.row-span-2").length).toBeGreaterThan(0);
     await userEvent.click(groupTile);
     expect(screen.getByRole("dialog", { name: "Recuerdos de Familia y amigos" })).toBeInTheDocument();
     expect(screen.getByText(/recuerdo de ejemplo/i)).toBeInTheDocument();

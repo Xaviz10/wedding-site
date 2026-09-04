@@ -132,6 +132,9 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   const selectedMediaRef = useRef<QueuedMedia[]>([]);
   const preparingMediaRef = useRef(false);
   const uploadOperationRef = useRef(0);
+  // A fresh seed varies the collage between visits without moving tiles while
+  // the guest is viewing, refreshing, uploading, or opening a group.
+  const [collageLayoutSeed] = useState(() => createClientUuid());
 
   const uploadableCount = selectedMedia.filter((media) => media.status === "queued" || media.status === "error").length;
   const completedCount = selectedMedia.filter((media) => media.status === "success").length;
@@ -153,8 +156,8 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   const galleryGroups = useMemo(() => groupGalleryMedia(items), [items]);
   const useCollageLayout = shouldUseCollageLayout(galleryGroups.length);
   const tileSizes = useMemo(
-    () => galleryTileSizes(galleryGroups.map((group) => group.id)),
-    [galleryGroups],
+    () => galleryTileSizes(galleryGroups.map((group) => group.id), collageLayoutSeed),
+    [collageLayoutSeed, galleryGroups],
   );
   const uploadStateLabel = preparingMedia
     ? "Preparando tus archivos"
@@ -562,35 +565,37 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
 
       {galleryError && <p className="relative z-10 mx-5 my-6 max-w-2xl border-l-2 border-red-700 py-2 pl-4 text-sm text-red-900 sm:mx-auto" role="alert">{galleryError}</p>}
 
-      {galleryStatus === "loading" && items.length === 0 ? (
-        <div className="relative z-10 grid grid-cols-3 gap-px bg-[var(--color-gold)]/24 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7" aria-label="Cargando galería">
-          {Array.from({ length: 14 }, (_, index) => <span key={index} className="aspect-square animate-pulse bg-[var(--color-ivory)]" />)}
-        </div>
-      ) : galleryGroups.length === 0 && !galleryError ? (
-        <section className="relative z-10 mx-auto grid min-h-[42svh] max-w-md place-items-center px-6 py-14 text-center">
-          <div>
-            <span className="font-heading text-5xl text-[var(--color-gold)]" aria-hidden>✦</span>
-            <h2 className="font-heading mt-3 text-4xl font-medium italic leading-none">Todavía no hay recuerdos</h2>
-            <p className="font-editorial mt-4 text-lg italic leading-snug text-[var(--color-forest)]/66">Sé la primera persona en compartir fotos y videos de la boda.</p>
+      <div className="gallery-media-surface relative z-10">
+        {galleryStatus === "loading" && items.length === 0 ? (
+          <div className="grid grid-cols-3 gap-px bg-[var(--color-gold)]/24 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7" aria-label="Cargando galería">
+            {Array.from({ length: 14 }, (_, index) => <span key={index} className="aspect-square animate-pulse bg-[var(--color-ivory)]" />)}
           </div>
-        </section>
-      ) : (
-        <ul
-          className={useCollageLayout
-            ? "gallery-collage relative z-10 bg-[var(--color-ivory)]"
-            : "relative z-10 grid grid-cols-3 gap-px bg-[var(--color-gold)]/28 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7"}
-          aria-label="Recuerdos compartidos"
-        >
-          {galleryGroups.map((group, index) => (
-            <GalleryGroupTile
-              key={group.id}
-              group={group}
-              size={useCollageLayout ? tileSizes[index] : undefined}
-              onOpen={setViewerGroup}
-            />
-          ))}
-        </ul>
-      )}
+        ) : galleryGroups.length === 0 && !galleryError ? (
+          <section className="mx-auto grid min-h-[42svh] max-w-md place-items-center px-6 py-14 text-center">
+            <div>
+              <span className="font-heading text-5xl text-[var(--color-gold)]" aria-hidden>✦</span>
+              <h2 className="font-heading mt-3 text-4xl font-medium italic leading-none">Todavía no hay recuerdos</h2>
+              <p className="font-editorial mt-4 text-lg italic leading-snug text-[var(--color-forest)]/66">Sé la primera persona en compartir fotos y videos de la boda.</p>
+            </div>
+          </section>
+        ) : (
+          <ul
+            className={useCollageLayout
+              ? "gallery-collage"
+              : "grid grid-cols-3 gap-px bg-[var(--color-gold)]/28 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7"}
+            aria-label="Recuerdos compartidos"
+          >
+            {galleryGroups.map((group, index) => (
+              <GalleryGroupTile
+                key={group.id}
+                group={group}
+                size={useCollageLayout ? tileSizes[index] : undefined}
+                onOpen={setViewerGroup}
+              />
+            ))}
+          </ul>
+        )}
+      </div>
 
       {nextCursor && (
         <div className="relative z-10 py-10 text-center">

@@ -91,13 +91,16 @@ export function largeTilesAreSeparated(sizes: readonly GalleryTileSize[]): boole
   });
 }
 
-export function galleryTileSizes(groupIds: readonly string[]): GalleryTileSize[] {
+export function galleryTileSizes(
+  groupIds: readonly string[],
+  layoutSeed = "wedding-collage",
+): GalleryTileSize[] {
   const sizes: GalleryTileSize[] = groupIds.map(() => "standard");
   if (!shouldUseCollageLayout(groupIds.length)) return sizes;
 
   const targetLargeTiles = Math.max(1, Math.ceil(groupIds.length / 14));
   const candidates = groupIds
-    .map((id, index) => ({ index, score: stableHash(`${id}:wedding-collage`) }))
+    .map((id, index) => ({ index, score: stableHash(`${layoutSeed}:${id}:wedding-collage`) }))
     .sort((left, right) => left.score - right.score || left.index - right.index);
 
   // Try each hashed candidate as a starting point. This produces a stable,

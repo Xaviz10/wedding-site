@@ -30,9 +30,9 @@ describe("gallery collage layout", () => {
 
   it("is random-looking but stable for the same ordered media", () => {
     const ids = groupIds(24);
-    const first = galleryTileSizes(ids);
+    const first = galleryTileSizes(ids, "one-gallery-visit");
 
-    expect(galleryTileSizes(ids)).toEqual(first);
-    expect(first.findIndex((size) => size === "large")).not.toBe(0);
+    expect(galleryTileSizes(ids, "one-gallery-visit")).toEqual(first);
+    expect(galleryTileSizes(ids, "another-gallery-visit")).not.toEqual(first);
   });
 });

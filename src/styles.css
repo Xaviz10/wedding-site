@@ -124,6 +124,11 @@ body {
   gap: 0.125rem;
 }
 
+.gallery-media-surface {
+  min-height: 50svh;
+  background: var(--color-ivory);
+}
+
 @media (min-width: 40rem) {
   .gallery-collage {
     grid-template-columns: repeat(5, minmax(0, 1fr));
