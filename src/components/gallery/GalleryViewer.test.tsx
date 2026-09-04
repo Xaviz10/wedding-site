@@ -66,4 +66,24 @@ describe("full-screen gallery viewer", () => {
     expect(document.body.style.overflow).toBe("");
     expect(document.documentElement.style.overflow).toBe("");
   });
+
+  it("uses the generated thumbnail before a video starts playing", () => {
+    const videoGroup: GalleryMediaGroup = {
+      id: "media:video",
+      items: [{
+        id: "video",
+        mediaKind: "video",
+        status: "READY",
+        createdAt: "2026-09-05T20:02:00Z",
+        mediaUrl: "https://media.example/video.mp4",
+        thumbnailUrl: "https://media.example/video-thumbnail.webp",
+      }],
+    };
+
+    render(<GalleryViewer group={videoGroup} onClose={vi.fn()} />);
+    expect(screen.getByRole("dialog").querySelector("video")).toHaveAttribute(
+      "poster",
+      "https://media.example/video-thumbnail.webp",
+    );
+  });
 });

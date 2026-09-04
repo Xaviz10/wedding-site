@@ -9,7 +9,6 @@ interface GalleryGroupTileProps {
 
 const TILE_SIZE_CLASSES: Record<GalleryTileSize, string> = {
   standard: "",
-  wide: "col-span-2",
   large: "col-span-2 row-span-2",
 };
 
@@ -39,6 +38,7 @@ export default function GalleryGroupTile({ group, size, onOpen }: GalleryGroupTi
           ) : (
             <video
               src={cover.mediaUrl}
+              poster={cover.thumbnailUrl}
               muted
               playsInline
               preload="metadata"

@@ -117,6 +117,7 @@ export default function GalleryViewer({ group, initialIndex = 0, onClose }: Gall
                   ) : (
                     <video
                       src={item.mediaUrl}
+                      poster={item.thumbnailUrl}
                       controls={index === activeIndex}
                       playsInline
                       preload="metadata"

@@ -1,6 +1,7 @@
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ChangeEvent,
@@ -21,7 +22,7 @@ import { waitForProcessedMedia } from "../../lib/galleryPolling";
 import { galleryFileValidationError } from "../../lib/galleryValidation";
 import { createDemoSession, isGalleryDemoMode } from "../../lib/galleryDemoApi";
 import { groupGalleryMedia, type GalleryMediaGroup } from "../../lib/galleryGrouping";
-import { galleryTileSize, shouldUseCollageLayout } from "../../lib/galleryLayout";
+import { galleryTileSizes, shouldUseCollageLayout } from "../../lib/galleryLayout";
 import { runWithConcurrency } from "../../lib/uploadBatch";
 import { createClientUuid } from "../../lib/clientUuid";
 import { prepareGalleryFile } from "../../lib/galleryFilePreparation";
@@ -147,8 +148,12 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   const overallProgress = selectedMedia.length
     ? Math.round(selectedMedia.reduce((sum, media) => sum + media.progress, 0) / selectedMedia.length)
     : 0;
-  const galleryGroups = groupGalleryMedia(items);
+  const galleryGroups = useMemo(() => groupGalleryMedia(items), [items]);
   const useCollageLayout = shouldUseCollageLayout(galleryGroups.length);
+  const tileSizes = useMemo(
+    () => galleryTileSizes(galleryGroups.map((group) => group.id)),
+    [galleryGroups],
+  );
   const uploadStateLabel = preparingMedia
     ? "Preparando tus archivos"
     : batchUploading
@@ -567,7 +572,7 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
             <GalleryGroupTile
               key={group.id}
               group={group}
-              size={useCollageLayout ? galleryTileSize(index, galleryGroups.length) : undefined}
+              size={useCollageLayout ? tileSizes[index] : undefined}
               onOpen={setViewerGroup}
             />
           ))}

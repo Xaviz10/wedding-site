@@ -79,6 +79,7 @@ describe("guest gallery authentication", () => {
           status: "READY",
           createdAt: "2026-09-05T20:01:00Z",
           mediaUrl: "https://media.example/videos/video.mp4",
+          thumbnailUrl: "https://media.example/videos/thumbnail.webp",
         },
       ],
     }), { status: 200, headers: { "Content-Type": "application/json" } }));
@@ -94,6 +95,7 @@ describe("guest gallery authentication", () => {
     expect(image).toHaveAttribute("loading", "lazy");
     expect(image).toHaveAttribute("src", "https://media.example/images/thumb.webp");
     expect(container.querySelector("video")).toHaveAttribute("src", "https://media.example/videos/video.mp4");
+    expect(container.querySelector("video")).toHaveAttribute("poster", "https://media.example/videos/thumbnail.webp");
   });
 
   it("opens the complete seeded gallery without API calls in local demo mode", async () => {

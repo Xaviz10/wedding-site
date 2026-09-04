@@ -34,7 +34,14 @@ function AdminPreview({ item }: { item: AdminMedia }) {
   }
   return (
     <div className="relative h-full w-full bg-black">
-      <video src={item.mediaUrl} className="h-full w-full object-cover" preload="metadata" muted playsInline />
+      <video
+        src={item.mediaUrl}
+        poster={item.thumbnailUrl}
+        className="h-full w-full object-cover"
+        preload="metadata"
+        muted
+        playsInline
+      />
       <span className="absolute inset-0 grid place-items-center text-3xl text-white" aria-hidden>▶</span>
     </div>
   );
