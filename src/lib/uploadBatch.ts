@@ -1,3 +1,11 @@
+const MAX_PARALLEL_IMAGE_UPLOADS = 2;
+
+export function uploadConcurrencyFor(files: readonly Pick<File, "type">[]): number {
+  // Serial video uploads avoid Safari opening multiple large Photos-backed
+  // blobs at once. Photos still upload two at a time on capable browsers.
+  return files.some((file) => file.type.startsWith("video/")) ? 1 : MAX_PARALLEL_IMAGE_UPLOADS;
+}
+
 export async function runWithConcurrency<T>(
   items: readonly T[],
   concurrency: number,

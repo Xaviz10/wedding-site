@@ -23,7 +23,7 @@ import { galleryFileValidationError } from "../../lib/galleryValidation";
 import { createDemoSession, isGalleryDemoMode } from "../../lib/galleryDemoApi";
 import { groupGalleryMedia, type GalleryMediaGroup } from "../../lib/galleryGrouping";
 import { galleryTileSizes, shouldUseCollageLayout } from "../../lib/galleryLayout";
-import { runWithConcurrency } from "../../lib/uploadBatch";
+import { runWithConcurrency, uploadConcurrencyFor } from "../../lib/uploadBatch";
 import { createClientUuid } from "../../lib/clientUuid";
 import { prepareGalleryFile } from "../../lib/galleryFilePreparation";
 import { clearAdminSession } from "../../lib/adminAuth";
@@ -41,7 +41,7 @@ export type QueuedMediaStatus = "queued" | "uploading" | "processing" | "success
 interface QueuedMedia {
   id: string;
   file: File;
-  previewUrl: string;
+  previewUrl?: string;
   status: QueuedMediaStatus;
   progress: number;
   batchId?: string;
@@ -52,8 +52,6 @@ interface UploadedMedia {
   media: QueuedMedia;
   mediaId: string;
 }
-
-const UPLOAD_CONCURRENCY = 2;
 
 function queueStatusLabel(media: QueuedMedia): string {
   if (media.status === "uploading") return `Subiendo · ${media.progress}%`;
@@ -141,7 +139,11 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   const errorCount = selectedMedia.filter((media) => media.status === "error").length;
   const processingCount = selectedMedia.filter((media) => media.status === "processing").length;
   const activelyUploadingCount = selectedMedia.filter((media) => media.status === "uploading").length;
-  const visibleUploadingCount = activelyUploadingCount || Math.min(uploadableCount, UPLOAD_CONCURRENCY);
+  const pendingFiles = selectedMedia
+    .filter((media) => media.status === "queued" || media.status === "error")
+    .map((media) => media.file);
+  const currentUploadConcurrency = uploadConcurrencyFor(pendingFiles);
+  const visibleUploadingCount = activelyUploadingCount || Math.min(uploadableCount, currentUploadConcurrency);
   const waitingUploadCount = activelyUploadingCount > 0
     ? uploadableCount
     : Math.max(0, uploadableCount - visibleUploadingCount);
@@ -175,7 +177,9 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   }, [selectedMedia]);
 
   useEffect(() => () => {
-    selectedMediaRef.current.forEach((media) => URL.revokeObjectURL(media.previewUrl));
+    selectedMediaRef.current.forEach((media) => {
+      if (media.previewUrl) URL.revokeObjectURL(media.previewUrl);
+    });
   }, []);
 
   const handleSessionExpired = useCallback((error: unknown) => {
@@ -275,7 +279,12 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
         accepted.push({
           id: createClientUuid(),
           file: prepared.file,
-          previewUrl: URL.createObjectURL(prepared.file),
+          // Loading several local video blob URLs at selection time can block
+          // iOS Safari before the network upload begins. Images remain cheap to
+          // preview; videos use a lightweight placeholder until publication.
+          previewUrl: prepared.file.type.startsWith("image/")
+            ? URL.createObjectURL(prepared.file)
+            : undefined,
           status: "queued",
           progress: 0,
         });
@@ -319,7 +328,7 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
     setSelectedMedia((current) => {
       const media = current.find((item) => item.id === id);
       if (!media || media.status === "uploading" || media.status === "processing") return current;
-      URL.revokeObjectURL(media.previewUrl);
+      if (media.previewUrl) URL.revokeObjectURL(media.previewUrl);
       return current.filter((item) => item.id !== id);
     });
   }
@@ -327,7 +336,9 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   function clearCompletedMedia(): void {
     setSelectedMedia((current) => {
       current.filter((media) => media.status === "success")
-        .forEach((media) => URL.revokeObjectURL(media.previewUrl));
+        .forEach((media) => {
+          if (media.previewUrl) URL.revokeObjectURL(media.previewUrl);
+        });
       return current.filter((media) => media.status !== "success");
     });
   }
@@ -363,7 +374,9 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
 
     setSelectedMedia((current) => {
       current.filter((media) => successfulIds.has(media.id))
-        .forEach((media) => URL.revokeObjectURL(media.previewUrl));
+        .forEach((media) => {
+          if (media.previewUrl) URL.revokeObjectURL(media.previewUrl);
+        });
       return current.filter((media) => !successfulIds.has(media.id));
     });
 
@@ -406,7 +419,7 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
       `Compartiendo ${mediaToUpload.length} ${mediaToUpload.length === 1 ? "recuerdo" : "recuerdos"}…`,
     );
 
-    await runWithConcurrency(mediaToUpload, UPLOAD_CONCURRENCY, async (media) => {
+    await runWithConcurrency(mediaToUpload, uploadConcurrencyFor(mediaToUpload.map((media) => media.file)), async (media) => {
       updateQueuedMedia(media.id, { status: "uploading", progress: 0, message: undefined });
       try {
         const ticket = await createUploadTicket(session, {
@@ -682,10 +695,13 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
                         className={`relative overflow-hidden rounded-[4px] bg-black/8 ring-1 ${media.status === "error" ? "ring-red-500" : media.status === "success" ? "ring-emerald-500" : "ring-black/6"}`}
                       >
                         <div className="pointer-events-none aspect-square select-none" aria-hidden="true">
-                          {media.file.type.startsWith("image/") ? (
+                          {media.file.type.startsWith("image/") && media.previewUrl ? (
                             <img src={media.previewUrl} alt="" draggable={false} className="pointer-events-none h-full w-full object-cover" />
                           ) : (
-                            <video src={media.previewUrl} muted playsInline preload="metadata" className="pointer-events-none h-full w-full bg-black object-cover" />
+                            <span className="grid h-full w-full place-items-center bg-[var(--color-forest)] text-[var(--color-gold)]">
+                              <span className="grid h-12 w-12 place-items-center rounded-full border border-current text-xl" aria-hidden>▶</span>
+                              <span className="sr-only">Video seleccionado</span>
+                            </span>
                           )}
                         </div>
                         <QueuedMediaStatusIndicator status={media.status} progress={media.progress} />

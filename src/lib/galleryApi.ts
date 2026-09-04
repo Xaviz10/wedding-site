@@ -166,11 +166,27 @@ export function uploadToPresignedPost(
   if (isGalleryDemoMode()) return uploadDemoMedia(ticket, file, onProgress);
   return new Promise((resolve, reject) => {
     const request = createRequest();
+    let latestProgress = 0;
+    const reportProgress = (percent: number): void => {
+      const nextProgress = Math.max(latestProgress, Math.min(99, Math.max(1, percent)));
+      if (nextProgress !== latestProgress) {
+        latestProgress = nextProgress;
+        onProgress(nextProgress);
+      }
+    };
     request.open("POST", ticket.upload.url);
     request.timeout = file.type.startsWith("video/") ? VIDEO_UPLOAD_TIMEOUT_MS : IMAGE_UPLOAD_TIMEOUT_MS;
+    request.upload.addEventListener("loadstart", () => reportProgress(1));
     request.upload.addEventListener("progress", (event) => {
-      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+      // iOS Safari can emit upload progress with lengthComputable=false even
+      // though loaded bytes are available. The selected File size is a useful
+      // fallback; clamp to 99 until S3 confirms the complete request.
+      const total = event.total > 0 ? event.total : file.size;
+      if (event.loaded > 0 && total > 0) {
+        reportProgress(Math.round((event.loaded / total) * 100));
+      }
     });
+    request.upload.addEventListener("load", () => reportProgress(99));
     request.addEventListener("load", () => {
       if (request.status >= 200 && request.status < 300) {
         onProgress(100);
@@ -189,10 +205,16 @@ export function uploadToPresignedPost(
         "UPLOAD_TIMEOUT",
       ));
     });
+    request.addEventListener("abort", () => {
+      reject(new GalleryApiError("La carga fue cancelada antes de terminar.", 0, "UPLOAD_ABORTED"));
+    });
 
     const form = new FormData();
     for (const [key, value] of Object.entries(ticket.upload.fields)) form.append(key, value);
     form.append("file", file);
+    // Give Safari immediate feedback even when its first native progress event
+    // is delayed until a large Photos asset has been opened.
+    reportProgress(1);
     request.send(form);
   });
 }

@@ -1,5 +1,6 @@
 import type { GalleryMediaGroup } from "../../lib/galleryGrouping";
 import type { GalleryTileSize } from "../../lib/galleryLayout";
+import { galleryVideoSource } from "../../lib/galleryVideo";
 
 interface GalleryGroupTileProps {
   group: GalleryMediaGroup;
@@ -37,7 +38,7 @@ export default function GalleryGroupTile({ group, size, onOpen }: GalleryGroupTi
             />
           ) : (
             <video
-              src={cover.mediaUrl}
+              src={galleryVideoSource(cover.mediaUrl, cover.thumbnailUrl)}
               poster={cover.thumbnailUrl}
               muted
               playsInline

@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import GuestGalleryPage, { QueuedMediaStatusIndicator } from "./GuestGalleryPage";
 import { resetDemoGallery } from "../../lib/galleryDemoApi";
 import * as galleryFilePreparation from "../../lib/galleryFilePreparation";
+import { uploadConcurrencyFor } from "../../lib/uploadBatch";
 
 describe("guest gallery authentication", () => {
   beforeEach(() => {
@@ -134,6 +135,8 @@ describe("guest gallery authentication", () => {
     expect(photoName.closest("li")).not.toHaveClass("aspect-square");
     expect(photoName.closest("li")?.querySelector(".aspect-square")).toBeInTheDocument();
     expect(screen.getByText("baile.mp4")).toBeInTheDocument();
+    expect(screen.getByText("Video seleccionado")).toBeInTheDocument();
+    expect(screen.getByText("baile.mp4").closest("li")?.querySelector("video")).toBeNull();
     expect(screen.getByRole("button", { name: "Compartir 2 recuerdos" })).toBeEnabled();
 
     const removePhoto = screen.getByRole("button", { name: "Quitar ceremonia.jpg" });
@@ -142,6 +145,17 @@ describe("guest gallery authentication", () => {
     await user.click(removePhoto);
     expect(screen.getByText("1 archivo seleccionado")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Compartir 1 recuerdo" })).toBeEnabled();
+  });
+
+  it("uploads iPhone videos serially while retaining parallel image uploads", () => {
+    expect(uploadConcurrencyFor([
+      new File(["one"], "one.jpg", { type: "image/jpeg" }),
+      new File(["two"], "two.jpg", { type: "image/jpeg" }),
+    ])).toBe(2);
+    expect(uploadConcurrencyFor([
+      new File(["video"], "video.mov", { type: "video/quicktime" }),
+      new File(["photo"], "photo.jpg", { type: "image/jpeg" }),
+    ])).toBe(1);
   });
 
   it("converts an iPhone HEIC photo before adding it to the upload queue", async () => {

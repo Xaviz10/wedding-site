@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type TouchEvent } from "react";
 import { createPortal } from "react-dom";
 import type { GalleryMediaGroup } from "../../lib/galleryGrouping";
+import { galleryVideoSource } from "../../lib/galleryVideo";
 
 interface GalleryViewerProps {
   group: GalleryMediaGroup;
@@ -116,7 +117,7 @@ export default function GalleryViewer({ group, initialIndex = 0, onClose }: Gall
                     />
                   ) : (
                     <video
-                      src={item.mediaUrl}
+                      src={galleryVideoSource(item.mediaUrl, item.thumbnailUrl)}
                       poster={item.thumbnailUrl}
                       controls={index === activeIndex}
                       playsInline

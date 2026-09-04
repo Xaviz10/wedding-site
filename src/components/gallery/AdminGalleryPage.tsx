@@ -18,6 +18,7 @@ import {
 import { clearSession } from "../../lib/gallerySession";
 import { groupGalleryMedia, type GalleryMediaGroup } from "../../lib/galleryGrouping";
 import GalleryViewer from "./GalleryViewer";
+import { galleryVideoSource } from "../../lib/galleryVideo";
 
 interface AdminMediaGroup extends Omit<GalleryMediaGroup, "items"> {
   items: AdminMedia[];
@@ -35,7 +36,7 @@ function AdminPreview({ item }: { item: AdminMedia }) {
   return (
     <div className="relative h-full w-full bg-black">
       <video
-        src={item.mediaUrl}
+        src={galleryVideoSource(item.mediaUrl, item.thumbnailUrl)}
         poster={item.thumbnailUrl}
         className="h-full w-full object-cover"
         preload="metadata"
