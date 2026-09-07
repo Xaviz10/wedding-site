@@ -119,6 +119,8 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   const [nextCursor, setNextCursor] = useState<string>();
   const [galleryStatus, setGalleryStatus] = useState<"idle" | "loading" | "error">("idle");
   const [galleryError, setGalleryError] = useState("");
+  const galleryEndRef = useRef<HTMLDivElement>(null);
+  const galleryRequestRef = useRef({ id: 0, loading: false });
   const [selectedMedia, setSelectedMedia] = useState<QueuedMedia[]>([]);
   const [displayName, setDisplayName] = useState("");
   const [caption, setCaption] = useState("");
@@ -198,18 +200,26 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
   }, []);
 
   const refreshGallery = useCallback(async (activeSession: GallerySession, cursor?: string) => {
+    // Observer notifications can arrive before React renders the loading state.
+    if (cursor && galleryRequestRef.current.loading) return;
+    const requestId = galleryRequestRef.current.id + 1;
+    galleryRequestRef.current = { id: requestId, loading: true };
     setGalleryStatus("loading");
     setGalleryError("");
     try {
       const page = await listMedia(activeSession, cursor);
+      if (galleryRequestRef.current.id !== requestId) return;
       setItems((current) => cursor ? [...current, ...page.items] : page.items);
       setNextCursor(page.nextCursor);
       setGalleryStatus("idle");
     } catch (error) {
+      if (galleryRequestRef.current.id !== requestId) return;
       if (!handleSessionExpired(error)) {
         setGalleryStatus("error");
         setGalleryError(error instanceof Error ? error.message : "No pudimos cargar la galería.");
       }
+    } finally {
+      if (galleryRequestRef.current.id === requestId) galleryRequestRef.current.loading = false;
     }
   }, [handleSessionExpired]);
 
@@ -236,6 +246,27 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
     const timeoutId = window.setTimeout(() => void refreshGallery(session), 0);
     return () => window.clearTimeout(timeoutId);
   }, [refreshGallery, session]);
+
+  useEffect(() => {
+    const target = galleryEndRef.current;
+    if (!target || !session || !nextCursor || galleryStatus !== "idle"
+      || isUploadOpen || viewerGroup || typeof IntersectionObserver === "undefined") return;
+
+    let active = true;
+    const observer = new IntersectionObserver((entries) => {
+      if (active && entries.some((entry) => entry.isIntersecting)) {
+        void refreshGallery(session, nextCursor);
+      }
+    }, { rootMargin: "0px 0px 600px 0px" });
+    observer.observe(target);
+
+    // Re-observe after each page so a short gallery keeps filling the viewport,
+    // even when the guest has not scrolled or a page only extends existing groups.
+    return () => {
+      active = false;
+      observer.disconnect();
+    };
+  }, [galleryStatus, isUploadOpen, nextCursor, refreshGallery, session, viewerGroup]);
 
   useEffect(() => {
     if (!isUploadOpen) return undefined;
@@ -598,15 +629,21 @@ export default function GuestGalleryPage({ initialInviteToken, onInviteConsumed 
       </div>
 
       {nextCursor && (
-        <div className="relative z-10 py-10 text-center">
-          <button
-            type="button"
-            disabled={galleryStatus === "loading"}
-            onClick={() => void refreshGallery(session, nextCursor)}
-            className="gallery-secondary-action border-[var(--color-forest)]/30 px-6 disabled:opacity-50"
-          >
-            {galleryStatus === "loading" ? "Cargando…" : "Ver más recuerdos"}
-          </button>
+        <div ref={galleryEndRef} className="relative z-10 flex min-h-24 items-center justify-center py-8 text-center">
+          {galleryStatus === "loading" ? (
+            <p role="status" className="inline-flex items-center gap-3 text-sm text-[var(--color-forest)]/70">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" aria-hidden />
+              Cargando más recuerdos…
+            </p>
+          ) : (galleryStatus === "error" || typeof IntersectionObserver === "undefined") && (
+            <button
+              type="button"
+              onClick={() => void refreshGallery(session, nextCursor)}
+              className="gallery-secondary-action border-[var(--color-forest)]/30 px-6"
+            >
+              {galleryStatus === "error" ? "Reintentar carga" : "Ver más recuerdos"}
+            </button>
+          )}
         </div>
       )}
 

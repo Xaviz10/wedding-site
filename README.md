@@ -11,6 +11,8 @@ Open `http://localhost:5173/wedding-site/`. The gallery route is `http://localho
 
 The administrator uses `#/admin`. A deployed environment must also configure `VITE_COGNITO_DOMAIN` and `VITE_COGNITO_CLIENT_ID` from the CDK outputs. Cognito login cannot be simulated by the guest gallery demo mode.
 
+The guest gallery loads the next page automatically within 600 px of the viewport. Short pages keep loading until the screen is filled or no more pages remain, including pages that extend existing upload groups. Failed loads preserve the visible memories and offer a retry; browsers without `IntersectionObserver` retain a manual load button.
+
 ## Share the gallery after the wedding
 
 Keep using `https://YOUR_SITE/wedding-site/#/gallery?invite=SECRET` with the existing invite value. The main HTML entry now uses a Spanish thank-you message and the wedding photo with the thank-you message overlaid in its Open Graph and Twitter metadata. Since fragment routes share the same HTML, the invitation and gallery share this preview. The preview image is `public/og-recuerdos-boda.png`, composed from the supplied wedding photograph with the full Spanish thank-you message embedded in the image.
