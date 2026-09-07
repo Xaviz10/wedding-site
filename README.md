@@ -11,6 +11,14 @@ Open `http://localhost:5173/wedding-site/`. The gallery route is `http://localho
 
 The administrator uses `#/admin`. A deployed environment must also configure `VITE_COGNITO_DOMAIN` and `VITE_COGNITO_CLIENT_ID` from the CDK outputs. Cognito login cannot be simulated by the guest gallery demo mode.
 
+## Share the gallery after the wedding
+
+Keep using `https://YOUR_SITE/wedding-site/#/gallery?invite=SECRET` with the existing invite value. The main HTML entry now uses a Spanish thank-you message and the wedding photo with the thank-you message overlaid in its Open Graph and Twitter metadata. Since fragment routes share the same HTML, the invitation and gallery share this preview. The preview image is `public/og-recuerdos-boda.png`, composed from the supplied wedding photograph with the full Spanish thank-you message embedded in the image.
+
+Keep the invite in the URL fragment and out of source control. The existing session flow consumes it when the page opens. Share the complete original link, since the address bar removes the invite after use. The original invitation and QR destination still work.
+
+Publish the frontend to update the preview for the existing link. Social networks may retain the previous preview in their cache; the URL and gallery access remain unchanged.
+
 ## Full gallery demo without AWS
 
 Run the dedicated development mode:
